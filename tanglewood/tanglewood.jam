@@ -13,6 +13,8 @@ C.LinkLibraries tanglewood : imageformats ;
 
 local SRC = 
 	main.cpp
+	Tanglewood.cpp
+	Tanglewood.h
 	;
 
 AutoSourceGroup tanglewood : $(SRC) ;
