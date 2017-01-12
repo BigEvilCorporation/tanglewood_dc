@@ -1,0 +1,6 @@
+out/*.o
+ion
+buildtools
+roms
+bigevilcorp.jamrules
+tanglewood/_build

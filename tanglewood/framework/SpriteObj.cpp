@@ -1,14 +1,45 @@
-#include "Sprite.h"
+///////////////////////////////////////////////////////////////
+// (c) 2017 Matt Phillips, Big Evil Corporation
+//
+// File:		SpriteObj.cpp
+// Date:		12th January 2017
+// Authors:		Matt Phillips
+// Description:	Sprite sheet loading, animation and rendering
+//				(loosely mirrors Mega Drive framework)
+///////////////////////////////////////////////////////////////
+
+#include "SpriteObj.h"
 
 #include <ion/core/debug/Debug.h>
+#include <ion/core/memory/Memory.h>
 
-Sprite::Sprite()
+SpriteObj::SpriteObj(const GameObject& gameObject, const GameObjectType& gameObjType)
+	: Entity(gameObject, gameObjType)
 {
 	m_currentSheet = NULL;
 	m_currentAnim = NULL;
+
+	m_flippedX = false;
+	m_flippedY = false;
+	m_visible = true;
+	m_drawnLastFrame = false;
 }
 
-void Sprite::LoadActor(Actor& actor)
+SpriteObj::~SpriteObj()
+{
+	for(std::map<std::string, Sheet>::iterator it = m_sheets.begin(), end = m_sheets.end(); it != end; it++)
+	{
+		for(int i = 0; i < it->second.m_frames.size(); i++)
+		{
+			delete it->second.m_frames[i].material;
+			delete it->second.m_frames[i].texture;
+		}
+
+		delete it->second.m_primitive;
+	}
+}
+
+void SpriteObj::LoadActor(Actor& actor)
 {
 	for(TSpriteSheetMap::iterator it = actor.SpriteSheetsBegin(), end = actor.SpriteSheetsEnd(); it != end; ++it)
 	{
@@ -16,7 +47,7 @@ void Sprite::LoadActor(Actor& actor)
 	}
 }
 
-void Sprite::LoadSheet(SpriteSheet& spriteSheet)
+void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 {
 	const int tileWidth = 8;
 	const int tileHeight = 8;
@@ -24,14 +55,40 @@ void Sprite::LoadSheet(SpriteSheet& spriteSheet)
 	//Add to map
 	Sheet& sheet = m_sheets[spriteSheet.GetName()];
 
-	sheet.m_primitive = new ion::render::Chessboard(ion::render::Chessboard::xy, ion::Vector2((float)spriteSheet.GetWidthTiles() * (tileWidth / 2.0f), (float)spriteSheet.GetHeightTiles() * (tileHeight / 2.0f)), spriteSheet.GetWidthTiles(), spriteSheet.GetHeightTiles(), true);
-
 	u32 widthTiles = spriteSheet.GetWidthTiles();
 	u32 heightTiles = spriteSheet.GetHeightTiles();
-	u32 textureWidth = ion::maths::NextPowerOfTwo(widthTiles * tileWidth);
-	u32 textureHeight = ion::maths::NextPowerOfTwo(heightTiles * tileHeight);
+	u32 quadWidth = widthTiles * tileWidth;
+	u32 quadHeight = heightTiles * tileHeight;
+	u32 textureWidth = ion::maths::NextPowerOfTwo(quadWidth);
+	u32 textureHeight = ion::maths::NextPowerOfTwo(quadHeight);
 	u32 bytesPerPixel = 4;
 	u32 textureSize = textureWidth * textureHeight * bytesPerPixel;
+
+	//Create primitive
+	sheet.m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2((float)spriteSheet.GetWidthTiles() * (tileWidth / 2.0f), (float)spriteSheet.GetHeightTiles() * (tileHeight / 2.0f)));
+
+	//Set UV coords
+	ion::render::TexCoord coords[4];
+
+	const float top = (float)textureWidth / (float)quadWidth;
+	const float left = 0.0f;
+	const float bottom = 0.0f;
+	const float right = (float)textureHeight / (float)quadHeight;
+
+	//Top left
+	coords[0].x = left;
+	coords[0].y = top;
+	//Bottom left
+	coords[1].x = left;
+	coords[1].y = bottom;
+	//Bottom right
+	coords[2].x = right;
+	coords[2].y = bottom;
+	//Top right
+	coords[3].x = right;
+	coords[3].y = top;
+
+	sheet.m_primitive->SetTexCoords(coords);
 
 	const Palette& palette = spriteSheet.GetPalette();
 
@@ -82,30 +139,6 @@ void Sprite::LoadSheet(SpriteSheet& spriteSheet)
 						data[dataOffset + 3] = colourIdx > 0 ? 255 : 0;
 					}
 				}
-
-				//Set UV coords on primitive
-				ion::render::TexCoord coords[4];
-				ion::Vector2 textureBottomLeft((1.0f / (float)widthTiles) * tileX, (1.0f / (float)heightTiles) * tileY);
-
-				float top = (textureBottomLeft.y + (1.0f / (float)heightTiles)) * ((float)(widthTiles * tileWidth) / (float)textureWidth);
-				float left = textureBottomLeft.x;
-				float bottom = textureBottomLeft.y * ((float)(heightTiles * tileHeight) / (float)textureHeight);
-				float right = textureBottomLeft.x + (1.0f / (float)widthTiles);
-
-				//Top left
-				coords[0].x = left;
-				coords[0].y = top;
-				//Bottom left
-				coords[1].x = left;
-				coords[1].y = bottom;
-				//Bottom right
-				coords[2].x = right;
-				coords[2].y = bottom;
-				//Top right
-				coords[3].x = right;
-				coords[3].y = top;
-
-				sheet.m_primitive->SetTexCoords((tileY * widthTiles) + tileX, coords);
 			}
 		}
 
@@ -136,7 +169,7 @@ void Sprite::LoadSheet(SpriteSheet& spriteSheet)
 		delete data;
 	}
 }
-void Sprite::SetAnimation(const std::string& sheetName, const std::string& animName)
+void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& animName)
 {
 	std::map<std::string, Sheet>::iterator sheetIt = m_sheets.find(sheetName);
 	if(sheetIt != m_sheets.end())
@@ -164,7 +197,7 @@ void Sprite::SetAnimation(const std::string& sheetName, const std::string& animN
 	}
 }
 
-void Sprite::Update(float deltaTime)
+void SpriteObj::Update(float deltaTime)
 {
 	if(m_currentAnim)
 	{
@@ -174,22 +207,36 @@ void Sprite::Update(float deltaTime)
 
 		m_currentAnim->Update(animDelta * deltaTime);
 	}
+
+	Entity::Update(deltaTime);
 }
 
-void Sprite::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv)
+void SpriteObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv)
 {
 	if(m_currentSheet && m_currentAnim)
 	{
+		//Visibility test
+
+		//Draw offset
+		ion::Matrix4 transform;
+		transform.SetTranslation(ion::Vector3(m_worldPos.x + m_drawOffset.x, m_worldPos.y + m_drawOffset.y, 0.0f));
+
+		//Flip
+		ion::Vector3 scale(m_flippedX ? -1.0f : 1.0f, m_flippedY ? -1.0f : 1.0f, 1.0f);
+		transform.SetScale(scale);
+
 		//Set matrix
-		renderer.SetMatrix(GetTransform() * cameraInv);
+		renderer.SetMatrix(transform* cameraInv);
 
 		//Get current anim frame
 		int spriteFrame = m_currentAnim->m_trackSpriteFrame.GetValue(m_currentAnim->GetFrame());
 
 		//Bind material
-		m_currentSheet->m_frames[spriteFrame].material->Bind(GetTransform(), cameraInv, renderer.GetProjectionMatrix());
+		m_currentSheet->m_frames[spriteFrame].material->Bind(transform, cameraInv, renderer.GetProjectionMatrix());
 
 		//Draw vertex buffer
 		renderer.DrawVertexBuffer(m_currentSheet->m_primitive->GetVertexBuffer(), m_currentSheet->m_primitive->GetIndexBuffer());
 	}
+
+	Entity::Render(renderer, cameraInv);
 }

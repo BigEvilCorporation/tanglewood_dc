@@ -1,3 +1,12 @@
+///////////////////////////////////////////////////
+// (c) 2017 Matt Phillips, Big Evil Corporation
+//
+// File:		Tanglewood.cpp
+// Date:		12th January 2017
+// Authors:		Matt Phillips
+// Description:	Tanglewood main game class
+///////////////////////////////////////////////////
+
 #include "Tanglewood.h"
 
 #include <ion/core/debug/Debug.h>
@@ -5,14 +14,16 @@
 const char* Tanglewood::s_spriteDataFile = "cd/sprites.bee";
 
 //TODO: Move
-#include "framework/Sprite.h"
-Sprite sprite;
+#include "framework/PhysicsObj.h"
+PhysicsObj* nymn;
 
 Tanglewood::Tanglewood()
 	: Application("Tanglewood")
 {
 	m_levelData = NULL;
 	m_spriteData = NULL;
+	m_currentMap = NULL;
+	m_backgroundMap = NULL;
 }
 
 Tanglewood::~Tanglewood()
@@ -28,8 +39,12 @@ bool Tanglewood::Initialise()
 	m_camera = new ion::render::Camera();
 	m_viewport = new ion::render::Viewport(s_defaultWindowWidth, s_defaultWindowHeight, ion::render::Viewport::eOrtho2DAbsolute);
 
+	//Set initial screen size
+	m_screenSize.x = s_defaultScreenWidth;
+	m_screenSize.y = s_defaultScreenHeight;
+
 	//Set initial camera position
-	m_camera->SetPosition(ion::Vector3(-(float)s_defaultWindowWidth / 2.0f, -(float)s_defaultWindowHeight / 2.0f, -0.1f));
+	SetCameraPosition(ion::Vector2(0.0f, 0.0f));
 
 	//Load sprite data from Beehive project file
 	m_spriteData = new Project(PlatformPresets::s_configs[PlatformPresets::ePresetMegaDrive]);
@@ -39,21 +54,30 @@ bool Tanglewood::Initialise()
 		return false;
 	}
 
-	//Find actors
-	Actor* actorNymn = m_spriteData->FindActor("nymn");
-	if(!actorNymn)
+	const char* levelName = "cd/l1.bee";
+	const char* actName = "l1a1";
+
+	//Load first level data file
+	if(!LoadLevel(levelName))
 	{
-		ion::debug::error << "Could not find actor Nymn in " << s_spriteDataFile << ion::debug::end;
+		ion::debug::error << "Could not load level data " << levelName << ion::debug::end;
 		return false;
 	}
 
-	//Create render resources for actor
-	sprite.LoadActor(*actorNymn);
+	//Load first act
+	if(!LoadAct(actName))
+	{
+		ion::debug::error << "Could not load act " << actName << ion::debug::end;
+		return false;
+	}
 
-	sprite.SetAnimation("run", "run");
+	//Create game objects
+	if(!CreateGameObjects())
+	{
+		ion::debug::error << "Could not create game objects for " << actName << ion::debug::end;
+		return false;
+	}
 
-	//Load first level
-	//return LoadLevel("cd/lvl1.bee");
 	return true;
 }
 
@@ -92,7 +116,11 @@ void Tanglewood::Shutdown()
 
 bool Tanglewood::Update(float deltaTime)
 {
-	sprite.Update(deltaTime);
+	//Update game objects
+	nymn->Update(deltaTime);
+
+	//Centre camera on Nymn
+	SetCameraPosition(ion::Vector2(nymn->m_worldPos.x, nymn->m_worldPos.y));
 
 	return m_window->Update();
 }
@@ -110,7 +138,7 @@ void Tanglewood::Render()
 
 	//Draw sprites
 	ion::Matrix4 cameraInv = m_camera->GetTransform().GetInverse();
-	sprite.Render(*m_renderer, cameraInv);
+	nymn->Render(*m_renderer, cameraInv);
 
 	m_renderer->SwapBuffers();
 	m_renderer->EndFrame();
@@ -132,4 +160,69 @@ bool Tanglewood::LoadLevel(const std::string& name)
 	}
 
 	return true;
+}
+
+bool Tanglewood::LoadAct(const std::string& name)
+{
+	//Find foreground/game data map
+	m_currentMap = m_levelData->FindMap(name);
+	if(!m_currentMap)
+	{
+		ion::debug::error << "Error loading map " << name << ion::debug::end;
+		return false;
+	}
+
+	//Find background map
+	//m_backgroundMap = m_levelData->FindMap(bgName);
+
+	return true;
+}
+
+bool Tanglewood::CreateGameObjects()
+{
+	//Find Nymn game object in level data
+	GameObject* gameObjNymn = m_currentMap->FindGameObject("l1a1_nymn");
+	if(!gameObjNymn)
+	{
+		ion::debug::error << "Error loading Nymn game object" << ion::debug::end;
+		return false;
+	}
+
+	//Create Nymn
+	nymn = new PhysicsObj(*gameObjNymn, *m_levelData->GetGameObjectType(gameObjNymn->GetTypeId()));
+
+	//Find actors in sprite data
+	Actor* actorNymn = m_spriteData->FindActor("nymn");
+	if(!actorNymn)
+	{
+		ion::debug::error << "Could not find actor Nymn in " << s_spriteDataFile << ion::debug::end;
+		return false;
+	}
+
+	//Create render resources for Nymn
+	nymn->LoadActor(*actorNymn);
+
+	//Set default animation
+	nymn->SetAnimation("run", "run");
+
+	return true;
+}
+
+void Tanglewood::SetCameraPosition(const ion::Vector2& position)
+{
+	//Calc ratio of window to screen size
+	ion::Vector3 cameraZoom;
+	cameraZoom.x = (float)m_window->GetClientAreaWidth() / (float)m_screenSize.x;
+	cameraZoom.y = (float)m_window->GetClientAreaHeight() / (float)m_screenSize.y;
+	cameraZoom.z = 1.0f;
+
+	//Set camera zoom
+	m_camera->SetZoom(cameraZoom);
+
+	//Compensate camera pos
+	ion::Vector3 cameraPos;
+	cameraPos.x = position.x + (((float)m_screenSize.x - (float)m_window->GetClientAreaWidth()) / 2.0f);
+	cameraPos.y = position.y + (((float)m_screenSize.y - (float)m_window->GetClientAreaHeight()) / 2.0f);
+	cameraPos.z = -0.1f;
+	m_camera->SetPosition(cameraPos);
 }

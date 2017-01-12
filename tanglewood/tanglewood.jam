@@ -16,8 +16,12 @@ local SRC =
 	Tanglewood.cpp
 	Tanglewood.h
 
-	Framework/Sprite.cpp
-	Framework/Sprite.h
+	Framework/Entity.cpp
+	Framework/Entity.h
+	Framework/PhysicsObj.cpp
+	Framework/PhysicsObj.h
+	Framework/SpriteObj.cpp
+	Framework/SpriteObj.h
 	;
 
 AutoSourceGroup tanglewood : $(SRC) ;
