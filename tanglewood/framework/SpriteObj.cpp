@@ -59,8 +59,8 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 	u32 heightTiles = spriteSheet.GetHeightTiles();
 	u32 quadWidth = widthTiles * tileWidth;
 	u32 quadHeight = heightTiles * tileHeight;
-	u32 textureWidth = ion::maths::NextPowerOfTwo(quadWidth);
-	u32 textureHeight = ion::maths::NextPowerOfTwo(quadHeight);
+	u32 textureWidth = quadWidth; // ion::maths::NextPowerOfTwo(quadWidth);
+	u32 textureHeight = quadHeight; // ion::maths::NextPowerOfTwo(quadHeight);
 	u32 bytesPerPixel = 4;
 	u32 textureSize = textureWidth * textureHeight * bytesPerPixel;
 
@@ -70,10 +70,10 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 	//Set UV coords
 	ion::render::TexCoord coords[4];
 
-	const float top = (float)textureWidth / (float)quadWidth;
+	const float top = 1.0f; // (float)textureWidth / (float)quadWidth;
 	const float left = 0.0f;
 	const float bottom = 0.0f;
-	const float right = (float)textureHeight / (float)quadHeight;
+	const float right = 1.0f; // (float)textureHeight / (float)quadHeight;
 
 	//Top left
 	coords[0].x = left;
@@ -211,32 +211,34 @@ void SpriteObj::Update(float deltaTime)
 	Entity::Update(deltaTime);
 }
 
-void SpriteObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv)
+void SpriteObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
 {
 	if(m_currentSheet && m_currentAnim)
 	{
-		//Visibility test
+		//TODO: Visibility test
+		if(true)
+		{
+			//Draw offset (centred quad to top-left + draw offset, inverted for OpenGL)
+			ion::Matrix4 transform;
+			transform.SetTranslation(ion::Vector3(m_worldPos.x + m_drawOffset.x + (m_size.x / 2.0f), mapSize.y - m_worldPos.y + m_drawOffset.y - (m_size.y / 2.0f), 0.0f));
 
-		//Draw offset
-		ion::Matrix4 transform;
-		transform.SetTranslation(ion::Vector3(m_worldPos.x + m_drawOffset.x, m_worldPos.y + m_drawOffset.y, 0.0f));
+			//Flip
+			ion::Vector3 scale(m_flippedX ? -1.0f : 1.0f, m_flippedY ? -1.0f : 1.0f, 1.0f);
+			transform.SetScale(scale);
 
-		//Flip
-		ion::Vector3 scale(m_flippedX ? -1.0f : 1.0f, m_flippedY ? -1.0f : 1.0f, 1.0f);
-		transform.SetScale(scale);
+			//Set matrix
+			renderer.SetMatrix(transform * cameraInv);
 
-		//Set matrix
-		renderer.SetMatrix(transform* cameraInv);
+			//Get current anim frame
+			int spriteFrame = m_currentAnim->m_trackSpriteFrame.GetValue(m_currentAnim->GetFrame());
 
-		//Get current anim frame
-		int spriteFrame = m_currentAnim->m_trackSpriteFrame.GetValue(m_currentAnim->GetFrame());
+			//Bind material
+			m_currentSheet->m_frames[spriteFrame].material->Bind(transform, cameraInv, renderer.GetProjectionMatrix());
 
-		//Bind material
-		m_currentSheet->m_frames[spriteFrame].material->Bind(transform, cameraInv, renderer.GetProjectionMatrix());
-
-		//Draw vertex buffer
-		renderer.DrawVertexBuffer(m_currentSheet->m_primitive->GetVertexBuffer(), m_currentSheet->m_primitive->GetIndexBuffer());
+			//Draw vertex buffer
+			renderer.DrawVertexBuffer(m_currentSheet->m_primitive->GetVertexBuffer(), m_currentSheet->m_primitive->GetIndexBuffer());
+		}
 	}
 
-	Entity::Render(renderer, cameraInv);
+	Entity::Render(renderer, cameraInv, mapSize);
 }

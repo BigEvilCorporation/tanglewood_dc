@@ -39,6 +39,9 @@ bool Tanglewood::Initialise()
 	m_camera = new ion::render::Camera();
 	m_viewport = new ion::render::Viewport(s_defaultWindowWidth, s_defaultWindowHeight, ion::render::Viewport::eOrtho2DAbsolute);
 
+	//Create input devices
+	m_keyboard = new ion::input::Keyboard();
+
 	//Set initial screen size
 	m_screenSize.x = s_defaultScreenWidth;
 	m_screenSize.y = s_defaultScreenHeight;
@@ -56,6 +59,7 @@ bool Tanglewood::Initialise()
 
 	const char* levelName = "cd/l1.bee";
 	const char* actName = "l1a1";
+	const char* bgName = "l1bg";
 
 	//Load first level data file
 	if(!LoadLevel(levelName))
@@ -65,7 +69,7 @@ bool Tanglewood::Initialise()
 	}
 
 	//Load first act
-	if(!LoadAct(actName))
+	if(!LoadAct(actName, bgName))
 	{
 		ion::debug::error << "Could not load act " << actName << ion::debug::end;
 		return false;
@@ -83,6 +87,11 @@ bool Tanglewood::Initialise()
 
 void Tanglewood::Shutdown()
 {
+	if(m_keyboard)
+	{
+		delete m_keyboard;
+	}
+
 	if(m_levelData)
 	{
 		delete m_levelData;
@@ -116,11 +125,39 @@ void Tanglewood::Shutdown()
 
 bool Tanglewood::Update(float deltaTime)
 {
+	//Update input devices
+	m_keyboard->Update();
+
 	//Update game objects
 	nymn->Update(deltaTime);
 
+#if defined ION_PLATFORM_WINDOWS && defined DEBUG
+	if(m_keyboard->KeyDown(DIK_UP))
+	{
+		m_cameraPos.y += 500.0f * deltaTime;
+	}
+	if(m_keyboard->KeyDown(DIK_DOWN))
+	{
+		m_cameraPos.y -= 500.0f * deltaTime;
+	}
+	if(m_keyboard->KeyDown(DIK_LEFT))
+	{
+		m_cameraPos.x -= 500.0f * deltaTime;
+	}
+	if(m_keyboard->KeyDown(DIK_RIGHT))
+	{
+		m_cameraPos.x += 500.0f * deltaTime;
+	}
+#else
 	//Centre camera on Nymn
 	SetCameraPosition(ion::Vector2(nymn->m_worldPos.x, nymn->m_worldPos.y));
+#endif
+
+	//Update background scroll
+	//m_planeBg->m_scroll.x = m_cameraPos.x;
+	//m_planeBg->m_scroll.y = m_mapSize.y - m_cameraPos.y;
+
+	SetCameraPosition(m_cameraPos);
 
 	return m_window->Update();
 }
@@ -130,15 +167,17 @@ void Tanglewood::Render()
 	m_renderer->BeginFrame(*m_viewport, m_window->GetDeviceContext());
 	m_renderer->ClearColour();
 	m_renderer->ClearDepth();
-
-#if defined ION_PLATFORM_DREAMCAST
-	//TEMP
+	m_renderer->SetAlphaBlending(ion::render::Renderer::eTranslucent);
 	m_renderer->SetFaceCulling(ion::render::Renderer::eNoCull);
-#endif
+
+	ion::Matrix4 cameraInv = m_camera->GetTransform().GetInverse();
+
+	//Draw planes
+	m_planeBg->Render(*m_renderer, cameraInv, m_mapSize);
+	m_planeFg->Render(*m_renderer, cameraInv, m_mapSize);
 
 	//Draw sprites
-	ion::Matrix4 cameraInv = m_camera->GetTransform().GetInverse();
-	nymn->Render(*m_renderer, cameraInv);
+	nymn->Render(*m_renderer, cameraInv, m_mapSize);
 
 	m_renderer->SwapBuffers();
 	m_renderer->EndFrame();
@@ -159,21 +198,47 @@ bool Tanglewood::LoadLevel(const std::string& name)
 		return false;
 	}
 
+	//Load stamp set
+	m_stampSet = new StampSet(*m_levelData);
+
 	return true;
 }
 
-bool Tanglewood::LoadAct(const std::string& name)
+bool Tanglewood::LoadAct(const std::string& levelMap, const std::string& bgMap)
 {
 	//Find foreground/game data map
-	m_currentMap = m_levelData->FindMap(name);
+	m_currentMap = m_levelData->FindMap(levelMap);
 	if(!m_currentMap)
 	{
-		ion::debug::error << "Error loading map " << name << ion::debug::end;
+		ion::debug::error << "Error loading level map " << levelMap << ion::debug::end;
 		return false;
 	}
 
 	//Find background map
-	//m_backgroundMap = m_levelData->FindMap(bgName);
+	m_backgroundMap = m_levelData->FindMap(bgMap);
+	if(!m_backgroundMap)
+	{
+		ion::debug::error << "Error loading background map " << bgMap << ion::debug::end;
+		return false;
+	}
+
+	//Create fg plane from map
+	m_planeFg = new Plane(*m_currentMap, *m_stampSet);
+
+	//Create bg plane from map
+	m_planeBg = new Plane(*m_backgroundMap, *m_stampSet);
+
+	//Get map size
+	m_mapSize.x = m_currentMap->GetWidth() * 8;
+	m_mapSize.y = m_currentMap->GetHeight() * 8;
+
+	//TEMP
+	//m_planeBg->m_drawOffset.x = -(64 * 8) / 2;
+	//m_planeBg->m_drawOffset.y = m_mapSize.y - (32 * 8) / 2;
+
+	//Get bg colour
+	const Colour& bgColour = m_levelData->GetPalette(0)->GetColour(0);
+	m_viewport->SetClearColour(ion::Colour(bgColour.GetRed() / 255.0f, bgColour.GetGreen() / 255.0f, bgColour.GetBlue() / 255.0f, 1.0f));
 
 	return true;
 }
@@ -204,6 +269,9 @@ bool Tanglewood::CreateGameObjects()
 
 	//Set default animation
 	nymn->SetAnimation("run", "run");
+
+	//Init camera pos
+	m_cameraPos = nymn->m_worldPos;
 
 	return true;
 }

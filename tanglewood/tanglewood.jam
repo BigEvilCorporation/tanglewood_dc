@@ -4,6 +4,7 @@ ApplyIonDefines tanglewood ;
 ApplyIonIncludes tanglewood ;
 ApplyIonCore tanglewood ;
 ApplyIonRenderer tanglewood ;
+ApplyIonInput tanglewood ;
 ApplyIonGameKit tanglewood ;
 ApplyIonLib tanglewood : beehive ;
 
@@ -20,8 +21,12 @@ local SRC =
 	Framework/Entity.h
 	Framework/PhysicsObj.cpp
 	Framework/PhysicsObj.h
+	Framework/Plane.cpp
+	Framework/Plane.h
 	Framework/SpriteObj.cpp
 	Framework/SpriteObj.h
+	Framework/Stamp.cpp
+	Framework/Stamp.h
 	;
 
 AutoSourceGroup tanglewood : $(SRC) ;

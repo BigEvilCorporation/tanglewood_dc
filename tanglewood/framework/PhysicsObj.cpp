@@ -26,7 +26,7 @@ void PhysicsObj::Update(float deltaTime)
 	return SpriteObj::Update(deltaTime);
 }
 
-void PhysicsObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv)
+void PhysicsObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
 {
-	return SpriteObj::Render(renderer, cameraInv);
+	return SpriteObj::Render(renderer, cameraInv, mapSize);
 }
