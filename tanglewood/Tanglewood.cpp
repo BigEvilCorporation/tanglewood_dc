@@ -38,6 +38,7 @@ bool Tanglewood::Initialise()
 
 	//Create input devices
 	m_keyboard = new ion::input::Keyboard();
+	m_gamepad = new ion::input::Gamepad();
 
 	//Set initial screen size
 	m_screenSize.x = s_defaultScreenWidth;
@@ -110,9 +111,10 @@ bool Tanglewood::Update(float deltaTime)
 {
 	//Update input devices
 	m_keyboard->Update();
+	m_gamepad->Update();
 
 	//Update world
-	m_world->Update(deltaTime, *m_camera, *m_keyboard, *m_window, m_screenSize);
+	m_world->Update(deltaTime, *m_camera, *m_keyboard, *m_gamepad, *m_window, m_screenSize);
 
 	//Update window
 	return m_window->Update();

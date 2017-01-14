@@ -10,6 +10,8 @@
 #include "World.h"
 #include "Constants.h"
 
+#include <ion/core/debug/Debug.h>
+
 //TODO: Move
 #include "PhysicsObj.h"
 PhysicsObj* nymn;
@@ -175,7 +177,7 @@ bool World::CreateGameObjects()
 	return true;
 }
 
-void World::Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::render::Window& window, const ion::Vector2i& screenSize)
+void World::Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad, const ion::render::Window& window, const ion::Vector2i& screenSize)
 {
 	//Update game objects
 	nymn->Update(deltaTime);
@@ -199,6 +201,7 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 	}
 	SetCameraPosition(m_cameraPos, camera, window, screenSize);
 #else
+#if defined ION_PLATFORM_WINDOWS
 	if(keyboard.KeyDown(DIK_UP))
 	{
 		nymn->m_worldPos.y += 896.0f * deltaTime;
@@ -212,6 +215,19 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 		nymn->m_acceleration.x = -Constants::Player::defaultPlayerAcceleration.x;
 	}
 	else if(keyboard.KeyDown(DIK_RIGHT))
+	{
+		nymn->m_acceleration.x = Constants::Player::defaultPlayerAcceleration.x;
+	}
+	else
+	{
+		nymn->m_acceleration.x = 0.0f;
+	}
+#endif
+	if(gamepad.GetLeftStick().x < 0.0f)
+	{
+		nymn->m_acceleration.x = -Constants::Player::defaultPlayerAcceleration.x;
+	}
+	else if(gamepad.GetLeftStick().x > 0.0f)
 	{
 		nymn->m_acceleration.x = Constants::Player::defaultPlayerAcceleration.x;
 	}

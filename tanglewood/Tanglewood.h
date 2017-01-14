@@ -13,6 +13,7 @@
 #include <ion/renderer/Viewport.h>
 #include <ion/renderer/Window.h>
 #include <ion/input/Keyboard.h>
+#include <ion/input/Gamepad.h>
 
 #include "framework/World.h"
 
@@ -42,6 +43,7 @@ private:
 	ion::render::Viewport* m_viewport;
 	ion::render::Camera* m_camera;
 	ion::input::Keyboard* m_keyboard;
+	ion::input::Gamepad* m_gamepad;
 
 	ion::Vector2i m_screenSize;
 
