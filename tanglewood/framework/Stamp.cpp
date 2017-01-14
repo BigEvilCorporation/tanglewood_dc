@@ -21,8 +21,8 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 	u32 heightTiles = stamp.GetHeight();
 	u32 quadWidth = widthTiles * tileWidth;
 	u32 quadHeight = heightTiles * tileHeight;
-	u32 textureWidth = quadWidth; // ion::maths::NextPowerOfTwo(quadWidth);
-	u32 textureHeight = quadHeight; // ion::maths::NextPowerOfTwo(quadHeight);
+	u32 textureWidth = ion::maths::NextPowerOfTwo(quadWidth);
+	u32 textureHeight = ion::maths::NextPowerOfTwo(quadHeight);
 	u32 bytesPerPixel = 4;
 	u32 textureSize = textureWidth * textureHeight * bytesPerPixel;
 
@@ -35,10 +35,10 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 	//Set UV coords
 	ion::render::TexCoord coords[4];
 
-	const float top = 1.0f; // (float)textureWidth / (float)quadWidth;
+	const float top = (float)quadHeight / (float)textureHeight;
 	const float left = 0.0f;
 	const float bottom = 0.0f;
-	const float right = 1.0f; // (float)textureHeight / (float)quadHeight;
+	const float right = (float)quadWidth / (float)textureWidth;
 
 	//Top left
 	coords[0].x = left;
