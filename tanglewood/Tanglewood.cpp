@@ -131,7 +131,7 @@ bool Tanglewood::Update(float deltaTime)
 	//Update game objects
 	nymn->Update(deltaTime);
 
-#if defined ION_PLATFORM_WINDOWS && defined DEBUG
+#if defined ION_PLATFORM_WINDOWS && defined DEBUG && 0
 	if(m_keyboard->KeyDown(DIK_UP))
 	{
 		m_cameraPos.y += 500.0f * deltaTime;
@@ -148,16 +148,15 @@ bool Tanglewood::Update(float deltaTime)
 	{
 		m_cameraPos.x += 500.0f * deltaTime;
 	}
+	SetCameraPosition(m_cameraPos);
 #else
 	//Centre camera on Nymn
-	SetCameraPosition(ion::Vector2(nymn->m_worldPos.x, nymn->m_worldPos.y));
+	SetCameraPosition(ion::Vector2(nymn->m_worldPos.x + (nymn->m_size.x / 2.0f), m_mapSizeFg.y - nymn->m_worldPos.y - (nymn->m_size.y / 2.0f)));
 #endif
 
 	//Update background scroll
 	m_planeBg->m_scroll.x = m_cameraPos.x;
 	m_planeBg->m_scroll.y = m_cameraPos.y;
-
-	SetCameraPosition(m_cameraPos);
 
 	return m_window->Update();
 }
@@ -273,7 +272,7 @@ bool Tanglewood::CreateGameObjects()
 	nymn->SetAnimation("run", "run");
 
 	//Init camera pos
-	m_cameraPos = nymn->m_worldPos;
+	SetCameraPosition(nymn->m_worldPos);
 
 	return true;
 }
@@ -295,4 +294,6 @@ void Tanglewood::SetCameraPosition(const ion::Vector2& position)
 	cameraPos.y = position.y + (((float)m_screenSize.y - (float)m_window->GetClientAreaHeight()) / 2.0f);
 	cameraPos.z = -0.1f;
 	m_camera->SetPosition(cameraPos);
+
+	m_cameraPos = position;
 }
