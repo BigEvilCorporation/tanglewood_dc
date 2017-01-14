@@ -13,8 +13,8 @@
 #include <ion/core/debug/Debug.h>
 #include <ion/core/memory/Memory.h>
 
-SpriteObj::SpriteObj(const GameObject& gameObject, const GameObjectType& gameObjType)
-	: Entity(gameObject, gameObjType)
+SpriteObj::SpriteObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
+	: Entity(world, gameObject, gameObjType)
 {
 	m_currentSheet = NULL;
 	m_currentAnim = NULL;

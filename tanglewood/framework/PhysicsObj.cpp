@@ -10,8 +10,8 @@
 
 #include "PhysicsObj.h"
 
-PhysicsObj::PhysicsObj(const GameObject& gameObject, const GameObjectType& gameObjType)
-	: SpriteObj(gameObject, gameObjType)
+PhysicsObj::PhysicsObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
+	: SpriteObj(world, gameObject, gameObjType)
 {
 
 }

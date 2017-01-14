@@ -27,6 +27,8 @@ local SRC =
 	Framework/SpriteObj.h
 	Framework/Stamp.cpp
 	Framework/Stamp.h
+	Framework/World.cpp
+	Framework/World.h
 	;
 
 AutoSourceGroup tanglewood : $(SRC) ;

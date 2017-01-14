@@ -11,10 +11,12 @@
 #include <ion/renderer/Renderer.h>
 #include <ion/beehive/GameObject.h>
 
+class World;
+
 class Entity
 {
 public:
-	Entity(const GameObject& gameObject, const GameObjectType& gameObjType);
+	Entity(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
 	virtual ~Entity();
 
 	//Update/render
@@ -25,4 +27,6 @@ public:
 	ion::Vector2 m_worldPos;	//World position
 	ion::Vector2 m_size;		//Game object size
 	bool m_active;				//Active flag
+
+	const World& m_world;
 };

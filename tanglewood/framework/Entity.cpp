@@ -10,7 +10,8 @@
 
 #include "Entity.h"
 
-Entity::Entity(const GameObject& gameObject, const GameObjectType& gameObjType)
+Entity::Entity(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
+	: m_world(world)
 {
 	m_active = true;
 

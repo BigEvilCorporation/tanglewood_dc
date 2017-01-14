@@ -20,7 +20,7 @@
 class SpriteObj : public Entity
 {
 public:
-	SpriteObj(const GameObject& gameObject, const GameObjectType& gameObjType);
+	SpriteObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
 	virtual ~SpriteObj();
 
 	//Load actor from Beehive data

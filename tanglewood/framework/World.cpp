@@ -1,0 +1,214 @@
+///////////////////////////////////////////////////////////////////
+// (c) 2017 Matt Phillips, Big Evil Corporation
+//
+// File:		World.cpp
+// Date:		14th January 2017
+// Authors:		Matt Phillips
+// Description:	Encapsulates and processes the world environment
+///////////////////////////////////////////////////////////////////
+
+#include "World.h"
+
+//TODO: Move
+#include "PhysicsObj.h"
+PhysicsObj* nymn;
+const char* nymnObjectName = "l1a1_nymn";
+
+World::World()
+{
+	m_levelData = NULL;
+	m_spriteData = NULL;
+	m_currentMap = NULL;
+	m_backgroundMap = NULL;
+}
+
+World::~World()
+{
+	if(m_levelData)
+	{
+		delete m_levelData;
+	}
+
+	if(m_spriteData)
+	{
+		delete m_spriteData;
+	}
+}
+
+bool World::LoadSprites(const std::string& name)
+{
+	//Load sprite data from Beehive project file
+	m_spriteData = new Project(PlatformPresets::s_configs[PlatformPresets::ePresetMegaDrive]);
+	if(!m_spriteData->Load(name))
+	{
+		ion::debug::error << "Error loading sprite data " << name << ion::debug::end;
+		return false;
+	}
+
+	return true;
+}
+
+bool World::LoadLevel(const std::string& name)
+{
+	if(m_levelData)
+	{
+		delete m_levelData;
+	}
+
+	//Load level data from Beehive project file
+	m_levelData = new Project(PlatformPresets::s_configs[PlatformPresets::ePresetMegaDrive]);
+	if(!m_levelData->Load(name))
+	{
+		ion::debug::error << "Error loading level data " << name << ion::debug::end;
+		return false;
+	}
+
+	//Load stamp set
+	m_stampSet = new StampSet(*m_levelData);
+
+	return true;
+}
+
+bool World::LoadAct(const std::string& levelMap, const std::string& bgMap)
+{
+	//Find foreground/game data map
+	m_currentMap = m_levelData->FindMap(levelMap);
+	if(!m_currentMap)
+	{
+		ion::debug::error << "Error loading level map " << levelMap << ion::debug::end;
+		return false;
+	}
+
+	//Find background map
+	m_backgroundMap = m_levelData->FindMap(bgMap);
+	if(!m_backgroundMap)
+	{
+		ion::debug::error << "Error loading background map " << bgMap << ion::debug::end;
+		return false;
+	}
+
+	//Create fg plane from map
+	m_planeFg = new Plane(*m_currentMap, *m_stampSet);
+
+	//Create bg plane from map
+	m_planeBg = new Plane(*m_backgroundMap, *m_stampSet);
+
+	//Get map size
+	m_mapSizeFg.x = m_currentMap->GetWidth() * 8;
+	m_mapSizeFg.y = m_currentMap->GetHeight() * 8;
+	m_mapSizeBg.x = m_backgroundMap->GetWidth() * 8;
+	m_mapSizeBg.y = m_backgroundMap->GetHeight() * 8;
+
+	//TEMP
+	m_planeBg->m_drawOffset.x = -(64 * 8) / 2;
+	m_planeBg->m_drawOffset.y = -(32 * 8) / 2;
+
+	//Get bg colour
+	const Colour& bgColour = m_levelData->GetPalette(0)->GetColour(0);
+	m_bgColour.r = bgColour.GetRed() / 255.0f;
+	m_bgColour.g = bgColour.GetGreen() / 255.0f;
+	m_bgColour.b = bgColour.GetBlue() / 255.0f;
+	m_bgColour.a = 1.0f;
+
+	return true;
+}
+
+bool World::CreateGameObjects()
+{
+	//Find Nymn game object in level data
+	GameObject* gameObjNymn = m_currentMap->FindGameObject(nymnObjectName);
+	if(!gameObjNymn)
+	{
+		ion::debug::error << "Error loading Nymn game object" << ion::debug::end;
+		return false;
+	}
+
+	//Create Nymn
+	nymn = new PhysicsObj(*this, *gameObjNymn, *m_levelData->GetGameObjectType(gameObjNymn->GetTypeId()));
+
+	//Find actors in sprite data
+	Actor* actorNymn = m_spriteData->FindActor("nymn");
+	if(!actorNymn)
+	{
+		ion::debug::error << "Could not find actor Nymn" <<  ion::debug::end;
+		return false;
+	}
+
+	//Create render resources for Nymn
+	nymn->LoadActor(*actorNymn);
+
+	//Set default animation
+	nymn->SetAnimation("run", "run");
+
+	//Init camera pos
+	m_cameraPos = nymn->m_worldPos;
+
+	return true;
+}
+
+void World::Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::render::Window& window, const ion::Vector2i& screenSize)
+{
+	//Update game objects
+	nymn->Update(deltaTime);
+
+#if defined ION_PLATFORM_WINDOWS && defined DEBUG && 0
+	if(keyboard.KeyDown(DIK_UP))
+	{
+		m_cameraPos.y += 500.0f * deltaTime;
+	}
+	if(keyboard.KeyDown(DIK_DOWN))
+	{
+		m_cameraPos.y -= 500.0f * deltaTime;
+	}
+	if(keyboard.KeyDown(DIK_LEFT))
+	{
+		m_cameraPos.x -= 500.0f * deltaTime;
+	}
+	if(keyboard.KeyDown(DIK_RIGHT))
+	{
+		m_cameraPos.x += 500.0f * deltaTime;
+	}
+	SetCameraPosition(m_cameraPos, camera, window, screenSize);
+#else
+	//Centre camera on Nymn
+	ion::Vector2 nymnCentre(nymn->m_worldPos.x + (nymn->m_size.x / 2.0f), m_mapSizeFg.y - nymn->m_worldPos.y - (nymn->m_size.y / 2.0f));
+	SetCameraPosition(nymnCentre, camera, window, screenSize);
+#endif
+
+	//Update background scroll
+	m_planeBg->m_scroll.x = m_cameraPos.x;
+	m_planeBg->m_scroll.y = m_cameraPos.y;
+}
+
+void World::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv)
+{
+	//Draw planes
+	m_planeBg->Render(renderer, cameraInv, m_mapSizeBg);
+	m_planeFg->Render(renderer, cameraInv, m_mapSizeFg);
+
+	//Draw sprites
+	nymn->Render(renderer, cameraInv, m_mapSizeFg);
+}
+
+void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize)
+{
+	//Calc ratio of window to screen size
+	ion::Vector3 cameraZoom;
+	cameraZoom.x = (float)window.GetClientAreaWidth() / (float)screenSize.x;
+	cameraZoom.y = (float)window.GetClientAreaHeight() / (float)screenSize.y;
+	cameraZoom.z = 1.0f;
+
+	//Set camera zoom
+	camera.SetZoom(cameraZoom);
+
+	//Compensate camera pos
+	ion::Vector3 cameraPos;
+	cameraPos.x = position.x + (((float)screenSize.x - (float)window.GetClientAreaWidth()) / 2.0f);
+	cameraPos.y = position.y + (((float)screenSize.y - (float)window.GetClientAreaHeight()) / 2.0f);
+	cameraPos.z = -0.1f;
+
+	//Set camera pos
+	camera.SetPosition(cameraPos);
+
+	m_cameraPos = position;
+}

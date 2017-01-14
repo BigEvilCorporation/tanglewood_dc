@@ -13,7 +13,7 @@
 class PhysicsObj : public SpriteObj
 {
 public:
-	PhysicsObj(const GameObject& gameObject, const GameObjectType& gameObjType);
+	PhysicsObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
 	virtual ~PhysicsObj();
 
 	//Update/render
