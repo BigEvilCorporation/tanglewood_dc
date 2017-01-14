@@ -27,7 +27,8 @@ namespace Constants
 	namespace Player
 	{
 		static const ion::Vector2 defaultPlayerMaxVelocity(896.0f * MegaDrive::megaDriveSubPixelsPerFrame, 1536.0f * MegaDrive::megaDriveSubPixelsPerFrame);
-		static const ion::Vector2 defaultPlayerAcceleration(20.0f * MegaDrive::megaDriveSubPixelsPerFrame, 0.0f);
-		static const ion::Vector2 defaultPlayerDeceleration(22.0f * MegaDrive::megaDriveSubPixelsPerFrame, 0.0f);
+		static const ion::Vector2 defaultPlayerAcceleration(20.0f * MegaDrive::megaDriveFrameRate, 0.0f);
+		static const ion::Vector2 defaultPlayerDecelerationIdle(22.0f * MegaDrive::megaDriveFrameRate, 0.0f);
+		static const ion::Vector2 defaultPlayerDecelerationForced(48.0f * MegaDrive::megaDriveFrameRate, 0.0f);
 	}
 }

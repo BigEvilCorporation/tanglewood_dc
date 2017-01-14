@@ -18,7 +18,7 @@ PhysicsObj::PhysicsObj(const World& world, const GameObject& gameObject, const G
 	: SpriteObj(world, gameObject, gameObjType)
 {
 	m_maxVelocity = Constants::Player::defaultPlayerMaxVelocity;
-	m_deceleration = Constants::Player::defaultPlayerDeceleration;
+	m_deceleration = Constants::Player::defaultPlayerDecelerationIdle;
 	m_floorProbeOffset = ion::Vector2(m_size.x / 2.0f, m_size.y - 8.0f);
 }
 
@@ -30,7 +30,7 @@ PhysicsObj::~PhysicsObj()
 void PhysicsObj::Update(float deltaTime)
 {
 	//Apply acceleration
-	m_velocity += m_acceleration;
+	m_velocity += m_acceleration * deltaTime;
 
 	//Apply deceleration
 	if(ion::maths::Abs(m_acceleration.x) <= ion::maths::FLOAT_EPSILON)
@@ -38,7 +38,7 @@ void PhysicsObj::Update(float deltaTime)
 		//Clamp
 		if(m_velocity.x > 0.0f)
 		{
-			m_velocity.x -= m_deceleration.x;
+			m_velocity.x -= m_deceleration.x * deltaTime;
 
 			if(m_velocity.x < 0.0f)
 			{
@@ -47,7 +47,7 @@ void PhysicsObj::Update(float deltaTime)
 		}
 		else if(m_velocity.x < 0.0f)
 		{
-			m_velocity.x += m_deceleration.x;
+			m_velocity.x += m_deceleration.x * deltaTime;
 
 			if(m_velocity.x > 0.0f)
 			{
@@ -78,6 +78,9 @@ void PhysicsObj::Update(float deltaTime)
 	{
 		//Collision with floor, adjust position
 		m_worldPos.y = floorHeight - m_floorProbeOffset.y;
+
+		//Kill downward velocity
+		m_velocity.y = 0.0f;
 	}
 
 	return SpriteObj::Update(deltaTime);
