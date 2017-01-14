@@ -68,11 +68,35 @@ void PhysicsObj::Update(float deltaTime)
 	m_worldPos.x += m_velocity.x * deltaTime;
 	m_worldPos.y -= m_velocity.y * deltaTime;
 
+	//Find wall
+	ion::Vector2 wallProbe(m_worldPos.x + ((m_velocity.x > 0.0f) ? m_size.x : 0.0f), m_worldPos.y + m_floorProbeOffset.y);
+
+	float wallPos = m_world.FindWall(wallProbe, m_velocity.x > 0.0f ? 1 : -1, s_floorSearchDist);
+
+	if(wallPos >= 0.0f && m_velocity.x > 0.0f && wallPos < (m_worldPos.x + m_size.x))
+	{
+		//Collision with wall to right, adjust position
+		m_worldPos.x = wallPos - m_size.x;
+
+		//Kill X velocity/acceleration
+		m_velocity.x = 0.0f;
+		m_acceleration.x = 0.0f;
+	}
+	else if(wallPos >= 0.0f && m_velocity.x < 0.0f && wallPos > m_worldPos.x)
+	{
+		//Collision with wall to left, adjust position
+		m_worldPos.x = wallPos;
+
+		//Kill X velocity/acceleration
+		m_velocity.x = 0.0f;
+		m_acceleration.x = 0.0f;
+	}
+
 	//Find floor
 	ion::Vector2 floorProbe(m_worldPos + m_floorProbeOffset);
 
 	u8 floorFlags = 0;
-	float floorHeight = m_world.GetFloorHeight(floorProbe, ion::maths::Max(s_floorSearchDist, s_floorSearchDist * (ion::maths::Abs(m_velocity.y) * deltaTime)), floorFlags);
+	float floorHeight = m_world.FindFloor(floorProbe, ion::maths::Max(s_floorSearchDist, s_floorSearchDist * (ion::maths::Abs(m_velocity.y) * deltaTime)), floorFlags);
 
 	if(floorHeight >= 0.0f && floorHeight < floorProbe.y)
 	{

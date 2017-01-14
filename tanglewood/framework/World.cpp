@@ -263,7 +263,7 @@ void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera&
 	m_cameraPos = position;
 }
 
-float World::GetFloorHeight(const ion::Vector2& position, float maxSearchLength, u8& tileFlags) const
+float World::FindFloor(const ion::Vector2& position, float maxSearchLength, u8& tileFlags) const
 {
 	//Position to starting tile
 	ion::Vector2i tilePos(ion::maths::Floor(position.x / 8.0f), ion::maths::Floor(position.y / 8.0f));
@@ -351,6 +351,39 @@ float World::GetFloorHeight(const ion::Vector2& position, float maxSearchLength,
 	{
 		//No terrain within search distance
 		tileFlags = 0;
+		return -1.0f;
+	}
+}
+
+float World::FindWall(const ion::Vector2& position, int direction, float maxSearchLength) const
+{
+	//Position to starting tile
+	ion::Vector2i tilePos(ion::maths::Floor(position.x / 8.0f), ion::maths::Floor(position.y / 8.0f));
+	u32 flags = 0;
+
+	if(tilePos.y >= 0 && tilePos.y < m_collisionMap->GetHeight())
+	{
+		flags = m_collisionMap->GetCollisionTileFlags(tilePos.x, tilePos.y);
+		float lengthSearched = 0.0f;
+
+		while((flags & eCollisionTileFlagSolid) == 0 && lengthSearched < maxSearchLength)
+		{
+			if(tilePos.x >= 0 && tilePos.x < m_collisionMap->GetWidth())
+			{
+				tilePos.x += direction;
+				flags = m_collisionMap->GetCollisionTileFlags(tilePos.x, tilePos.y);
+			}
+
+			lengthSearched += 8.0f;
+		}
+	}
+
+	if((flags & eCollisionTileFlagSolid) != 0)
+	{
+		return (tilePos.x * 8.0f) + ((direction < 0) ? 8.0f : 0.0f);
+	}
+	else
+	{
 		return -1.0f;
 	}
 }
