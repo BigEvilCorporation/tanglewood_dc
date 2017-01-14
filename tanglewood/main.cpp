@@ -20,7 +20,7 @@ int main(int numargs, char** args)
 			}
 
 			u64 endTicks = ion::time::GetSystemTicks();
-			deltaTime = (float)ion::time::TicksToSeconds(endTicks - startTicks);
+			deltaTime = ion::maths::Clamp((float)ion::time::TicksToSeconds(endTicks - startTicks), 0.0f, 0.1f);
 
 #if defined ION_PLATFORM_DREAMCAST
 			deltaTime = 0.03f;

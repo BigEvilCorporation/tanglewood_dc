@@ -37,6 +37,11 @@ public:
 	//Set camera position, correcting for viewport size
 	void SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize);
 
+	//Perform terrain test
+	float GetFloorHeight(const ion::Vector2& position, float maxSearchLength, u8& tileFlags) const;
+
+	float GetGravity() const { return m_gravity; }
+
 private:
 	ion::Vector2 m_mapSizeFg;
 	ion::Vector2 m_mapSizeBg;
@@ -50,6 +55,10 @@ private:
 	Map* m_currentMap;
 	Map* m_backgroundMap;
 
+	//Physics data
+	TerrainTileset* m_terrainTileset;
+	CollisionMap* m_collisionMap;
+
 	//Current stamp set
 	StampSet* m_stampSet;
 
@@ -59,4 +68,7 @@ private:
 
 	//Background colour
 	ion::Colour m_bgColour;
+
+	//Gravity
+	float m_gravity;
 };

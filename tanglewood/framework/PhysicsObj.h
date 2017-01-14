@@ -19,4 +19,12 @@ public:
 	//Update/render
 	virtual void Update(float deltaTime);
 	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
+
+	ion::Vector2 m_velocity;
+	ion::Vector2 m_maxVelocity;
+	ion::Vector2 m_acceleration;
+	ion::Vector2 m_deceleration;
+	ion::Vector2 m_floorProbeOffset;
+
+	static const float s_floorSearchDist;
 };
