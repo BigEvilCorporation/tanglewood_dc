@@ -10,14 +10,15 @@
 
 #include "PhysicsObj.h"
 #include "World.h"
+#include "Constants.h"
 
 const float PhysicsObj::s_floorSearchDist = 16.0f;
 
 PhysicsObj::PhysicsObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
 	: SpriteObj(world, gameObject, gameObjType)
 {
-	m_maxVelocity = ion::Vector2(100.0f, 100.0f);
-	m_deceleration = ion::Vector2(1.0f, 0.0f);
+	m_maxVelocity = Constants::Player::defaultPlayerMaxVelocity;
+	m_deceleration = Constants::Player::defaultPlayerDeceleration;
 	m_floorProbeOffset = ion::Vector2(m_size.x / 2.0f, m_size.y - 8.0f);
 }
 
@@ -57,7 +58,7 @@ void PhysicsObj::Update(float deltaTime)
 	}
 
 	//Apply gravity
-	m_velocity.y -= m_world.GetGravity() * deltaTime;
+	m_velocity.y -= m_world.GetGravity();
 
 	//Clamp to max velocity
 	m_velocity.x = ion::maths::Clamp(m_velocity.x, -m_maxVelocity.x, m_maxVelocity.x);

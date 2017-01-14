@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "World.h"
+#include "Constants.h"
 
 //TODO: Move
 #include "PhysicsObj.h"
@@ -26,7 +27,7 @@ World::World()
 	m_planeFg = NULL;
 	m_planeBg = NULL;
 
-	m_gravity = 48.0f;
+	m_gravity = Constants::World::defaultGravity;
 }
 
 World::~World()
@@ -208,11 +209,11 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 	}
 	if(keyboard.KeyDown(DIK_LEFT))
 	{
-		nymn->m_acceleration.x = -1.0f;
+		nymn->m_acceleration.x = -Constants::Player::defaultPlayerAcceleration.x;
 	}
 	else if(keyboard.KeyDown(DIK_RIGHT))
 	{
-		nymn->m_acceleration.x = 1.0f;
+		nymn->m_acceleration.x = Constants::Player::defaultPlayerAcceleration.x;
 	}
 	else
 	{
