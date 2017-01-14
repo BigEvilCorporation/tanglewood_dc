@@ -55,7 +55,8 @@ private:
 	ion::input::Keyboard* m_keyboard;
 
 	ion::Vector2i m_screenSize;
-	ion::Vector2 m_mapSize;
+	ion::Vector2 m_mapSizeFg;
+	ion::Vector2 m_mapSizeBg;
 	ion::Vector2 m_cameraPos;
 
 	//Beehive project files

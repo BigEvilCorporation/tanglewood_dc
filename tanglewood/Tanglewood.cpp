@@ -154,8 +154,8 @@ bool Tanglewood::Update(float deltaTime)
 #endif
 
 	//Update background scroll
-	//m_planeBg->m_scroll.x = m_cameraPos.x;
-	//m_planeBg->m_scroll.y = m_mapSize.y - m_cameraPos.y;
+	m_planeBg->m_scroll.x = m_cameraPos.x;
+	m_planeBg->m_scroll.y = m_cameraPos.y;
 
 	SetCameraPosition(m_cameraPos);
 
@@ -173,11 +173,11 @@ void Tanglewood::Render()
 	ion::Matrix4 cameraInv = m_camera->GetTransform().GetInverse();
 
 	//Draw planes
-	m_planeBg->Render(*m_renderer, cameraInv, m_mapSize);
-	m_planeFg->Render(*m_renderer, cameraInv, m_mapSize);
+	m_planeBg->Render(*m_renderer, cameraInv, m_mapSizeBg);
+	m_planeFg->Render(*m_renderer, cameraInv, m_mapSizeFg);
 
 	//Draw sprites
-	nymn->Render(*m_renderer, cameraInv, m_mapSize);
+	nymn->Render(*m_renderer, cameraInv, m_mapSizeFg);
 
 	m_renderer->SwapBuffers();
 	m_renderer->EndFrame();
@@ -229,12 +229,14 @@ bool Tanglewood::LoadAct(const std::string& levelMap, const std::string& bgMap)
 	m_planeBg = new Plane(*m_backgroundMap, *m_stampSet);
 
 	//Get map size
-	m_mapSize.x = m_currentMap->GetWidth() * 8;
-	m_mapSize.y = m_currentMap->GetHeight() * 8;
+	m_mapSizeFg.x = m_currentMap->GetWidth() * 8;
+	m_mapSizeFg.y = m_currentMap->GetHeight() * 8;
+	m_mapSizeBg.x = m_backgroundMap->GetWidth() * 8;
+	m_mapSizeBg.y = m_backgroundMap->GetHeight() * 8;
 
 	//TEMP
-	//m_planeBg->m_drawOffset.x = -(64 * 8) / 2;
-	//m_planeBg->m_drawOffset.y = m_mapSize.y - (32 * 8) / 2;
+	m_planeBg->m_drawOffset.x = -(64 * 8) / 2;
+	m_planeBg->m_drawOffset.y = -(32 * 8) / 2;
 
 	//Get bg colour
 	const Colour& bgColour = m_levelData->GetPalette(0)->GetColour(0);
