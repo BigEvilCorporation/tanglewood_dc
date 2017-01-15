@@ -39,10 +39,10 @@ public:
 	void SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize);
 
 	//Perform terrain test
-	float FindFloor(const ion::Vector2& position, float maxSearchLength, u8& tileFlags) const;
+	int FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& tileFlags) const;
 
 	//Perform wall test
-	float FindWall(const ion::Vector2& position, int direction, float maxSearchLength) const;
+	int FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const;
 
 	float GetGravity() const { return m_gravity; }
 

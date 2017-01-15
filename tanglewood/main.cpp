@@ -1,9 +1,12 @@
 
 #include "Tanglewood.h"
 #include <ion/Core/time/Time.h>
+#include <core/debug/Debug.h>
 
 int main(int numargs, char** args)
 {
+	ion::debug::InitExceptionHandling();
+
 	Tanglewood app;
 
 	if(app.Initialise())
@@ -20,10 +23,10 @@ int main(int numargs, char** args)
 			}
 
 			u64 endTicks = ion::time::GetSystemTicks();
-			deltaTime = ion::maths::Clamp((float)ion::time::TicksToSeconds(endTicks - startTicks), 0.0f, 0.1f);
+			deltaTime = (float)ion::time::TicksToSeconds(endTicks - startTicks);
 
 #if defined ION_PLATFORM_DREAMCAST
-			deltaTime = 0.03f;
+			deltaTime = 0.008f;
 #endif
 		}
 
