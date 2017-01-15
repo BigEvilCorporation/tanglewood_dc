@@ -38,14 +38,25 @@ Character::~Character()
 
 void Character::Update(float deltaTime)
 {
+	//Update physics
 	PhysicsObj::Update(deltaTime);
+
+	//Update animation
 	UpdateAnimation();
 
-	if(m_closeToFloor)
+	//If on or close to floor, stop jumping
+	if(m_closeToFloor || m_onFloor)
 	{
 		m_jumping = false;
+
+		//If running, snap to floor
+		//if()
+		{
+			m_snapToFloor = true;
+		}
 	}
 
+	//Flip sprite
 	if(m_velocity.x < 0.0f)
 	{
 		m_flippedX = true;
@@ -74,6 +85,7 @@ void Character::Jump()
 		m_jumping = true;
 		m_onFloor = false;
 		m_closeToFloor = false;
+		m_snapToFloor = false;
 	}
 }
 

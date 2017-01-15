@@ -30,6 +30,7 @@ public:
 	float m_maxVelocityYDown;
 
 	float m_stepHeight;
+	bool m_snapToFloor;
 
 	bool m_onFloor;
 	bool m_closeToFloor;

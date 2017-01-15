@@ -24,6 +24,7 @@ PhysicsObj::PhysicsObj(const World& world, const GameObject& gameObject, const G
 	m_floorProbeOffset = ion::Vector2(m_size.x / 2.0f, m_size.y - 8.0f);
 
 	m_stepHeight = 1.0f;
+	m_snapToFloor = false;
 
 	m_onFloor = false;
 	m_closeToFloor = false;
@@ -137,7 +138,13 @@ void PhysicsObj::Update(float deltaTime)
 		u16 floorFlags = 0;
 		float floorHeight = (float)m_world.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), (int)ion::maths::Max(searchDist, minSearchDist), floorFlags);
 
-		if(floorHeight >= 0.0f && floorHeight <= floorProbe.y)
+		if((floorProbe.y - floorHeight) <= m_stepHeight)
+		{
+			//Within step height of floor
+			m_closeToFloor = true;
+		}
+
+		if((floorHeight >= 0.0f && floorHeight <= floorProbe.y) || (m_closeToFloor && m_snapToFloor))
 		{
 			//Collision with floor, adjust position
 			m_worldPos.y = floorHeight - m_floorProbeOffset.y;
@@ -148,12 +155,6 @@ void PhysicsObj::Update(float deltaTime)
 
 			//On floor
 			m_onFloor = true;
-		}
-
-		if((floorProbe.y - floorHeight) <= m_stepHeight)
-		{
-			//Within step height of floor
-			m_closeToFloor = true;
 		}
 	}
 
