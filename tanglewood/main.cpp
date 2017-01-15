@@ -26,7 +26,7 @@ int main(int numargs, char** args)
 			deltaTime = (float)ion::time::TicksToSeconds(endTicks - startTicks);
 
 #if defined ION_PLATFORM_DREAMCAST
-			deltaTime = 0.008f;
+			deltaTime = 0.015f;
 #endif
 		}
 

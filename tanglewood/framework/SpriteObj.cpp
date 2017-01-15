@@ -177,14 +177,17 @@ void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& an
 		std::map<std::string, SpriteAnimation*>::iterator animIt = sheetIt->second.m_animations.find(animName);
 		if(animIt != sheetIt->second.m_animations.end())
 		{
-			m_currentSheet = &sheetIt->second;
-			m_currentAnim = animIt->second;
+			if(m_currentSheet != &sheetIt->second && m_currentAnim != animIt->second)
+			{
+				m_currentSheet = &sheetIt->second;
+				m_currentAnim = animIt->second;
 
-			//Set speed
-			m_currentAnim->SetPlaybackSpeed(m_currentAnim->GetSpeed());
+				//Set speed
+				m_currentAnim->SetPlaybackSpeed(m_currentAnim->GetSpeed());
 
-			//Begin playback
-			m_currentAnim->SetState(ion::render::Animation::ePlaying);
+				//Begin playback
+				m_currentAnim->SetState(ion::render::Animation::ePlaying);
+			}
 		}
 		else
 		{

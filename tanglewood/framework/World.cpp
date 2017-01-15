@@ -13,8 +13,8 @@
 #include <ion/core/debug/Debug.h>
 
 //TODO: Move
-#include "PhysicsObj.h"
-PhysicsObj* nymn;
+#include "Character.h"
+Character* nymn;
 const char* nymnObjectName = "l1a1_nymn";
 
 World::World()
@@ -155,7 +155,7 @@ bool World::CreateGameObjects()
 	}
 
 	//Create Nymn
-	nymn = new PhysicsObj(*this, *gameObjNymn, *m_levelData->GetGameObjectType(gameObjNymn->GetTypeId()));
+	nymn = new Character(*this, *gameObjNymn, *m_levelData->GetGameObjectType(gameObjNymn->GetTypeId()));
 
 	//Find actors in sprite data
 	Actor* actorNymn = m_spriteData->FindActor("nymn");
@@ -168,9 +168,6 @@ bool World::CreateGameObjects()
 	//Create render resources for Nymn
 	nymn->LoadActor(*actorNymn);
 
-	//Set default animation
-	nymn->SetAnimation("run", "run");
-
 	//Init camera pos
 	m_cameraPos = nymn->m_worldPos;
 
@@ -179,29 +176,23 @@ bool World::CreateGameObjects()
 
 void World::Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad, const ion::render::Window& window, const ion::Vector2i& screenSize)
 {
-	//Update game objects
-	nymn->Update(deltaTime);
+	//Update input
+	float moveSpeed = gamepad.GetLeftStick().x;
+	bool jump = gamepad.ButtonDown(ion::input::Gamepad::BUTTON_A);
 
-#if defined ION_PLATFORM_WINDOWS && defined DEBUG && 0
-	if(keyboard.KeyDown(DIK_UP))
-	{
-		m_cameraPos.y += 500.0f * deltaTime;
-	}
-	if(keyboard.KeyDown(DIK_DOWN))
-	{
-		m_cameraPos.y -= 500.0f * deltaTime;
-	}
+#if defined ION_PLATFORM_WINDOWS
 	if(keyboard.KeyDown(DIK_LEFT))
 	{
-		m_cameraPos.x -= 500.0f * deltaTime;
+		moveSpeed = -1.0f;
 	}
-	if(keyboard.KeyDown(DIK_RIGHT))
+	else if(keyboard.KeyDown(DIK_RIGHT))
 	{
-		m_cameraPos.x += 500.0f * deltaTime;
+		moveSpeed = 1.0f;
 	}
-	SetCameraPosition(m_cameraPos, camera, window, screenSize);
-#else
-#if defined ION_PLATFORM_WINDOWS
+
+	jump |= keyboard.KeyDown(DIK_SPACE);
+
+#if defined DEBUG
 	if(keyboard.KeyDown(DIK_UP))
 	{
 		nymn->m_worldPos.y += 896.0f * deltaTime;
@@ -210,37 +201,22 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 	{
 		nymn->m_worldPos.y -= 896.0f * deltaTime;
 	}
-	if(keyboard.KeyDown(DIK_LEFT) || (gamepad.GetLeftStick().x < 0.0f))
-	{
-		nymn->m_acceleration.x = -Constants::Player::defaultPlayerAcceleration.x;
-	}
-	else if(keyboard.KeyDown(DIK_RIGHT) || (gamepad.GetLeftStick().x > 0.0f))
-	{
-		nymn->m_acceleration.x = Constants::Player::defaultPlayerAcceleration.x;
-	}
-	else
-	{
-		nymn->m_acceleration.x = 0.0f;
-	}
-#elif defined ION_PLATFORM_DREAMCAST
-	if(gamepad.GetLeftStick().x < 0.0f)
-	{
-		nymn->m_acceleration.x = -Constants::Player::defaultPlayerAcceleration.x;
-	}
-	else if(gamepad.GetLeftStick().x > 0.0f)
-	{
-		nymn->m_acceleration.x = Constants::Player::defaultPlayerAcceleration.x;
-	}
-	else
-	{
-		nymn->m_acceleration.x = 0.0f;
-	}
 #endif
+#endif
+
+	nymn->Move(moveSpeed);
+
+	if(jump)
+	{
+		nymn->Jump();
+	}
+
+	//Update game objects
+	nymn->Update(deltaTime);
 
 	//Centre camera on Nymn
 	ion::Vector2 nymnCentre(nymn->m_worldPos.x + (nymn->m_size.x / 2.0f), m_mapSizeFg.y - nymn->m_worldPos.y - (nymn->m_size.y / 2.0f));
 	SetCameraPosition(nymnCentre, camera, window, screenSize);
-#endif
 
 	//Update background scroll
 	m_planeBg->m_scroll.x = m_cameraPos.x;

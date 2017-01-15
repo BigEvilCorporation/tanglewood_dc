@@ -24,7 +24,7 @@ public:
 	virtual ~SpriteObj();
 
 	//Load actor from Beehive data
-	void LoadActor(Actor& actor);
+	virtual void LoadActor(Actor& actor);
 
 	//Set current animation and begin playback
 	void SetAnimation(const std::string& sheetName, const std::string& animName);
@@ -40,6 +40,8 @@ public:
 	bool m_drawnLastFrame;		//Was sprite drawn last frame
 
 private:
+	void LoadSheet(SpriteSheet& spriteSheet);
+
 	struct Sheet
 	{
 		struct Frame
@@ -52,8 +54,6 @@ private:
 		std::vector<Frame> m_frames;
 		std::map<std::string, SpriteAnimation*> m_animations;
 	};
-
-	void LoadSheet(SpriteSheet& spriteSheet);
 	
 	std::map<std::string, Sheet> m_sheets;
 	Sheet* m_currentSheet;

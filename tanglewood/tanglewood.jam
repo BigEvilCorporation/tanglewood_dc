@@ -21,6 +21,8 @@ local SRC =
 	Tanglewood.cpp
 	Tanglewood.h
 
+	Framework/Character.cpp
+	Framework/Character.h
 	Framework/Entity.cpp
 	Framework/Entity.h
 	Framework/PhysicsObj.cpp

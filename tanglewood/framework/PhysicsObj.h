@@ -21,10 +21,19 @@ public:
 	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
 	ion::Vector2 m_velocity;
-	ion::Vector2 m_maxVelocity;
 	ion::Vector2 m_acceleration;
 	ion::Vector2 m_deceleration;
 	ion::Vector2 m_floorProbeOffset;
+
+	float m_maxVelocityX;
+	float m_maxVelocityYUp;
+	float m_maxVelocityYDown;
+
+	float m_stepHeight;
+
+	bool m_onFloor;
+	bool m_closeToFloor;
+	bool m_hitWall;
 
 	static const float s_floorSearchDist;
 };
