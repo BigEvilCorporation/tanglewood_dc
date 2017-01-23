@@ -1,3 +1,3 @@
-..\BuildTools\JamPlus\Bin\Win32\Jam.exe --workspace --gen=vs2013 --config=..\buildtools\jamplus\jamplus.config tanglewood.jam _Build
+..\BuildTools\JamPlus\Bin\Win64\Jam.exe --workspace --gen=vs2013 --config=..\buildtools\jamplus\jamplus.config tanglewood.jam _Build
 
-CALL _Build\_workspace.vs2013_\tanglewood.sln
+CALL _Build\_workspaces_\vs2013\tanglewood.sln
