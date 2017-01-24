@@ -17,7 +17,8 @@ int main(int numargs, char** args)
 		{
 			u64 startTicks = ion::time::GetSystemTicks();
 
-			if(run = app.Update(deltaTime))
+            run = app.Update(deltaTime);
+			if(run)
 			{
 				app.Render();
 			}

@@ -1,0 +1,1 @@
+../BuildTools/JamPlus/Bin/macosx64/jam --workspace --gen=xcode --config=../buildtools/jamplus/jamplus_osx.config tanglewood.jam _Build

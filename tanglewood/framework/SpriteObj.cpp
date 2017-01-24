@@ -166,7 +166,7 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 			sheet.m_animations[it->second.GetName()] = &it->second;
 		}
 
-		delete data;
+		delete [] data;
 	}
 }
 void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& animName)
