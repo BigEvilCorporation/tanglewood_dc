@@ -76,17 +76,12 @@ void PhysicsObj::Update(float deltaTime)
 	//If velocity > tile size, time slice it
 	int numTimeSteps = 1;
 	ion::Vector2 velocitySlice = m_velocity;
-	float timeSlice = deltaTime;
-	float searchDist = s_floorSearchDist;
-	const float minSearchDist = 16.0f;
 
 	float velocitySize = m_velocity.GetLength() * deltaTime;
 	if(velocitySize > 8.0f)
 	{
-		numTimeSteps = ion::maths::Ceil(velocitySize / 8.0f);
-		velocitySlice = m_velocity / (float)numTimeSteps;
-		timeSlice = deltaTime / (float)numTimeSteps;
-		searchDist = s_floorSearchDist / (float)numTimeSteps;
+        numTimeSteps = ion::maths::Ceil(velocitySize / 8.0f);
+        velocitySlice = m_velocity / (float)numTimeSteps;
 	}
 
 	//Clear floor/wall flags
@@ -97,13 +92,13 @@ void PhysicsObj::Update(float deltaTime)
 	for(int i = 0; i < numTimeSteps; i++)
 	{
 		//Apply velocity
-		m_worldPos.x += velocitySlice.x * timeSlice;
-		m_worldPos.y -= velocitySlice.y * timeSlice;
+		m_worldPos.x += velocitySlice.x * deltaTime;
+		m_worldPos.y -= velocitySlice.y * deltaTime;
 
 		//Find wall
 		ion::Vector2i wallProbe((int)(m_worldPos.x + ((velocitySlice.x > 0.0f) ? m_size.x : 0.0f)), (int)(m_worldPos.y + m_floorProbeOffset.y));
 
-		float wallPos = (float)m_world.FindWall(wallProbe, velocitySlice.x > 0.0f ? 1 : -1, (int)ion::maths::Max(searchDist, minSearchDist));
+		float wallPos = (float)m_world.FindWall(wallProbe, velocitySlice.x > 0.0f ? 1 : -1, s_floorSearchDist);
 
 		if(wallPos >= 0.0f && velocitySlice.x > 0.0f && wallPos < (m_worldPos.x + m_size.x))
 		{
@@ -139,7 +134,7 @@ void PhysicsObj::Update(float deltaTime)
             const float objectBottom = m_worldPos.y + m_size.y;
             
             u16 floorFlags = 0;
-            float floorHeight = (float)m_world.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), (int)ion::maths::Max(searchDist, minSearchDist), floorFlags);
+            float floorHeight = (float)m_world.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), s_floorSearchDist, floorFlags);
             
             if(floorHeight >= 0.0f && floorHeight <= objectBottom + m_stepHeight)
             {
