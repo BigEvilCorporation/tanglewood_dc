@@ -8,6 +8,8 @@
 //				(loosely mirrors Mega Drive framework)
 ///////////////////////////////////////////////////////////////
 
+#pragma once
+
 #include <ion/renderer/Primitive.h>
 #include <ion/renderer/Texture.h>
 #include <ion/renderer/Material.h>

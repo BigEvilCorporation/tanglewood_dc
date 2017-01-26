@@ -9,12 +9,12 @@
 
 #include "World.h"
 #include "Constants.h"
+#include "ObjectFactory.h"
 
 #include <ion/core/debug/Debug.h>
 
 //TODO: Move
-#include "Character.h"
-Character* nymn;
+#include "Player.h"
 const char* nymnObjectName = "l1a1_nymn";
 
 World::World()
@@ -146,6 +146,40 @@ bool World::LoadAct(const std::string& levelMap, const std::string& bgMap)
 
 bool World::CreateGameObjects()
 {
+    const TGameObjectPosMap& gameObjects = m_currentMap->GetGameObjects();
+    for(TGameObjectPosMap::const_iterator it = gameObjects.begin(), end = gameObjects.end(); it != end; ++it)
+    {
+        //Get game object type
+        if(GameObjectType* gameObjType = m_levelData->GetGameObjectType(it->first))
+        {
+            for(int i = 0; i < it->second.size(); i++)
+            {
+                //Find actor in sprite data
+                Actor* actor = m_spriteData->FindActor(gameObjType->GetName());
+                
+                //Create entity
+                if(Entity* entity = ObjectFactory::Create(*this, it->second[i].m_gameObject, *gameObjType, actor))
+                {
+                    m_entities.push_back(entity);
+                }
+            }
+        }
+    }
+    
+    std::vector<Entity*>::iterator it = std::find_if(m_entities.begin(), m_entities.end(), [&](Entity* Element) { return Element->m_name == nymnObjectName; });
+    
+    if(it != m_entities.end())
+    {
+        m_playerController = new PlayerController(*(Player*)(*it));
+    }
+    
+    if(!m_playerController)
+    {
+        ion::debug::error << "Could not find Nymn" << ion::debug::end;
+        return false;
+    }
+    
+    /*
 	//Find Nymn game object in level data
 	GameObject* gameObjNymn = m_currentMap->FindGameObject(nymnObjectName);
 	if(!gameObjNymn)
@@ -170,53 +204,31 @@ bool World::CreateGameObjects()
 
 	//Init camera pos
 	m_cameraPos = nymn->m_worldPos;
+    */
 
 	return true;
 }
 
 void World::Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad, const ion::render::Window& window, const ion::Vector2i& screenSize)
 {
-	//Update input
-	float moveSpeed = gamepad.GetLeftStick().x;
-	bool jump = gamepad.ButtonDown(ion::input::Gamepad::BUTTON_A);
-
-#if defined ION_PLATFORM_WINDOWS
-	if(keyboard.KeyDown(DIK_LEFT))
-	{
-		moveSpeed = -1.0f;
-	}
-	else if(keyboard.KeyDown(DIK_RIGHT))
-	{
-		moveSpeed = 1.0f;
-	}
-
-	jump |= keyboard.KeyDown(DIK_SPACE);
-
-#if defined DEBUG
-	if(keyboard.KeyDown(DIK_UP))
-	{
-		nymn->m_worldPos.y += 896.0f * deltaTime;
-	}
-	if(keyboard.KeyDown(DIK_DOWN))
-	{
-		nymn->m_worldPos.y -= 896.0f * deltaTime;
-	}
-#endif
-#endif
-
-	nymn->Move(moveSpeed);
-
-	if(jump)
-	{
-		nymn->Jump();
-	}
-
+    //Update player controller
+    if(m_playerController)
+    {
+        m_playerController->Update(deltaTime, keyboard, gamepad);
+    }
+    
 	//Update game objects
-	nymn->Update(deltaTime);
+    for(int i = 0; i < m_entities.size(); i++)
+    {
+        m_entities[i]->Update(deltaTime);
+    }
 
-	//Centre camera on Nymn
-	ion::Vector2 nymnCentre(nymn->m_worldPos.x + (nymn->m_size.x / 2.0f), m_mapSizeFg.y - nymn->m_worldPos.y - (nymn->m_size.y / 2.0f));
-	SetCameraPosition(nymnCentre, camera, window, screenSize);
+	//Centre camera on player
+    if(m_playerController)
+    {
+        ion::Vector2 playerPos = m_playerController->GetCentre();
+        SetCameraPosition(ion::Vector2(playerPos.x, m_mapSizeFg.y - playerPos.y), camera, window, screenSize);
+    }
 
 	//Update background scroll
 	m_planeBg->m_scroll.x = m_cameraPos.x;
@@ -230,7 +242,10 @@ void World::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraIn
 	m_planeFg->Render(renderer, cameraInv, m_mapSizeFg);
 
 	//Draw sprites
-	nymn->Render(renderer, cameraInv, m_mapSizeFg);
+    for(int i = 0; i < m_entities.size(); i++)
+    {
+        m_entities[i]->Render(renderer, cameraInv, m_mapSizeFg);
+    }
 }
 
 void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize)

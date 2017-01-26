@@ -150,7 +150,7 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 		//Create material
 		renderFrame.material = new ion::render::Material();
 		renderFrame.material->AddDiffuseMap(renderFrame.texture);
-		renderFrame.material->SetDiffuseColour(ion::Colour(1.0f, 1.0f, 1.0f));
+		renderFrame.material->SetDiffuseColour(ion::Colour(1.0f, 1.0f, 1.0f, 1.0f));
 
 #if defined ION_RENDERER_SHADER
 		renderFrame.material->SetVertexShader(vertexShader);

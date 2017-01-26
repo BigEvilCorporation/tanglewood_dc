@@ -8,6 +8,8 @@
 //				(loosely mirrors Mega Drive framework)
 ///////////////////////////////////////////////////////////////
 
+#pragma once
+
 #include <ion/renderer/Renderer.h>
 #include <ion/beehive/GameObject.h>
 

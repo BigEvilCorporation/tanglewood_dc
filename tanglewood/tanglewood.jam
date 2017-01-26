@@ -26,10 +26,16 @@ local SRC =
 	Framework/Character.h
 	Framework/Entity.cpp
 	Framework/Entity.h
+    Framework/ObjectFactory.cpp
+    Framework/ObjectFactory.h
 	Framework/PhysicsObj.cpp
 	Framework/PhysicsObj.h
 	Framework/Plane.cpp
 	Framework/Plane.h
+    Framework/Player.cpp
+    Framework/Player.h
+    Framework/PlayerController.cpp
+    Framework/PlayerController.h
 	Framework/SpriteObj.cpp
 	Framework/SpriteObj.h
 	Framework/Stamp.cpp

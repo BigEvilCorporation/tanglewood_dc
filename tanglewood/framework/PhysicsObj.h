@@ -8,6 +8,8 @@
 //				(loosely mirrors Mega Drive framework)
 ///////////////////////////////////////////////////////////////
 
+#pragma once
+
 #include "SpriteObj.h"
 
 class PhysicsObj : public SpriteObj

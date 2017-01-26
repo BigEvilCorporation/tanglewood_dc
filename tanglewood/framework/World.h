@@ -18,6 +18,7 @@
 
 #include "Stamp.h"
 #include "Plane.h"
+#include "PlayerController.h"
 
 class World
 {
@@ -75,4 +76,10 @@ private:
 
 	//Gravity
 	float m_gravity;
+    
+    //Entities
+    std::vector<Entity*> m_entities;
+    
+    //Player controller
+    PlayerController* m_playerController;
 };
