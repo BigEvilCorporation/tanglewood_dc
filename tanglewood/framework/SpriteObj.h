@@ -13,7 +13,6 @@
 #include <ion/renderer/Primitive.h>
 #include <ion/renderer/Texture.h>
 #include <ion/renderer/Material.h>
-#include <ion/beehive/Actor.h>
 #include <ion/beehive/SpriteSheet.h>
 #include <ion/beehive/SpriteAnimation.h>
 

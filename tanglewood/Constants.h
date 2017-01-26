@@ -40,6 +40,6 @@ namespace Constants
 		static const float defaultFallVelocity = 0x0200 / MegaDrive::subPixelsPerPixel * MegaDrive::frameRate;
 
 		//Physics
-		static const float defaultStepHeight = 0x03;
+		static const float defaultStepHeight = 0x04;
 	}
 }

@@ -19,17 +19,25 @@ namespace ObjectFactory
     {
         Entity* entity = NULL;
         
+        const std::string& typeName = gameObjType.GetName();
+        
         //Simple, but it works for now
-        if(gameObjType.GetName() == "Nymn")
+        if(     typeName == "Nymn"
+           ||   typeName == "Echo")
         {
-            Character* character = new Character(world, gameObject, gameObjType);
-            
-            if(actor)
-            {
-                character->LoadActor(*actor);
-            }
-            
-            entity = character;
+            entity = new Character(world, gameObject, gameObjType);
+        }
+        else if (typeName == "Boulder"
+            ||  typeName == "Fuzzl"
+            ||  typeName == "BouncePlant"
+            ||  typeName == "Nest")
+        {
+            entity = new SpriteObj(world, gameObject, gameObjType);
+        }
+        
+        if(entity && actor)
+        {
+            entity->LoadActor(*actor);
         }
         
         return entity;

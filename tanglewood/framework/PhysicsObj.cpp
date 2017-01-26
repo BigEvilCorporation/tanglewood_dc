@@ -131,31 +131,37 @@ void PhysicsObj::Update(float deltaTime)
 			//Hit wall
 			m_hitWall = true;
 		}
-
-		//Find floor
-		ion::Vector2 floorProbe(m_worldPos.x + m_floorProbeOffset.x, m_worldPos.y + m_floorProbeOffset.y);
-
-		u16 floorFlags = 0;
-		float floorHeight = (float)m_world.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), (int)ion::maths::Max(searchDist, minSearchDist), floorFlags);
-
-		if((floorProbe.y - floorHeight) <= m_stepHeight)
-		{
-			//Within step height of floor
-			m_closeToFloor = true;
-		}
-
-		if((floorHeight >= 0.0f && floorHeight <= floorProbe.y) || (m_closeToFloor && m_snapToFloor))
-		{
-			//Collision with floor, adjust position
-			m_worldPos.y = floorHeight - m_floorProbeOffset.y;
-
-			//Kill downward velocity
-			m_velocity.y = 0.0f;
-			velocitySlice.y = 0.0f;
-
-			//On floor
-			m_onFloor = true;
-		}
+        
+        if(m_velocity.y < 0.0f)
+        {
+            //Find floor
+            ion::Vector2 floorProbe(m_worldPos.x + m_floorProbeOffset.x, m_worldPos.y + m_floorProbeOffset.y);
+            const float objectBottom = m_worldPos.y + m_size.y;
+            
+            u16 floorFlags = 0;
+            float floorHeight = (float)m_world.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), (int)ion::maths::Max(searchDist, minSearchDist), floorFlags);
+            
+            if(floorHeight >= 0.0f && floorHeight <= objectBottom + m_stepHeight)
+            {
+                //Within step height of floor
+                m_closeToFloor = true;
+            }
+            
+            if((floorHeight >= 0.0f && floorHeight <= objectBottom) || (m_closeToFloor && m_snapToFloor))
+            {
+                //Collision with floor, adjust position
+                m_worldPos.y = floorHeight - m_size.y;
+                
+                //Kill Y velocity/acceleration
+                m_velocity.y = 0.0f;
+                m_acceleration.y = 0.0f;
+                velocitySlice.y = 0.0f;
+                
+                //On floor
+                m_onFloor = true;
+                m_closeToFloor = true;
+            }
+        }
 	}
 
 	return SpriteObj::Update(deltaTime);

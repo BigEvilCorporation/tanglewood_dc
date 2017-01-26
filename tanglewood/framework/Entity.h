@@ -12,6 +12,7 @@
 
 #include <ion/renderer/Renderer.h>
 #include <ion/beehive/GameObject.h>
+#include <ion/beehive/Actor.h>
 
 class World;
 
@@ -20,6 +21,9 @@ class Entity
 public:
 	Entity(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
 	virtual ~Entity();
+    
+    //Load actor from Beehive data
+    virtual void LoadActor(Actor& actor) {}
 
 	//Update/render
 	virtual void Update(float deltaTime) {}

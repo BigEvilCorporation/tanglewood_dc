@@ -166,6 +166,8 @@ bool World::CreateGameObjects()
         }
     }
     
+    //Find Nymn, create player controller
+    //TODO: move
     std::vector<Entity*>::iterator it = std::find_if(m_entities.begin(), m_entities.end(), [&](Entity* Element) { return Element->m_name == nymnObjectName; });
     
     if(it != m_entities.end())
@@ -178,33 +180,6 @@ bool World::CreateGameObjects()
         ion::debug::error << "Could not find Nymn" << ion::debug::end;
         return false;
     }
-    
-    /*
-	//Find Nymn game object in level data
-	GameObject* gameObjNymn = m_currentMap->FindGameObject(nymnObjectName);
-	if(!gameObjNymn)
-	{
-		ion::debug::error << "Error loading Nymn game object" << ion::debug::end;
-		return false;
-	}
-
-	//Create Nymn
-	nymn = new Character(*this, *gameObjNymn, *m_levelData->GetGameObjectType(gameObjNymn->GetTypeId()));
-
-	//Find actors in sprite data
-	Actor* actorNymn = m_spriteData->FindActor("nymn");
-	if(!actorNymn)
-	{
-		ion::debug::error << "Could not find actor Nymn" <<  ion::debug::end;
-		return false;
-	}
-
-	//Create render resources for Nymn
-	nymn->LoadActor(*actorNymn);
-
-	//Init camera pos
-	m_cameraPos = nymn->m_worldPos;
-    */
 
 	return true;
 }
@@ -274,7 +249,7 @@ void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera&
 int World::FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& tileFlags) const
 {
 	//Position to starting tile
-	ion::Vector2i tilePos(position.x / 8, position.y / 8);
+    ion::Vector2i tilePos(position.x / 8, position.y / 8);
 
 	int tileHeight = 0;
 	bool found = false;
@@ -288,7 +263,7 @@ int World::FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& ti
 		int solidTilesFound = 0;
 		int hollowTilesFound = 0;
 
-		while(!found && lengthSearched < maxSearchLength && tilePos.y >= 0 && tilePos.y < m_collisionMap->GetHeight())
+		while(!found && lengthSearched <= maxSearchLength && tilePos.y >= 0 && tilePos.y < m_collisionMap->GetHeight())
 		{
 			//Assume hollow if no tile
 			int height = 0;
@@ -352,8 +327,8 @@ int World::FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& ti
 		//Get flags
 		tileFlags = m_collisionMap->GetCollisionTileFlags(tilePos.x, tilePos.y);
 
-		//Tile to pixel space + total height accumulated
-		return (tilePos.y * 8) - tileHeight;
+		//Tile to pixel space + total height accumulated - 1 tile
+		return ((tilePos.y + 1) * 8) - tileHeight;
 	}
 	else
 	{
