@@ -15,7 +15,7 @@
 
 //TODO: Move
 #include "Player.h"
-const char* nymnObjectName = "l1a1_nymn";
+const char* nymnObjectName = "nymn";
 
 World::World()
 {
@@ -28,6 +28,7 @@ World::World()
 	m_stampSet = NULL;
 	m_planeFg = NULL;
 	m_planeBg = NULL;
+	m_playerController = NULL;
 
 	m_gravity = Constants::World::defaultGravity;
 }
