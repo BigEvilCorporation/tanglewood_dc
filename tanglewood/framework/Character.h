@@ -15,7 +15,7 @@
 class Character : public PhysicsObj
 {
 public:
-	Character(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
+	Character(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Character();
 
 	//Update/render

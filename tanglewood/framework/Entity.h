@@ -19,11 +19,8 @@ class World;
 class Entity
 {
 public:
-	Entity(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
+	Entity(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Entity();
-    
-    //Load actor from Beehive data
-    virtual void LoadActor(Actor& actor) {}
 
 	//Update/render
 	virtual void Update(float deltaTime) {}

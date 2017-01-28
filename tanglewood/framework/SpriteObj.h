@@ -21,11 +21,8 @@
 class SpriteObj : public Entity
 {
 public:
-	SpriteObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
+	SpriteObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~SpriteObj();
-
-	//Load actor from Beehive data
-	virtual void LoadActor(Actor& actor);
 
 	//Set current animation and begin playback
 	void SetAnimation(const std::string& sheetName, const std::string& animName);
@@ -41,6 +38,10 @@ public:
 	bool m_drawnLastFrame;		//Was sprite drawn last frame
 
 private:
+	//Load actor from Beehive data
+	void LoadActor(Actor& actor);
+
+	//Load sprite sheet from Beehive data
 	void LoadSheet(SpriteSheet& spriteSheet);
 
 	struct Sheet

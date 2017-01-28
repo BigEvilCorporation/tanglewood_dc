@@ -16,6 +16,7 @@ namespace Constants
 	{
 		static const float frameRate = 60.0f;
 		static const float subPixelsPerPixel = 256.0f;
+		static const float subFramesPerFrame = 256.0f;
 	}
 
 	namespace World

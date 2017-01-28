@@ -15,7 +15,7 @@
 class Player : public Character
 {
 public:
-    Player(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
+	Player(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
     virtual ~Player();
     
     //Update/render

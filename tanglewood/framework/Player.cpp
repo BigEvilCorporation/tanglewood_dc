@@ -10,23 +10,23 @@
 
 #include "Player.h"
 
-Player::Player(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
-    : Character(world, gameObject, gameObjType)
+Player::Player(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+	: Character(world, gameObject, gameObjType, actor)
 {
-    
+	
 }
 
 Player::~Player()
 {
-    
+	
 }
 
 void Player::Update(float deltaTime)
 {
-    Character::Update(deltaTime);
+	Character::Update(deltaTime);
 }
 
 void Player::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
 {
-    Character::Render(renderer, cameraInv, mapSize);
+	Character::Render(renderer, cameraInv, mapSize);
 }

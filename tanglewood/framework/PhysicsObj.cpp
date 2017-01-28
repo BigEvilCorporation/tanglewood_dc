@@ -14,8 +14,8 @@
 
 const float PhysicsObj::s_floorSearchDist = 16.0f;
 
-PhysicsObj::PhysicsObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
-	: SpriteObj(world, gameObject, gameObjType)
+PhysicsObj::PhysicsObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+	: SpriteObj(world, gameObject, gameObjType, actor)
 {
 	m_maxVelocityX = Constants::Player::defaultPlayerMaxVelocityX;
 	m_maxVelocityYUp = Constants::Player::defaultPlayerMaxVelocityYUp;
@@ -80,8 +80,8 @@ void PhysicsObj::Update(float deltaTime)
 	float velocitySize = m_velocity.GetLength() * deltaTime;
 	if(velocitySize > 8.0f)
 	{
-        numTimeSteps = ion::maths::Ceil(velocitySize / 8.0f);
-        velocitySlice = m_velocity / (float)numTimeSteps;
+		numTimeSteps = ion::maths::Ceil(velocitySize / 8.0f);
+		velocitySlice = m_velocity / (float)numTimeSteps;
 	}
 
 	//Clear floor/wall flags
@@ -126,37 +126,37 @@ void PhysicsObj::Update(float deltaTime)
 			//Hit wall
 			m_hitWall = true;
 		}
-        
-        if(m_velocity.y < 0.0f)
-        {
-            //Find floor
-            ion::Vector2 floorProbe(m_worldPos.x + m_floorProbeOffset.x, m_worldPos.y + m_floorProbeOffset.y);
-            const float objectBottom = m_worldPos.y + m_size.y;
-            
-            u16 floorFlags = 0;
-            float floorHeight = (float)m_world.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), s_floorSearchDist, floorFlags);
-            
-            if(floorHeight >= 0.0f && floorHeight <= objectBottom + m_stepHeight)
-            {
-                //Within step height of floor
-                m_closeToFloor = true;
-            }
-            
-            if((floorHeight >= 0.0f && floorHeight <= objectBottom) || (m_closeToFloor && m_snapToFloor))
-            {
-                //Collision with floor, adjust position
-                m_worldPos.y = floorHeight - m_size.y;
-                
-                //Kill Y velocity/acceleration
-                m_velocity.y = 0.0f;
-                m_acceleration.y = 0.0f;
-                velocitySlice.y = 0.0f;
-                
-                //On floor
-                m_onFloor = true;
-                m_closeToFloor = true;
-            }
-        }
+		
+		if(m_velocity.y < 0.0f)
+		{
+			//Find floor
+			ion::Vector2 floorProbe(m_worldPos.x + m_floorProbeOffset.x, m_worldPos.y + m_floorProbeOffset.y);
+			const float objectBottom = m_worldPos.y + m_size.y;
+			
+			u16 floorFlags = 0;
+			float floorHeight = (float)m_world.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), s_floorSearchDist, floorFlags);
+			
+			if(floorHeight >= 0.0f && floorHeight <= objectBottom + m_stepHeight)
+			{
+				//Within step height of floor
+				m_closeToFloor = true;
+			}
+			
+			if((floorHeight >= 0.0f && floorHeight <= objectBottom) || (m_closeToFloor && m_snapToFloor))
+			{
+				//Collision with floor, adjust position
+				m_worldPos.y = floorHeight - m_size.y;
+				
+				//Kill Y velocity/acceleration
+				m_velocity.y = 0.0f;
+				m_acceleration.y = 0.0f;
+				velocitySlice.y = 0.0f;
+				
+				//On floor
+				m_onFloor = true;
+				m_closeToFloor = true;
+			}
+		}
 	}
 
 	return SpriteObj::Update(deltaTime);

@@ -9,12 +9,13 @@
 ///////////////////////////////////////////////////////////////
 
 #include "SpriteObj.h"
+#include "Constants.h"
 
 #include <ion/core/debug/Debug.h>
 #include <ion/core/memory/Memory.h>
 
-SpriteObj::SpriteObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
-	: Entity(world, gameObject, gameObjType)
+SpriteObj::SpriteObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+	: Entity(world, gameObject, gameObjType, actor)
 {
 	m_currentSheet = NULL;
 	m_currentAnim = NULL;
@@ -23,6 +24,11 @@ SpriteObj::SpriteObj(const World& world, const GameObject& gameObject, const Gam
 	m_flippedY = false;
 	m_visible = true;
 	m_drawnLastFrame = false;
+
+	if(actor)
+	{
+		LoadActor(*actor);
+	}
 }
 
 SpriteObj::~SpriteObj()
@@ -204,9 +210,7 @@ void SpriteObj::Update(float deltaTime)
 {
 	if(m_currentAnim)
 	{
-		const float frameRateMegaDrive = 24.0f;
-		const float frameRateMul = 1.0f / (frameRateMegaDrive / 10.0f);
-		float animDelta = ((float)m_currentAnim->GetSpeed() / 100.0f) * frameRateMul;
+		float animDelta = ((float)m_currentAnim->GetSpeed() / Constants::MegaDrive::subFramesPerFrame) * Constants::MegaDrive::frameRate / 100.0f;
 
 		m_currentAnim->Update(animDelta * deltaTime);
 	}
