@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "Framework/SpriteObj.h"
+#include "framework/SpriteObj.h"
 
 class Firefly : public SpriteObj
 {

@@ -15,36 +15,36 @@ SubInclude bigevilcorp ion renderer imageformats : imageformats ;
 C.IncludeDirectories tanglewood : $(bigevilcorp)/ion/renderer/imageformats ;
 C.LinkLibraries tanglewood : imageformats ;
 
-local SRC = 
+local SRC =
 	main.cpp
 
 	Constants.h
 	Tanglewood.cpp
 	Tanglewood.h
 
-	Framework/Character.cpp
-	Framework/Character.h
-	Framework/Entity.cpp
-	Framework/Entity.h
-	Framework/ObjectFactory.cpp
-	Framework/ObjectFactory.h
-	Framework/PhysicsObj.cpp
-	Framework/PhysicsObj.h
-	Framework/Plane.cpp
-	Framework/Plane.h
-	Framework/Player.cpp
-	Framework/Player.h
-	Framework/PlayerController.cpp
-	Framework/PlayerController.h
-	Framework/SpriteObj.cpp
-	Framework/SpriteObj.h
-	Framework/Stamp.cpp
-	Framework/Stamp.h
-	Framework/World.cpp
-	Framework/World.h
+	framework/Character.cpp
+	framework/Character.h
+	framework/Entity.cpp
+	framework/Entity.h
+	framework/ObjectFactory.cpp
+	framework/ObjectFactory.h
+	framework/PhysicsObj.cpp
+    framework/PhysicsObj.h
+	framework/Plane.cpp
+	framework/Plane.h
+	framework/Player.cpp
+	framework/Player.h
+	framework/PlayerController.cpp
+	framework/PlayerController.h
+	framework/SpriteObj.cpp
+	framework/SpriteObj.h
+	framework/Stamp.cpp
+	framework/Stamp.h
+	framework/World.cpp
+	framework/World.h
 
-	Tanglewood/Firefly.cpp
-	Tanglewood/Firefly.h
+	tanglewood/Firefly.cpp
+	tanglewood/Firefly.h
 	;
 
 AutoSourceGroup tanglewood : $(SRC) ;

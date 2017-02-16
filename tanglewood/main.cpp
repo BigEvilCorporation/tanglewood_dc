@@ -1,7 +1,7 @@
 
 #include "Tanglewood.h"
-#include <ion/Core/time/Time.h>
-#include <core/debug/Debug.h>
+#include <ion/core/time/Time.h>
+#include <ion/core/debug/Debug.h>
 
 int main(int numargs, char** args)
 {
