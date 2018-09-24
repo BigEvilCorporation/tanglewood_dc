@@ -2,10 +2,11 @@
 #include "Tanglewood.h"
 #include <ion/core/time/Time.h>
 #include <ion/core/debug/Debug.h>
+#include <ion/core/debug/CrashHandler.h>
 
 int main(int numargs, char** args)
 {
-	ion::debug::InitExceptionHandling();
+	ion::debug::InstallDefaultCrashHandler();
 
 	Tanglewood app;
 

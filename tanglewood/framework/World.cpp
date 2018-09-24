@@ -12,6 +12,7 @@
 #include "ObjectFactory.h"
 
 #include <ion/core/debug/Debug.h>
+#include <ion/core/string/String.h>
 
 //TODO: Move
 #include "Player.h"
@@ -20,7 +21,6 @@ const char* nymnObjectName = "nymn";
 World::World()
 {
 	m_levelData = NULL;
-	m_spriteData = NULL;
 	m_currentMap = NULL;
 	m_backgroundMap = NULL;
 	m_terrainTileset = NULL;
@@ -54,24 +54,23 @@ World::~World()
 	{
 		delete m_levelData;
 	}
-
-	if(m_spriteData)
-	{
-		delete m_spriteData;
-	}
 }
 
 bool World::LoadSprites(const std::string& name)
 {
 	//Load sprite data from Beehive project file
-	m_spriteData = new Project(PlatformPresets::s_configs[PlatformPresets::ePresetMegaDrive]);
-	if(!m_spriteData->Load(name))
+	ion::io::File file(name, ion::io::File::eOpenRead);
+	if (file.IsOpen())
+	{
+		ion::io::Archive archive(file, ion::io::Archive::eIn);
+		archive.Serialise(m_actors, "actors");
+		return true;
+	}
+	else
 	{
 		ion::debug::error << "Error loading sprite data " << name << ion::debug::end;
 		return false;
 	}
-
-	return true;
 }
 
 bool World::LoadLevel(const std::string& name)
@@ -156,7 +155,15 @@ bool World::CreateGameObjects()
             for(int i = 0; i < it->second.size(); i++)
             {
                 //Find actor in sprite data
-                Actor* actor = m_spriteData->FindActor(gameObjType->GetName());
+				Actor* actor = nullptr;
+
+				for (TActorMap::iterator it = m_actors.begin(), end = m_actors.end(); it != end && !actor; ++it)
+				{
+					if (ion::string::CompareNoCase(it->second.GetName(), gameObjType->GetName()))
+					{
+						actor = &it->second;
+					}
+				}
                 
                 //Create entity
                 if(Entity* entity = ObjectFactory::Create(*this, it->second[i].m_gameObject, *gameObjType, actor))
@@ -237,8 +244,8 @@ void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera&
 
 	//Compensate camera pos
 	ion::Vector3 cameraPos;
-	cameraPos.x = position.x + (((float)screenSize.x - (float)window.GetClientAreaWidth()) / 2.0f);
-	cameraPos.y = position.y + (((float)screenSize.y - (float)window.GetClientAreaHeight()) / 2.0f);
+	cameraPos.x = position.x - (float)screenSize.x / 2.0f;
+	cameraPos.y = position.y - (float)screenSize.y / 2.0f;
 	cameraPos.z = -0.1f;
 
 	//Set camera pos
@@ -370,4 +377,30 @@ int World::FindWall(const ion::Vector2i& position, int direction, int maxSearchL
 	{
 		return -1;
 	}
+}
+
+Entity* World::FindEntity(const std::string& name)
+{
+	for (int i = 0; i < m_entities.size(); i++)
+	{
+		if (ion::string::CompareNoCase(m_entities[i]->m_name, name))
+		{
+			return m_entities[i];
+		}
+	}
+
+	return nullptr;
+}
+
+int World::FindEntitiesByType(const std::string& type, std::vector<Entity*>& entities) const
+{
+	for (int i = 0; i < m_entities.size(); i++)
+	{
+		if (ion::string::CompareNoCase(m_entities[i]->m_gameObjType.GetName(), type))
+		{
+			entities.push_back(m_entities[i]);
+		}
+	}
+
+	return entities.size();
 }

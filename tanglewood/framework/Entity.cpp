@@ -12,6 +12,7 @@
 
 Entity::Entity(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: m_world(world)
+	, m_gameObjType(gameObjType)
 {
 	m_active = true;
 

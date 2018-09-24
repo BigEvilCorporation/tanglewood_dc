@@ -26,6 +26,7 @@ public:
 
 	//Set current animation and begin playback
 	void SetAnimation(const std::string& sheetName, const std::string& animName);
+	const SpriteAnimation* GetCurrentAnimation() const { return m_currentAnim; }
 
 	//Update/render
 	virtual void Update(float deltaTime);

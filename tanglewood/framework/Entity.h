@@ -31,5 +31,6 @@ public:
 	ion::Vector2 m_size;		//Game object size
 	bool m_active;				//Active flag
 
+	const GameObjectType& m_gameObjType;
 	const World& m_world;
 };

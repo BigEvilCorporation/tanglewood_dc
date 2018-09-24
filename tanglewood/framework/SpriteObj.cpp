@@ -148,7 +148,7 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 			}
 		}
 
-		renderFrame.texture->Load(textureWidth, textureHeight, ion::render::Texture::eRGBA, ion::render::Texture::eRGBA, ion::render::Texture::eBPP24, false, data);
+		renderFrame.texture->Load(textureWidth, textureHeight, ion::render::Texture::eRGBA, ion::render::Texture::eRGBA, ion::render::Texture::eBPP24, false, false, data);
 		renderFrame.texture->SetMinifyFilter(ion::render::Texture::eFilterNearest);
 		renderFrame.texture->SetMagnifyFilter(ion::render::Texture::eFilterNearest);
 		renderFrame.texture->SetWrapping(ion::render::Texture::eWrapClamp);
@@ -186,10 +186,19 @@ void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& an
 			if(m_currentSheet != &sheetIt->second && m_currentAnim != animIt->second)
 			{
 				m_currentSheet = &sheetIt->second;
-				m_currentAnim = animIt->second;
+
+				if (!m_currentAnim || m_currentAnim->GetName() != animIt->second->GetName())
+				{
+					if (m_currentAnim)
+					{
+						delete m_currentAnim;
+					}
+
+					m_currentAnim = new SpriteAnimation(*animIt->second);
+				}
 
 				//Set speed
-				m_currentAnim->SetPlaybackSpeed(m_currentAnim->GetSpeed());
+				m_currentAnim->SetPlaybackSpeed(m_currentAnim->GetPlaybackSpeed());
 
 				//Begin playback
 				m_currentAnim->SetState(ion::render::Animation::ePlaying);
@@ -210,9 +219,7 @@ void SpriteObj::Update(float deltaTime)
 {
 	if(m_currentAnim)
 	{
-		float animDelta = ((float)m_currentAnim->GetSpeed() / Constants::MegaDrive::subFramesPerFrame) * Constants::MegaDrive::frameRate / 100.0f;
-
-		m_currentAnim->Update(animDelta * deltaTime);
+		m_currentAnim->Update(deltaTime);
 	}
 
 	Entity::Update(deltaTime);
@@ -232,9 +239,6 @@ void SpriteObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& came
 			//Flip
 			ion::Vector3 scale(m_flippedX ? -1.0f : 1.0f, m_flippedY ? -1.0f : 1.0f, 1.0f);
 			transform.SetScale(scale);
-
-			//Set matrix
-			renderer.SetMatrix(transform * cameraInv);
 
 			//Get current anim frame
 			int spriteFrame = m_currentAnim->m_trackSpriteFrame.GetValue(m_currentAnim->GetFrame());

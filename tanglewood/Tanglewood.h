@@ -14,8 +14,11 @@
 #include <ion/renderer/Window.h>
 #include <ion/input/Keyboard.h>
 #include <ion/input/Gamepad.h>
+#include <ion/gui/GUI.h>
+#include <ion/gamekit/FPSCounter.h>
 
 #include "framework/World.h"
+#include "Debug.h"
 
 #if defined ION_PLATFORM_WINDOWS
 #include <ion/renderer/Window.h>
@@ -24,8 +27,11 @@
 class Tanglewood : public ion::framework::Application
 {
 public:
+	//Window size
 	static const int s_defaultWindowWidth = 640;
 	static const int s_defaultWindowHeight = 480;
+
+	//Mega Drive resolution
 	static const int s_defaultScreenWidth = 320;
 	static const int s_defaultScreenHeight = 240;
 
@@ -44,8 +50,13 @@ private:
 	ion::render::Camera* m_camera;
 	ion::input::Keyboard* m_keyboard;
 	ion::input::Gamepad* m_gamepad;
+	ion::gui::GUI* m_gui;
 
 	ion::Vector2i m_screenSize;
 
 	World* m_world;
+
+	//Debugging
+	DebugUI* m_debugUI;
+	ion::gamekit::FPSCounter m_fpsCounter;
 };

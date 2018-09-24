@@ -19,7 +19,8 @@ void PlayerController::Update(float deltaTime, const ion::input::Keyboard& keybo
 {
     //Update input
     float moveSpeed = gamepad.GetLeftStick().x;
-    bool jump = gamepad.ButtonDown(ion::input::Gamepad::BUTTON_A);
+    bool jump = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_A)
+			|| keyboard.KeyDown(ion::input::Keycode::SPACE);
     
     if(keyboard.KeyDown(ion::input::Keycode::LEFT))
     {
@@ -29,8 +30,6 @@ void PlayerController::Update(float deltaTime, const ion::input::Keyboard& keybo
     {
         moveSpeed = 1.0f;
     }
-    
-    jump |= keyboard.KeyDown(ion::input::Keycode::SPACE);
     
 #if defined DEBUG
     if(keyboard.KeyDown(ion::input::Keycode::UP))

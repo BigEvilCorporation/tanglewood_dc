@@ -8,11 +8,12 @@
 ///////////////////////////////////////////////////
 
 #include "Tanglewood.h"
+#include "Constants.h"
 
 #include <ion/core/debug/Debug.h>
 
 //TEMP
-const char* spriteDataFile = "cd/sprites.bee";
+const char* spriteDataFile = "cd/sprites.bee_sprites";
 const char* levelDataFile = "cd/l1.bee";
 const char* actName = "l1a1";
 const char* bgName = "l1bg";
@@ -44,6 +45,11 @@ bool Tanglewood::Initialise()
 	m_screenSize.x = s_defaultScreenWidth;
 	m_screenSize.y = s_defaultScreenHeight;
 
+	//Create GUI
+	m_gui = new ion::gui::GUI(ion::Vector2i(s_defaultWindowWidth, s_defaultWindowHeight));
+	m_debugUI = new DebugUI(*m_gui, ion::Vector2i(), ion::Vector2i());
+	m_gui->AddWindow(*m_debugUI);
+
 	//Create world
 	m_world = new World();
 
@@ -71,11 +77,32 @@ bool Tanglewood::Initialise()
 		return false;
 	}
 
+	if (Entity* nymn = m_world->FindEntity("Nymn"))
+	{
+		m_debugUI->AddWatchObj((const SpriteObj&)*nymn);
+	}
+
+	std::vector<Entity*> fireflies;
+	if (m_world->FindEntitiesByType("firefly", fireflies) > 0)
+	{
+		m_debugUI->AddWatchObj((const SpriteObj&)*fireflies[0]);
+	}
+
 	return true;
 }
 
 void Tanglewood::Shutdown()
 {
+	if (m_debugUI)
+	{
+		delete m_debugUI;
+	}
+
+	if (m_gui)
+	{
+		delete m_gui;
+	}
+
 	if(m_world)
 	{
 		delete m_world;
@@ -116,6 +143,17 @@ bool Tanglewood::Update(float deltaTime)
 	//Update world
 	m_world->Update(deltaTime, *m_camera, *m_keyboard, *m_gamepad, *m_window, m_screenSize);
 
+	//Update UI
+	m_gui->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
+
+	//Update FPS counter
+	m_fpsCounter.Update();
+	std::stringstream text;
+	text.setf(std::ios::fixed, std::ios::floatfield);
+	text.precision(2);
+	text << "TANGLEWOOD :: " << m_fpsCounter.GetLastFPS() << " FPS";
+	m_window->SetTitle(text.str());
+
 	//Update window
 	return m_window->Update();
 }
@@ -132,6 +170,9 @@ void Tanglewood::Render()
 
 	//Render world
 	m_world->Render(*m_renderer, cameraInv);
+
+	//Render UI
+	m_gui->Render(*m_renderer, *m_viewport);
 
 	m_renderer->SwapBuffers();
 	m_renderer->EndFrame();

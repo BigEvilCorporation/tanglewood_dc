@@ -45,6 +45,10 @@ public:
 	//Perform wall test
 	int FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const;
 
+	//Find entities
+	Entity* FindEntity(const std::string& name);
+	int FindEntitiesByType(const std::string& type, std::vector<Entity*>& entities) const;
+
 	float GetGravity() const { return m_gravity; }
 
 private:
@@ -54,7 +58,7 @@ private:
 
 	//Beehive project files
 	Project* m_levelData;
-	Project* m_spriteData;
+	std::map<ActorId, Actor> m_actors;
 
 	//Beehive maps
 	Map* m_currentMap;

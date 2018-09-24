@@ -104,7 +104,7 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 		}
 	}
 
-	m_texture->Load(textureWidth, textureHeight, ion::render::Texture::eRGBA, ion::render::Texture::eRGBA, ion::render::Texture::eBPP24, false, data);
+	m_texture->Load(textureWidth, textureHeight, ion::render::Texture::eRGBA, ion::render::Texture::eRGBA, ion::render::Texture::eBPP24, false, false, data);
 	m_texture->SetMinifyFilter(ion::render::Texture::eFilterNearest);
 	m_texture->SetMagnifyFilter(ion::render::Texture::eFilterNearest);
 	m_texture->SetWrapping(ion::render::Texture::eWrapClamp);
@@ -134,9 +134,6 @@ void StampRenderer::Render(ion::render::Renderer& renderer, const ion::Vector2& 
 		//Translate
 		transform.SetTranslation(ion::Vector3(position.x, position.y, 0.0f));
 
-		//Set matrix
-		renderer.SetMatrix(transform * cameraInv);
-
 		//Bind material
 		m_material->Bind(transform, cameraInv, renderer.GetProjectionMatrix());
 
@@ -150,6 +147,6 @@ StampSet::StampSet(const Project& project)
 	for(TStampMap::const_iterator it = project.StampsBegin(), end = project.StampsEnd(); it != end; ++it)
 	{
 		//TODO: One for each (used) palette
-		m_stamps[it->first] = StampRenderer(it->second, project.GetTileset(), *project.GetPalette(0));
+		m_stamps.insert(std::make_pair(it->first, StampRenderer(it->second, project.GetTileset(), *project.GetPalette(0))));
 	}
 }

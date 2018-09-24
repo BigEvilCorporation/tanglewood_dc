@@ -81,7 +81,7 @@ void Character::Jump()
 {
 	if(m_closeToFloor)
 	{
-		m_velocity.y = Constants::Player::defaultPlayerJumpImpuse;
+		m_velocity.y = Constants::Player::defaultPlayerJumpImpulse;
 		m_jumping = true;
 		m_onFloor = false;
 		m_closeToFloor = false;

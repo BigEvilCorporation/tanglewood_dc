@@ -1,5 +1,7 @@
 SubDir bigevilcorp tanglewood ;
 
+ion_renderer_opts = fixed ;
+
 ApplyIonCompiler tanglewood ;
 ApplyIonDefines tanglewood ;
 ApplyIonIncludes tanglewood ;
@@ -7,6 +9,7 @@ ApplyIonCore tanglewood ;
 ApplyIonRenderer tanglewood ;
 ApplyIonInput tanglewood ;
 ApplyIonGameKit tanglewood ;
+ApplyIonGui tanglewood ;
 ApplyIonLib tanglewood : beehive ;
 
 C.IncludeDirectories tanglewood : $(bigevilcorp)/tanglewood ;
@@ -19,6 +22,8 @@ local SRC =
 	main.cpp
 
 	Constants.h
+	Debug.cpp
+	Debug.h
 	Tanglewood.cpp
 	Tanglewood.h
 

@@ -37,6 +37,4 @@ public:
 	bool m_onFloor;
 	bool m_closeToFloor;
 	bool m_hitWall;
-
-	static const float s_floorSearchDist;
 };
