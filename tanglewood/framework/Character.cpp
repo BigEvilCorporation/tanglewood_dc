@@ -74,7 +74,14 @@ void Character::Render(ion::render::Renderer& renderer, const ion::Matrix4& came
 
 void Character::Move(float speed)
 {
-	m_acceleration.x = speed * Constants::Player::defaultPlayerAcceleration.x;
+	if ((m_velocity.x < 0.0f && speed > 0.0f) || (m_velocity.x > 0.0f && speed < 0.0f))
+	{
+		m_acceleration.x = speed * Constants::Player::defaultPlayerDecelerationForced.x;
+	}
+	else
+	{
+		m_acceleration.x = speed * Constants::Player::defaultPlayerAcceleration.x;
+	}
 }
 
 void Character::Jump()

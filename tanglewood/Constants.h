@@ -36,7 +36,7 @@ namespace Constants
 	namespace Player
 	{
 		//Acceleration/deceleration
-		static const ion::Vector2 defaultPlayerAcceleration(SUBPIXELS_TO_ACCELERATION(0x0600), 0.0f);
+		static const ion::Vector2 defaultPlayerAcceleration(SUBPIXELS_TO_ACCELERATION(0x1400), 0.0f);
 		static const ion::Vector2 defaultPlayerDecelerationIdle(SUBPIXELS_TO_ACCELERATION(0x1600), 0.0f);
 		static const ion::Vector2 defaultPlayerDecelerationForced(SUBPIXELS_TO_ACCELERATION(0x3000), 0.0f);
 
