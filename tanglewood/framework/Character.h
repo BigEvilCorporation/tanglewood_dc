@@ -15,16 +15,6 @@
 class Character : public PhysicsObj
 {
 public:
-	Character(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
-	virtual ~Character();
-
-	//Update/render
-	virtual void Update(float deltaTime);
-	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
-
-	void Move(float speed);
-	void Jump();
-
 	enum class CharacterAnimations
 	{
 		Idle,
@@ -43,11 +33,21 @@ public:
 		Count
 	};
 
+	Character(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	virtual ~Character();
+
+	//Update/render
+	virtual void Update(float deltaTime);
+	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
+
+	void Move(float speed);
+	void Jump();
+
+	bool m_jumping;
+
 private:
 	void SetCharacterAnimation(CharacterAnimations animation);
 	void UpdateAnimation();
-
-	bool m_jumping;
 
 	std::pair<std::string, std::string> m_characterAnimations[(int)CharacterAnimations::Count];
 };

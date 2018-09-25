@@ -227,7 +227,7 @@ void SpriteObj::Update(float deltaTime)
 
 void SpriteObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
 {
-	if(m_currentSheet && m_currentAnim)
+	if(m_currentSheet && m_currentAnim && m_visible)
 	{
 		//TODO: Visibility test
 		if(true)

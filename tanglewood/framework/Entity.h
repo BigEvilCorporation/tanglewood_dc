@@ -26,10 +26,18 @@ public:
 	virtual void Update(float deltaTime) {}
 	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize) {}
 
-	std::string m_name;			//Name
-	ion::Vector2 m_worldPos;	//World position
-	ion::Vector2 m_size;		//Game object size
-	bool m_active;				//Active flag
+	void GetWorldBounds(ion::Vector2& topLeft, ion::Vector2& bottomRight) const;
+
+	bool Intersects(const Entity& objectB) const;
+	bool Contains(const Entity& objectB) const;
+
+	std::string m_name;				//Name
+	ion::Vector2 m_worldPos;		//World position
+	ion::Vector2 m_size;			//Game object size
+	ion::Vector2 m_boundsSize;		//Collision bounds
+	ion::Vector2 m_boundsTopLeft;
+	ion::Vector2 m_boundsBottomRight;
+	bool m_active;					//Active flag
 
 	const GameObjectType& m_gameObjType;
 	const World& m_world;

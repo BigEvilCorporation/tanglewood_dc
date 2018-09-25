@@ -10,10 +10,12 @@
 #include "ObjectFactory.h"
 
 #include "Character.h"
+#include "Player.h"
 #include "PhysicsObj.h"
 #include "SpriteObj.h"
 
 #include "tanglewood/Firefly.h"
+#include "tanglewood/Flue.h"
 
 namespace ObjectFactory
 {
@@ -24,10 +26,11 @@ namespace ObjectFactory
 		const std::string& typeName = gameObjType.GetName();
 		
 		//Simple, but it works for now
+		//TODO: allow static type registration
 		if(     typeName == "Nymn"
 		   ||   typeName == "Echo")
 		{
-			entity = new Character(world, gameObject, gameObjType, actor);
+			entity = new Player(world, gameObject, gameObjType, actor);
 		}
 		else if (typeName == "Boulder"
 			||  typeName == "Fuzzl"
@@ -39,6 +42,10 @@ namespace ObjectFactory
 		else if(typeName == "Firefly")
 		{
 			entity = new Firefly(world, gameObject, gameObjType, actor);
+		}
+		else if (typeName == "Flue")
+		{
+			entity = new Flue(world, gameObject, gameObjType);
 		}
 		
 		return entity;

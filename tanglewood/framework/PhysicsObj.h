@@ -22,7 +22,10 @@ public:
 	virtual void Update(float deltaTime);
 	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
+	void AddImpulse(const ion::Vector2& impulse);
+
 	ion::Vector2 m_velocity;
+	ion::Vector2 m_impulse;
 	ion::Vector2 m_acceleration;
 	ion::Vector2 m_deceleration;
 	ion::Vector2 m_floorProbeOffset;
@@ -33,6 +36,8 @@ public:
 
 	float m_stepHeight;
 	bool m_snapToFloor;
+
+	bool m_ignoreHoles;
 
 	bool m_onFloor;
 	bool m_closeToFloor;

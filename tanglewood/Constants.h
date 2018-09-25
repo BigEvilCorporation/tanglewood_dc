@@ -14,6 +14,7 @@
 #define SUBPIXELS_TO_PIXELS(val) (float)((float)(val>>16)+((float)(val&0xFFFF)/Constants::MegaDrive::subPixelsPerPixel))
 #define SUBPIXELS_TO_PIXELS_PER_SEC(val) SUBPIXELS_TO_PIXELS(val) * Constants::MegaDrive::frameRate
 #define SUBPIXELS_TO_ACCELERATION(val) SUBPIXELS_TO_PIXELS(val) * ion::maths::Square(Constants::MegaDrive::frameRate)
+#define FRAMES_TO_SECONDS(val) val / Constants::MegaDrive::frameRate
 
 namespace Constants
 {
@@ -31,10 +32,15 @@ namespace Constants
 	{
 		static const float defaultGravity = SUBPIXELS_TO_ACCELERATION(0x3000);
 		static const float floorSearchDist = MegaDrive::tileHeight * 2;
+		static const float wallSearchDist = MegaDrive::tileWidth * 2;
 	}
 
 	namespace Player
 	{
+		//Dimensions
+		static const float boundsWidth = 0x0010;
+		static const float boundsHeight = 0x0030;
+
 		//Acceleration/deceleration
 		static const ion::Vector2 defaultPlayerAcceleration(SUBPIXELS_TO_ACCELERATION(0x1400), 0.0f);
 		static const ion::Vector2 defaultPlayerDecelerationIdle(SUBPIXELS_TO_ACCELERATION(0x1600), 0.0f);
@@ -51,5 +57,11 @@ namespace Constants
 
 		//Physics
 		static const float defaultStepHeight = 0x04;
+	}
+
+	namespace Flue
+	{
+		static const float defaultEjectTime = FRAMES_TO_SECONDS(0x0020);
+		static const float defaultEjectForce = SUBPIXELS_TO_PIXELS_PER_SEC(0x0E0000);
 	}
 }

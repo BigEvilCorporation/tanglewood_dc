@@ -176,14 +176,14 @@ bool World::CreateGameObjects()
     
     //Find Nymn, create player controller
     //TODO: move
-    std::vector<Entity*>::iterator it = std::find_if(m_entities.begin(), m_entities.end(), [&](Entity* Element) { return Element->m_name == nymnObjectName; });
-    
-    if(it != m_entities.end())
-    {
-        m_playerController = new PlayerController(*(Player*)(*it));
-    }
-    
-    if(!m_playerController)
+    //std::vector<Entity*>::iterator it = std::find_if(m_entities.begin(), m_entities.end(), [&](Entity* Element) { return ion::string::CompareNoCase(Element->m_name, nymnObjectName); });
+	
+	std::vector<Entity*> nymns;
+	if (FindEntitiesByType("Nymn", nymns))
+	{
+		m_playerController = new PlayerController((Player&)*nymns[0]);
+	}
+	else
     {
         ion::debug::error << "Could not find Nymn" << ion::debug::end;
         return false;
@@ -203,7 +203,10 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 	//Update game objects
     for(int i = 0; i < m_entities.size(); i++)
     {
-        m_entities[i]->Update(deltaTime);
+		if (m_entities[i]->m_active)
+		{
+			m_entities[i]->Update(deltaTime);
+		}
     }
 
 	//Centre camera on player
