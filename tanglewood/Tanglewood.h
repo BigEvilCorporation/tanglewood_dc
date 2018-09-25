@@ -28,8 +28,8 @@ class Tanglewood : public ion::framework::Application
 {
 public:
 	//Window size
-	static const int s_defaultWindowWidth = 640;
-	static const int s_defaultWindowHeight = 480;
+	static const int s_defaultWindowWidth = 1024;
+	static const int s_defaultWindowHeight = 768;
 
 	//Mega Drive resolution
 	static const int s_defaultScreenWidth = 320;

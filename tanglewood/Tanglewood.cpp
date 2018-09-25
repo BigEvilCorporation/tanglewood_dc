@@ -48,7 +48,7 @@ bool Tanglewood::Initialise()
 	//Create GUI
 	m_gui = new ion::gui::GUI(ion::Vector2i(s_defaultWindowWidth, s_defaultWindowHeight));
 	m_debugUI = new DebugUI(*m_gui, ion::Vector2i(), ion::Vector2i());
-	m_gui->AddWindow(*m_debugUI);
+	//m_gui->AddWindow(*m_debugUI);
 
 	//Create world
 	m_world = new World();
