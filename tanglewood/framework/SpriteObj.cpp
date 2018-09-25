@@ -28,6 +28,11 @@ SpriteObj::SpriteObj(const World& world, const GameObject& gameObject, const Gam
 	if(actor)
 	{
 		LoadActor(*actor);
+		
+		if (m_sheets.size() > 0)
+		{
+			m_currentSheet = &m_sheets.begin()->second;
+		}
 	}
 }
 
@@ -175,6 +180,20 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 		delete [] data;
 	}
 }
+
+void SpriteObj::SetSpriteSheet(const std::string& sheetName)
+{
+	std::map<std::string, Sheet>::iterator sheetIt = m_sheets.find(sheetName);
+	if (sheetIt != m_sheets.end())
+	{
+		m_currentSheet = &sheetIt->second;
+	}
+	else
+	{
+		ion::debug::error << "Could not find sprite sheet " << sheetName << ion::debug::end;
+	}
+}
+
 void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& animName)
 {
 	std::map<std::string, Sheet>::iterator sheetIt = m_sheets.find(sheetName);
@@ -183,7 +202,7 @@ void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& an
 		std::map<std::string, SpriteAnimation*>::iterator animIt = sheetIt->second.m_animations.find(animName);
 		if(animIt != sheetIt->second.m_animations.end())
 		{
-			if(m_currentSheet != &sheetIt->second && m_currentAnim != animIt->second)
+			if(m_currentAnim != animIt->second)
 			{
 				m_currentSheet = &sheetIt->second;
 
@@ -227,7 +246,7 @@ void SpriteObj::Update(float deltaTime)
 
 void SpriteObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
 {
-	if(m_currentSheet && m_currentAnim && m_visible)
+	if(m_currentSheet && m_visible)
 	{
 		//TODO: Visibility test
 		if(true)
@@ -241,7 +260,7 @@ void SpriteObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& came
 			transform.SetScale(scale);
 
 			//Get current anim frame
-			int spriteFrame = m_currentAnim->m_trackSpriteFrame.GetValue(m_currentAnim->GetFrame());
+			int spriteFrame = m_currentAnim ? m_currentAnim->m_trackSpriteFrame.GetValue(m_currentAnim->GetFrame()) : 0;
 
 			//Bind material
 			m_currentSheet->m_frames[spriteFrame].material->Bind(transform, cameraInv, renderer.GetProjectionMatrix());

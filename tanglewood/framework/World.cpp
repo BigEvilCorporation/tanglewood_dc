@@ -154,19 +154,8 @@ bool World::CreateGameObjects()
         {
             for(int i = 0; i < it->second.size(); i++)
             {
-                //Find actor in sprite data
-				Actor* actor = nullptr;
-
-				for (TActorMap::iterator it = m_actors.begin(), end = m_actors.end(); it != end && !actor; ++it)
-				{
-					if (ion::string::CompareNoCase(it->second.GetName(), gameObjType->GetName()))
-					{
-						actor = &it->second;
-					}
-				}
-                
                 //Create entity
-                if(Entity* entity = ObjectFactory::Create(*this, it->second[i].m_gameObject, *gameObjType, actor))
+                if(Entity* entity = ObjectFactory::Create(*this, m_actors, it->second[i].m_gameObject, *gameObjType))
                 {
                     m_entities.push_back(entity);
                 }

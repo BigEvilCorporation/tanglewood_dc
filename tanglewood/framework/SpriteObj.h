@@ -24,6 +24,9 @@ public:
 	SpriteObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~SpriteObj();
 
+	//Set current sprite sheet
+	void SetSpriteSheet(const std::string& sheetName);
+
 	//Set current animation and begin playback
 	void SetAnimation(const std::string& sheetName, const std::string& animName);
 	const SpriteAnimation* GetCurrentAnimation() const { return m_currentAnim; }

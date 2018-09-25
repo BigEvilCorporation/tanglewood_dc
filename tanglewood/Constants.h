@@ -64,4 +64,10 @@ namespace Constants
 		static const float defaultEjectTime = FRAMES_TO_SECONDS(0x0020);
 		static const float defaultEjectForce = SUBPIXELS_TO_PIXELS_PER_SEC(0x0E0000);
 	}
+
+	namespace Mushroom
+	{
+		static const float defaultBounceVelX = SUBPIXELS_TO_PIXELS_PER_SEC(0x000000);
+		static const float defaultBounceVelY = SUBPIXELS_TO_PIXELS_PER_SEC(0x0A0000);
+	}
 }

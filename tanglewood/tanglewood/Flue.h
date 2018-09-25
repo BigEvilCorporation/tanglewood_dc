@@ -19,9 +19,8 @@ public:
 	Flue(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
 	virtual ~Flue();
 
-	//Update/render
+	//Update
 	virtual void Update(float deltaTime);
-	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
 	static void RegisterPotentialOccupant(PhysicsObj& occupant);
 	static void UnregisterPotentialOccupant(PhysicsObj& occupant);

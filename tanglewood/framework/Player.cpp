@@ -13,6 +13,7 @@
 
 //TODO: Move to Nymn/Echo
 #include "tanglewood/Flue.h"
+#include "tanglewood/Mushroom.h"
 
 Player::Player(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Character(world, gameObject, gameObjType, actor)
@@ -25,11 +26,13 @@ Player::Player(const World& world, const GameObject& gameObject, const GameObjec
 	m_boundsBottomRight.y = m_boundsTopLeft.y + Constants::Player::boundsHeight;
 
 	Flue::RegisterPotentialOccupant(*this);
+	Mushroom::RegisterPotentialUser(*this);
 }
 
 Player::~Player()
 {
 	Flue::UnregisterPotentialOccupant(*this);
+	Mushroom::UnregisterPotentialUser(*this);
 }
 
 void Player::Update(float deltaTime)

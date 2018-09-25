@@ -9,11 +9,12 @@
 
 #pragma once
 
+#include <ion/beehive/Project.h>
 #include <ion/beehive/Actor.h>
 
 #include "Entity.h"
 
 namespace ObjectFactory
 {
-	Entity* Create(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	Entity* Create(const World& world, TActorMap& actors, const GameObject& gameObject, const GameObjectType& gameObjType);
 }

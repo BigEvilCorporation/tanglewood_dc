@@ -1,0 +1,33 @@
+///////////////////////////////////////////////////////////////
+// (c) 2018 Matt Phillips, Big Evil Corporation
+//
+// File:		Mushroom.h
+// Date:		25th September 2018
+// Authors:		Matt Phillips
+// Description:	Bounce mushroom
+//				(loosely mirrors Mega Drive framework)
+///////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "framework/SpriteObj.h"
+#include "framework/Character.h"
+
+class Mushroom : public SpriteObj
+{
+public:
+	Mushroom(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	virtual ~Mushroom();
+
+	//Update/render
+	virtual void Update(float deltaTime);
+	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
+
+	static void RegisterPotentialUser(Character& user);
+	static void UnregisterPotentialUser(Character& user);
+
+private:
+	static std::vector<Character*> s_potentialUsers;
+
+	ion::Vector2 m_bounceVel;
+};

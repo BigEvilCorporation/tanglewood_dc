@@ -56,11 +56,6 @@ void Flue::Update(float deltaTime)
 	}
 }
 
-void Flue::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
-{
-	Entity::Render(renderer, cameraInv, mapSize);
-}
-
 bool Flue::CanHold(PhysicsObj& object) const
 {
 	//If heading downwards

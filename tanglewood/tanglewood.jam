@@ -52,6 +52,8 @@ local SRC =
 	tanglewood/Firefly.h
 	tanglewood/Flue.cpp
 	tanglewood/Flue.h
+	tanglewood/Mushroom.cpp
+	tanglewood/Mushroom.h
 	;
 
 AutoSourceGroup tanglewood : $(SRC) ;
