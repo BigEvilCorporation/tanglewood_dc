@@ -33,6 +33,11 @@ Entity::~Entity()
 
 }
 
+ion::Vector2 Entity::GetWorldCentre() const
+{
+	return ion::Vector2(m_worldPos.x + (m_size.x / 2.0f), m_worldPos.y + (m_size.y / 2.0f));
+}
+
 void Entity::GetWorldBounds(ion::Vector2& topLeft, ion::Vector2& bottomRight) const
 {
 	topLeft = m_worldPos + m_boundsTopLeft;

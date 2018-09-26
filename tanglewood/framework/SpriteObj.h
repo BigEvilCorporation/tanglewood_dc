@@ -29,7 +29,7 @@ public:
 
 	//Set current animation and begin playback
 	void SetAnimation(const std::string& sheetName, const std::string& animName, bool loop);
-	const SpriteAnimation* GetCurrentAnimation() const { return m_currentAnim; }
+	SpriteAnimation* GetCurrentAnimation() const { return m_currentAnim; }
 
 	//Queue next animation (interrupts current looping anim)
 	void QueueAnimation(const std::string& sheetName, const std::string& animName, bool loop);

@@ -65,6 +65,15 @@ namespace Constants
 		static const float defaultEjectForce = SUBPIXELS_TO_PIXELS_PER_SEC(0x0E0000);
 	}
 
+	namespace Fuzzl
+	{
+		static const float alertDistance = 0x0050;
+		static const float lostDistance = 0x0080;
+		static const float startledImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
+		static const int maxEyeWatchFrames = 8;
+		static const int eyeWatchCentreFrame = 8;
+	}
+
 	namespace Mushroom
 	{
 		static const float defaultBounceVelX = SUBPIXELS_TO_PIXELS_PER_SEC(0x000000);

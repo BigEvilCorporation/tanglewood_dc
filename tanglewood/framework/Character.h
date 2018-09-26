@@ -45,9 +45,12 @@ public:
 
 	bool m_jumping;
 
+	bool m_manualAnimation;
+
+protected:
+	std::pair<std::string, std::string> m_characterAnimations[(int)CharacterAnimations::Count];
+
 private:
 	void SetCharacterAnimation(CharacterAnimations animation);
 	void UpdateAnimation();
-
-	std::pair<std::string, std::string> m_characterAnimations[(int)CharacterAnimations::Count];
 };

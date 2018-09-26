@@ -49,7 +49,11 @@ public:
 	Entity* FindEntity(const std::string& name);
 	int FindEntitiesByType(const std::string& type, std::vector<Entity*>& entities) const;
 
+	//Physics world
 	float GetGravity() const { return m_gravity; }
+
+	//Player(s)
+	PlayerController* GetPlayerController() const { return m_playerController; }
 
 private:
 	ion::Vector2 m_mapSizeFg;

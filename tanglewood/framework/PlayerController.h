@@ -20,7 +20,11 @@ public:
     void Update(float deltaTime, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad);
     
     ion::Vector2 GetCentre() const;
-    
+
+	Player& GetPlayer() const { return m_player; }
+
+	bool m_debugMove;
+
 private:
     Player& m_player;
 };

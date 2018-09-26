@@ -26,6 +26,7 @@ public:
 	virtual void Update(float deltaTime) {}
 	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize) {}
 
+	ion::Vector2 GetWorldCentre() const;
 	void GetWorldBounds(ion::Vector2& topLeft, ion::Vector2& bottomRight) const;
 
 	bool Intersects(const Entity& objectB) const;

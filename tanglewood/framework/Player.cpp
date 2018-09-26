@@ -27,6 +27,19 @@ Player::Player(const World& world, const GameObject& gameObject, const GameObjec
 
 	Flue::RegisterPotentialOccupant(*this);
 	Mushroom::RegisterPotentialUser(*this);
+
+	//Setup animations
+	m_characterAnimations[(int)CharacterAnimations::Idle] = std::make_pair("idle", "idle");
+	m_characterAnimations[(int)CharacterAnimations::Dead] = std::make_pair("dead", "dead");
+	m_characterAnimations[(int)CharacterAnimations::Run] = std::make_pair("run", "run");
+	m_characterAnimations[(int)CharacterAnimations::Walk] = std::make_pair("walk", "walk");
+	m_characterAnimations[(int)CharacterAnimations::Jump] = std::make_pair("jump", "jump");
+	m_characterAnimations[(int)CharacterAnimations::Glide] = std::make_pair("glide", "glide");
+	m_characterAnimations[(int)CharacterAnimations::Push] = std::make_pair("push", "push");
+	m_characterAnimations[(int)CharacterAnimations::PushHeavy] = std::make_pair("pushHeavy", "pushHeavy");
+	m_characterAnimations[(int)CharacterAnimations::Fall] = std::make_pair("fall", "fall");
+	m_characterAnimations[(int)CharacterAnimations::WalkToRun] = std::make_pair("walkToRun", "walkToRun");
+	m_characterAnimations[(int)CharacterAnimations::WaterWade] = std::make_pair("waterWade", "waterWade");
 }
 
 Player::~Player()

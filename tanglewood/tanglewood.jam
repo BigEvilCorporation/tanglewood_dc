@@ -45,6 +45,8 @@ local SRC =
 	framework/SpriteObj.h
 	framework/Stamp.cpp
 	framework/Stamp.h
+	framework/State.cpp
+	framework/State.h
 	framework/World.cpp
 	framework/World.h
 
@@ -52,6 +54,8 @@ local SRC =
 	tanglewood/Firefly.h
 	tanglewood/Flue.cpp
 	tanglewood/Flue.h
+	tanglewood/Fuzzl.cpp
+	tanglewood/Fuzzl.h
 	tanglewood/Mushroom.cpp
 	tanglewood/Mushroom.h
 	;
