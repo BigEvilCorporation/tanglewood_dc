@@ -21,7 +21,7 @@
 class SpriteObj : public Entity
 {
 public:
-	SpriteObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	SpriteObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~SpriteObj();
 
 	//Set current sprite sheet

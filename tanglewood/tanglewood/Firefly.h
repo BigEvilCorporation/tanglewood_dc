@@ -15,7 +15,7 @@
 class Firefly : public SpriteObj
 {
 public:
-	Firefly(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	Firefly(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Firefly();
 
 	//Update/render

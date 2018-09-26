@@ -16,7 +16,7 @@
 class Mushroom : public SpriteObj
 {
 public:
-	Mushroom(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	Mushroom(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Mushroom();
 
 	//Update/render

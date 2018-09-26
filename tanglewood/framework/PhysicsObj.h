@@ -15,7 +15,7 @@
 class PhysicsObj : public SpriteObj
 {
 public:
-	PhysicsObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	PhysicsObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~PhysicsObj();
 
 	//Update/render

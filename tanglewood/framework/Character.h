@@ -33,7 +33,7 @@ public:
 		Count
 	};
 
-	Character(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	Character(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Character();
 
 	//Update/render

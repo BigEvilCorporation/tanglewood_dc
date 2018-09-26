@@ -16,7 +16,7 @@
 class Fuzzl : public Character
 {
 public:
-	Fuzzl(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Fuzzl();
 
 	//Update/render

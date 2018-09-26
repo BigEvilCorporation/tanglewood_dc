@@ -50,6 +50,9 @@ public:
 	int FindEntitiesByType(const std::string& type, std::vector<Entity*>& entities) const;
 
 	//Physics world
+	void RegisterPushableObject(PhysicsObj& physicsObj);
+	void UnregisterPushableObject(PhysicsObj& physicsObj);
+	const std::vector<PhysicsObj*>& GetPushableObjects() const;
 	float GetGravity() const { return m_gravity; }
 
 	//Player(s)
@@ -87,6 +90,7 @@ private:
     
     //Entities
     std::vector<Entity*> m_entities;
+	std::vector<PhysicsObj*> m_pushableObjs;
     
     //Player controller
     PlayerController* m_playerController;

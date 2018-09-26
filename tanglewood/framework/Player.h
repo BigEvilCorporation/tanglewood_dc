@@ -15,10 +15,27 @@
 class Player : public Character
 {
 public:
-	Player(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	enum class InteractionType
+	{
+		None,
+		Push
+	};
+
+	Player(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
     virtual ~Player();
     
     //Update/render
     virtual void Update(float deltaTime);
     virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
+
+	void BeginInteract();
+	void EndInteract();
+
+private:
+	bool FindPushable();
+	void UpdatePushable();
+
+	InteractionType m_activeInteraction;
+
+	PhysicsObj* m_currentPushable;
 };

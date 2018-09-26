@@ -13,6 +13,7 @@
 
 #include <ion/core/debug/Debug.h>
 #include <ion/core/string/String.h>
+#include <ion/core/utils/STL.h>
 
 //TODO: Move
 #include "Player.h"
@@ -396,4 +397,19 @@ int World::FindEntitiesByType(const std::string& type, std::vector<Entity*>& ent
 	}
 
 	return entities.size();
+}
+
+void World::RegisterPushableObject(PhysicsObj& physicsObj)
+{
+	m_pushableObjs.push_back(&physicsObj);
+}
+
+void World::UnregisterPushableObject(PhysicsObj& physicsObj)
+{
+	ion::utils::stl::FindAndRemove(m_pushableObjs, &physicsObj);
+}
+
+const std::vector<PhysicsObj*>& World::GetPushableObjects() const
+{
+	return m_pushableObjs;
 }

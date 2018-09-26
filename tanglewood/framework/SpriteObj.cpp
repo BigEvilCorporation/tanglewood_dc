@@ -15,7 +15,7 @@
 #include <ion/core/memory/Memory.h>
 #include <ion/core/utils/STL.h>
 
-SpriteObj::SpriteObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Entity(world, gameObject, gameObjType, actor)
 {
 	m_currentSheet = NULL;

@@ -11,7 +11,7 @@
 #include "Character.h"
 #include "Constants.h"
 
-Character::Character(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+Character::Character(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: PhysicsObj(world, gameObject, gameObjType, actor)
 {
 	//Setup default state

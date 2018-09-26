@@ -13,7 +13,7 @@
 
 #include "framework/World.h"
 
-Fuzzl::Fuzzl(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Character(world, gameObject, gameObjType, actor)
 {
 	//Setup states
@@ -26,11 +26,14 @@ Fuzzl::Fuzzl(const World& world, const GameObject& gameObject, const GameObjectT
 
 	//Managing character animations manually
 	m_manualAnimation = true;
+
+	//Register as pushable obj
+	m_world.RegisterPushableObject(*this);
 }
 
 Fuzzl::~Fuzzl()
 {
-
+	m_world.UnregisterPushableObject(*this);
 }
 
 void Fuzzl::Update(float deltaTime)
@@ -111,6 +114,10 @@ void Fuzzl::StateRolling::OnEnterState()
 
 void Fuzzl::StateRolling::OnUpdateState(float deltaTime)
 {
+	//Scale anim speed based on velocity
+	float animSpeed = m_fuzzl.m_velocity.x / Constants::Fuzzl::animSpeedVelocityDiv;
+	m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(animSpeed);
+
 	//Check if player goes out of view distance
 	ion::Vector2 playerCentre = m_fuzzl.m_world.GetPlayerController()->GetCentre();
 

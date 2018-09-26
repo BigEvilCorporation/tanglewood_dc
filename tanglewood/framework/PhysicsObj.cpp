@@ -12,7 +12,7 @@
 #include "World.h"
 #include "Constants.h"
 
-PhysicsObj::PhysicsObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: SpriteObj(world, gameObject, gameObjType, actor)
 {
 	m_maxVelocityX = Constants::Player::defaultPlayerMaxVelocityX;

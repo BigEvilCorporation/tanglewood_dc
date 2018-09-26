@@ -16,7 +16,7 @@
 
 std::vector<Character*> Mushroom::s_potentialUsers;
 
-Mushroom::Mushroom(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+Mushroom::Mushroom(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: SpriteObj(world, gameObject, gameObjType, actor)
 {
 	m_bounceVel.x = Constants::Mushroom::defaultBounceVelX;

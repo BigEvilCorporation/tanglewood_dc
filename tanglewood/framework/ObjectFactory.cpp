@@ -39,7 +39,7 @@ namespace ObjectFactory
 		return actor;
 	}
 
-	Entity* Create(const World& world, TActorMap& actors, const GameObject& gameObject, const GameObjectType& gameObjType)
+	Entity* Create(World& world, TActorMap& actors, const GameObject& gameObject, const GameObjectType& gameObjType)
 	{
 		Entity* entity = NULL;
 		

@@ -16,7 +16,7 @@
 
 std::vector<PhysicsObj*> Flue::s_potentialOccupants;
 
-Flue::Flue(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
+Flue::Flue(World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
 	: Entity(world, gameObject, gameObjType, nullptr)
 {
 	m_ejectTime = Constants::Flue::defaultEjectTime;

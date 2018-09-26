@@ -10,7 +10,7 @@
 
 #include "Firefly.h"
 
-Firefly::Firefly(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+Firefly::Firefly(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: SpriteObj(world, gameObject, gameObjType, actor)
 {
 	//Setup animation

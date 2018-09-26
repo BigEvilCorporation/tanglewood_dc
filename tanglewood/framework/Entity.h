@@ -19,7 +19,7 @@ class World;
 class Entity
 {
 public:
-	Entity(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
+	Entity(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Entity();
 
 	//Update/render
@@ -41,5 +41,5 @@ public:
 	bool m_active;					//Active flag
 
 	const GameObjectType& m_gameObjType;
-	const World& m_world;
+	World& m_world;
 };
