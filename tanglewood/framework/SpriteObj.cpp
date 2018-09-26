@@ -13,6 +13,7 @@
 
 #include <ion/core/debug/Debug.h>
 #include <ion/core/memory/Memory.h>
+#include <ion/core/utils/STL.h>
 
 SpriteObj::SpriteObj(const World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Entity(world, gameObject, gameObjType, actor)
@@ -194,7 +195,7 @@ void SpriteObj::SetSpriteSheet(const std::string& sheetName)
 	}
 }
 
-void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& animName)
+void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& animName, bool loop)
 {
 	std::map<std::string, Sheet>::iterator sheetIt = m_sheets.find(sheetName);
 	if(sheetIt != m_sheets.end())
@@ -214,6 +215,8 @@ void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& an
 					}
 
 					m_currentAnim = new SpriteAnimation(*animIt->second);
+					m_currentAnim->SetStart();
+					m_currentAnim->SetPlaybackBehaviour(loop ? ion::render::Animation::eLoop : ion::render::Animation::ePlayOnce);
 				}
 
 				//Set speed
@@ -234,11 +237,33 @@ void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& an
 	}
 }
 
+void SpriteObj::QueueAnimation(const std::string& sheetName, const std::string& animName, bool loop)
+{
+	QueuedAnim anim;
+	anim.sheetName = sheetName;
+	anim.animName = animName;
+	anim.looping = loop;
+
+	m_animQueue.push_back(anim);
+}
+
 void SpriteObj::Update(float deltaTime)
 {
+	//Update current anim
 	if(m_currentAnim)
 	{
 		m_currentAnim->Update(deltaTime);
+	}
+
+	//Update queue
+	if (!m_animQueue.empty())
+	{
+		if (!m_currentAnim || m_currentAnim->GetState() == ion::render::Animation::eStopped)
+		{
+			//Current anim stopped, pop front of queue
+			SetAnimation(m_animQueue.front().sheetName, m_animQueue.front().animName, m_animQueue.front().looping);
+			m_animQueue.erase(m_animQueue.begin());
+		}
 	}
 
 	Entity::Update(deltaTime);

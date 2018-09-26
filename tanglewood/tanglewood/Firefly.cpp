@@ -14,7 +14,7 @@ Firefly::Firefly(const World& world, const GameObject& gameObject, const GameObj
 	: SpriteObj(world, gameObject, gameObjType, actor)
 {
 	//Setup animation
-	SetAnimation("red", "idle");
+	SetAnimation("red", "idle", true);
 }
 
 Firefly::~Firefly()

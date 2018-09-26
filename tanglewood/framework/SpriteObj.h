@@ -28,8 +28,11 @@ public:
 	void SetSpriteSheet(const std::string& sheetName);
 
 	//Set current animation and begin playback
-	void SetAnimation(const std::string& sheetName, const std::string& animName);
+	void SetAnimation(const std::string& sheetName, const std::string& animName, bool loop);
 	const SpriteAnimation* GetCurrentAnimation() const { return m_currentAnim; }
+
+	//Queue next animation (interrupts current looping anim)
+	void QueueAnimation(const std::string& sheetName, const std::string& animName, bool loop);
 
 	//Update/render
 	virtual void Update(float deltaTime);
@@ -60,8 +63,16 @@ private:
 		std::vector<Frame> m_frames;
 		std::map<std::string, SpriteAnimation*> m_animations;
 	};
+
+	struct QueuedAnim
+	{
+		std::string sheetName;
+		std::string animName;
+		bool looping;
+	};
 	
 	std::map<std::string, Sheet> m_sheets;
 	Sheet* m_currentSheet;
 	SpriteAnimation* m_currentAnim;
+	std::vector<QueuedAnim> m_animQueue;
 };

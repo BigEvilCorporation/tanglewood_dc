@@ -56,6 +56,10 @@ void Mushroom::Update(float deltaTime)
 
 				//Set jumping
 				character.m_jumping = true;
+
+				//Set bounce animation, queue idle
+				SetAnimation("mushroom_180", "bounce", false);
+				QueueAnimation("mushroom_180", "idle", true);
 			}
 		}
 	}

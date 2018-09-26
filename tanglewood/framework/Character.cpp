@@ -98,7 +98,8 @@ void Character::Jump()
 
 void Character::SetCharacterAnimation(CharacterAnimations animation)
 {
-	SetAnimation(m_characterAnimations[(int)animation].first, m_characterAnimations[(int)animation].second);
+	//TODO: non-looping anims
+	SetAnimation(m_characterAnimations[(int)animation].first, m_characterAnimations[(int)animation].second, true);
 }
 
 void Character::UpdateAnimation()
