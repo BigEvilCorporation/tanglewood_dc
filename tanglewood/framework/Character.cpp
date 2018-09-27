@@ -159,6 +159,14 @@ void Character::UpdateAnimation()
 		{
 			SetCharacterAnimation(CharacterAnimations::Fall);
 		}
+		else if (m_pushingLight)
+		{
+			SetCharacterAnimation(CharacterAnimations::PushLight);
+		}
+		else if (m_pushingHeavy)
+		{
+			SetCharacterAnimation(CharacterAnimations::PushHeavy);
+		}
 		else if (m_closeToFloor && m_velocity.GetLength() == 0.0f)
 		{
 			SetCharacterAnimation(CharacterAnimations::Idle);

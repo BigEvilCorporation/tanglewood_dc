@@ -60,6 +60,9 @@ namespace Constants
 		//Dimensions
 		static const float boundsWidth = 0x0010;
 		static const float boundsHeight = 0x0030;
+
+		//Pushing
+		static const float heavyPushObjectHeight = 0x0010;
 	}
 
 	namespace Flue

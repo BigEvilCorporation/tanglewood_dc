@@ -40,7 +40,7 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	m_characterAnimations[(int)CharacterAnimations::Walk] = std::make_pair("walk", "walk");
 	m_characterAnimations[(int)CharacterAnimations::Jump] = std::make_pair("jump", "jump");
 	m_characterAnimations[(int)CharacterAnimations::Glide] = std::make_pair("glide", "glide");
-	m_characterAnimations[(int)CharacterAnimations::Push] = std::make_pair("push", "push");
+	m_characterAnimations[(int)CharacterAnimations::PushLight] = std::make_pair("push", "push");
 	m_characterAnimations[(int)CharacterAnimations::PushHeavy] = std::make_pair("pushHeavy", "pushHeavy");
 	m_characterAnimations[(int)CharacterAnimations::Fall] = std::make_pair("fall", "fall");
 	m_characterAnimations[(int)CharacterAnimations::WalkToRun] = std::make_pair("walktorun", "walktorun");
@@ -81,6 +81,16 @@ void Player::BeginInteract()
 		{
 			m_activeInteraction = InteractionType::Push;
 			m_allowRunning = false;
+
+			if (m_currentPushable->m_size.y > Constants::Player::heavyPushObjectHeight)
+			{
+				m_pushingHeavy = true;
+			}
+			else
+			{
+				m_pushingLight = true;
+			}
+
 			return;
 		}
 	}
@@ -91,6 +101,8 @@ void Player::EndInteract()
 	m_activeInteraction = InteractionType::None;
 	m_allowRunning = true;
 	m_currentPushable = nullptr;
+	m_pushingLight = false;
+	m_pushingHeavy = false;
 }
 
 bool Player::FindPushable()
@@ -102,6 +114,8 @@ bool Player::FindPushable()
 	{
 		if (Intersects(*pushableObjs[i]))
 		{
+			//TODO: Check facing right direction
+
 			m_currentPushable = pushableObjs[i];
 		}
 	}
@@ -113,34 +127,43 @@ void Player::UpdatePushable()
 {
 	if (m_currentPushable)
 	{
-		float playerCentre = GetWorldCentre().x;
-		float pushableCentre = m_currentPushable->GetWorldCentre().x;
-
-		//If facing right direction
-		if (	(!m_flippedX && (pushableCentre > playerCentre))
-			||	(m_flippedX && (pushableCentre < playerCentre)))
+		//Check still intersects
+		//TODO: Check still facing right direction
+		if (!Intersects(*m_currentPushable))
 		{
-			//Get bounding boxes
-			ion::Vector2 playerTopLeft;
-			ion::Vector2 playerBottomRight;
-			ion::Vector2 pushableTopLeft;
-			ion::Vector2 pushableBottomRight;
+			EndInteract();
+		}
+		else
+		{
+			float playerCentre = GetWorldCentre().x;
+			float pushableCentre = m_currentPushable->GetWorldCentre().x;
 
-			GetWorldBounds(playerTopLeft, playerBottomRight);
-			m_currentPushable->GetWorldBounds(pushableTopLeft, pushableBottomRight);
-
-			//Snap to edge
-			if (m_flippedX && (pushableBottomRight.x > playerTopLeft.x))
+			//If facing right direction
+			if ((!m_flippedX && (pushableCentre > playerCentre))
+				|| (m_flippedX && (pushableCentre < playerCentre)))
 			{
-				pushableBottomRight.x = playerTopLeft.x;
-			}
-			else if (!m_flippedX && (playerBottomRight.x > pushableTopLeft.x))
-			{
-				pushableTopLeft.x = playerBottomRight.x;
-			}
+				//Get bounding boxes
+				ion::Vector2 playerTopLeft;
+				ion::Vector2 playerBottomRight;
+				ion::Vector2 pushableTopLeft;
+				ion::Vector2 pushableBottomRight;
 
-			//Match velocity
-			m_currentPushable->m_velocity.x = m_velocity.x;
+				GetWorldBounds(playerTopLeft, playerBottomRight);
+				m_currentPushable->GetWorldBounds(pushableTopLeft, pushableBottomRight);
+
+				//Snap to edge
+				if (m_flippedX && (pushableBottomRight.x > playerTopLeft.x))
+				{
+					pushableBottomRight.x = playerTopLeft.x;
+				}
+				else if (!m_flippedX && (playerBottomRight.x > pushableTopLeft.x))
+				{
+					pushableTopLeft.x = playerBottomRight.x;
+				}
+
+				//Match velocity
+				m_currentPushable->m_velocity.x = m_velocity.x;
+			}
 		}
 	}
 }

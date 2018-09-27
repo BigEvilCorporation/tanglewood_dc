@@ -24,7 +24,7 @@ public:
 		Jump,
 		Hang,
 		Glide,
-		Push,
+		PushLight,
 		PushHeavy,
 		Fall,
 		WalkToRun,
@@ -46,6 +46,8 @@ public:
 	bool m_allowRunning;
 	bool m_running;
 	bool m_jumping;
+	bool m_pushingLight;
+	bool m_pushingHeavy;
 
 	bool m_manualAnimation;
 
