@@ -14,7 +14,9 @@
 #define SUBPIXELS_TO_PIXELS(val) (float)((float)(val>>16)+((float)(val&0xFFFF)/Constants::MegaDrive::subPixelsPerPixel))
 #define SUBPIXELS_TO_PIXELS_PER_SEC(val) SUBPIXELS_TO_PIXELS(val) * Constants::MegaDrive::frameRate
 #define SUBPIXELS_TO_ACCELERATION(val) SUBPIXELS_TO_PIXELS(val) * ion::maths::Square(Constants::MegaDrive::frameRate)
+
 #define FRAMES_TO_SECONDS(val) val / Constants::MegaDrive::frameRate
+#define SUBFRAMES_TO_SECONDS(val) (val / Constants::MegaDrive::frameRate) * Constants::MegaDrive::subFramesPerFrame
 
 namespace Constants
 {
@@ -90,6 +92,11 @@ namespace Constants
 		static const float animSpeedVelocityMul = 0.2f;
 		static const int maxEyeWatchFrames = 8;
 		static const int eyeWatchCentreFrame = 8;
+
+		//Bounce
+		static const float bounceDelay = FRAMES_TO_SECONDS(0x40);
+		static const float bounceImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x018000);
+		static const float bounceAnimSpeed = SUBFRAMES_TO_SECONDS(0x40);
 	}
 
 	namespace Mushroom

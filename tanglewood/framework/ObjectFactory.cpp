@@ -20,6 +20,7 @@
 #include "tanglewood/Flue.h"
 #include "tanglewood/Fuzzl.h"
 #include "tanglewood/Mushroom.h"
+#include "tanglewood/Nest.h"
 
 namespace ObjectFactory
 {
@@ -52,7 +53,7 @@ namespace ObjectFactory
 		//TODO: allow static type registration
 		if (typeName == "Nest")
 		{
-			entity = new Entity(world, gameObject, gameObjType, actor);
+			entity = new Nest(world, gameObject, gameObjType);
 		}
 		else if(	typeName == "Nymn"
 				||	typeName == "Echo")

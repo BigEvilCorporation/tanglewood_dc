@@ -9,6 +9,7 @@
 ///////////////////////////////////////////////////////////////
 
 #include "Fuzzl.h"
+#include "Nest.h"
 #include "Constants.h"
 
 #include "framework/World.h"
@@ -30,6 +31,7 @@ Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& g
 	m_stateMachine.AddState(new StateIdle(*this), "idle");
 	m_stateMachine.AddState(new StateWatching(*this), "watching");
 	m_stateMachine.AddState(new StateRolling(*this), "rolling");
+	m_stateMachine.AddState(new StateNest(*this), "nest");
 
 	//Initial state
 	m_stateMachine.SetState("idle");
@@ -55,6 +57,21 @@ void Fuzzl::Update(float deltaTime)
 void Fuzzl::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
 {
 	Character::Render(renderer, cameraInv, mapSize);
+}
+
+Nest* Fuzzl::FindNest() const
+{
+	std::vector<Nest*> nests = Nest::GetAll();
+
+	for (int i = 0; i < nests.size(); i++)
+	{
+		if (Intersects(*nests[i]))
+		{
+			return nests[i];
+		}
+	}
+
+	return nullptr;
 }
 
 void Fuzzl::StateIdle::OnEnterState()
@@ -128,12 +145,66 @@ void Fuzzl::StateRolling::OnUpdateState(float deltaTime)
 	float animSpeed = m_fuzzl.m_velocity.x * Constants::Fuzzl::animSpeedVelocityMul;
 	m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(animSpeed);
 
-	//Check if player goes out of view distance
-	ion::Vector2 playerCentre = m_fuzzl.m_world.GetPlayerController()->GetCentre();
-
-	if ((playerCentre - m_fuzzl.m_worldPos).GetLength() > Constants::Fuzzl::lostDistance)
+	//Check if touching nest
+	if (m_fuzzl.FindNest())
 	{
-		//Player far away, set idle state
-		m_stateMachine->SetState("idle");
+		m_stateMachine->SetState("nest");
+	}
+
+	//Check if player goes out of view distance
+	if (ion::maths::IsZero(m_fuzzl.m_velocity.x))
+	{
+		ion::Vector2 playerCentre = m_fuzzl.m_world.GetPlayerController()->GetCentre();
+
+		if ((playerCentre - m_fuzzl.m_worldPos).GetLength() > Constants::Fuzzl::lostDistance)
+		{
+			//Player far away, set idle state
+			m_stateMachine->SetState("idle");
+		}
+	}
+}
+
+void Fuzzl::StateNest::OnEnterState()
+{
+	//Snap to nest centre
+	Nest* nest = m_fuzzl.FindNest();
+	ion::debug::Assert(nest, "Fuzzl::StateNest::OnEnterState() - No nest to enter");
+	m_fuzzl.m_worldPos.x = (nest->m_worldPos.x + (nest->m_size.x / 2.0f)) - (m_fuzzl.m_size.x / 2.0f);
+	m_fuzzl.m_worldPos.y = (nest->m_worldPos.y + (nest->m_size.y / 2.0f)) - (m_fuzzl.m_size.y / 2.0f);
+
+	//Clear movement
+	m_fuzzl.m_velocity = ion::Vector2();
+	m_fuzzl.m_acceleration = ion::Vector2();
+
+	//Remove as pushable object
+	m_fuzzl.m_world.UnregisterPushableObject(m_fuzzl);
+
+	//Set roll anim
+	m_fuzzl.SetAnimation("yellow_roll", "yellow_roll", true);
+	m_fuzzl.GetCurrentAnimation()->SetStart();
+
+	//Init bounce timer
+	m_bounceTimer = Constants::Fuzzl::bounceDelay;
+}
+
+void Fuzzl::StateNest::OnUpdateState(float deltaTime)
+{
+	//TODO: If player within distance, and not same colour
+
+	m_bounceTimer -= deltaTime;
+	if (m_bounceTimer <= 0.0f)
+	{
+		m_fuzzl.AddImpulse(ion::Vector2(0.0f, Constants::Fuzzl::bounceImpulse));
+		m_bounceTimer = Constants::Fuzzl::bounceDelay;
+	}
+
+	//Roll if off floor
+	if (m_fuzzl.m_closeToFloor)
+	{
+		m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(0.0f);
+	}
+	else
+	{
+		m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(Constants::Fuzzl::bounceAnimSpeed);
 	}
 }

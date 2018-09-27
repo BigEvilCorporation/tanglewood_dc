@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "Nest.h"
+
 #include "framework/Character.h"
 #include "framework/State.h"
 
@@ -60,6 +62,22 @@ private:
 
 		Fuzzl& m_fuzzl;
 	};
+
+	class StateNest : public State
+	{
+	public:
+		StateNest(Fuzzl& fuzzl)
+			: m_fuzzl(fuzzl) {}
+
+		virtual void OnEnterState();
+		virtual void OnUpdateState(float deltaTime);
+
+		Fuzzl& m_fuzzl;
+
+		float m_bounceTimer;
+	};
+
+	Nest* FindNest() const;
 
 	StateMachine m_stateMachine;
 };
