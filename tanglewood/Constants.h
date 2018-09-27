@@ -35,28 +35,31 @@ namespace Constants
 		static const float wallSearchDist = MegaDrive::tileWidth * 2;
 	}
 
+	namespace Character
+	{
+		static const ion::Vector2 accelerationWalking(SUBPIXELS_TO_ACCELERATION(0x0600), 0.0f);
+		static const ion::Vector2 accelerationRunning(SUBPIXELS_TO_ACCELERATION(0x1400), 0.0f);
+		static const ion::Vector2 decelerationIdle(SUBPIXELS_TO_ACCELERATION(0x1600), 0.0f);
+		static const ion::Vector2 decelerationForced(SUBPIXELS_TO_ACCELERATION(0x3000), 0.0f);
+
+		static const float maxVelocityXWalking = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
+		static const float maxVelocityXRunning = SUBPIXELS_TO_PIXELS_PER_SEC(0x040000);
+		static const float maxVelocityYUp = SUBPIXELS_TO_PIXELS_PER_SEC(0x100000);
+		static const float maxVelocityYDown = SUBPIXELS_TO_PIXELS_PER_SEC(0x080000);
+
+		static const float walkToRunVelocity = SUBPIXELS_TO_PIXELS_PER_SEC(0x020000);
+
+		static const float jumpImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x060000);
+		static const float fallVelocity = SUBPIXELS_TO_PIXELS_PER_SEC(0x020000);
+
+		static const float stepHeight = 0x04;
+	}
+
 	namespace Player
 	{
 		//Dimensions
 		static const float boundsWidth = 0x0010;
 		static const float boundsHeight = 0x0030;
-
-		//Acceleration/deceleration
-		static const ion::Vector2 defaultPlayerAcceleration(SUBPIXELS_TO_ACCELERATION(0x1400), 0.0f);
-		static const ion::Vector2 defaultPlayerDecelerationIdle(SUBPIXELS_TO_ACCELERATION(0x1600), 0.0f);
-		static const ion::Vector2 defaultPlayerDecelerationForced(SUBPIXELS_TO_ACCELERATION(0x3000), 0.0f);
-
-		//Max velocities
-		static const float defaultPlayerMaxVelocityX = SUBPIXELS_TO_PIXELS_PER_SEC(0x040000);
-		static const float defaultPlayerMaxVelocityYUp = SUBPIXELS_TO_PIXELS_PER_SEC(0x100000);
-		static const float defaultPlayerMaxVelocityYDown = SUBPIXELS_TO_PIXELS_PER_SEC(0x080000);
-
-		//Jumping/falling
-		static const float defaultPlayerJumpImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x060000);
-		static const float defaultFallVelocity = SUBPIXELS_TO_PIXELS_PER_SEC(0x020000);
-
-		//Physics
-		static const float defaultStepHeight = 0x04;
 	}
 
 	namespace Flue
@@ -67,10 +70,21 @@ namespace Constants
 
 	namespace Fuzzl
 	{
+		//Deceleration
+		static const ion::Vector2 deceleration(SUBPIXELS_TO_ACCELERATION(0x0200), 0.0f);
+
+		//Max velocities
+		static const float maxVelocityX = SUBPIXELS_TO_PIXELS_PER_SEC(0x012000);
+		static const float maxVelocityYUp = SUBPIXELS_TO_PIXELS_PER_SEC(0x100000);
+		static const float maxVelocityYDown = SUBPIXELS_TO_PIXELS_PER_SEC(0x080000);
+
+		//Physics
+		static const float stepHeight = 0x03;
+
 		static const float alertDistance = 0x0050;
 		static const float lostDistance = 0x0080;
 		static const float startledImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
-		static const float animSpeedVelocityDiv = SUBPIXELS_TO_PIXELS_PER_SEC(0x0400);
+		static const float animSpeedVelocityMul = 0.2f;
 		static const int maxEyeWatchFrames = 8;
 		static const int eyeWatchCentreFrame = 8;
 	}

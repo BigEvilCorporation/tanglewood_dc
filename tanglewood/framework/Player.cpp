@@ -43,7 +43,7 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	m_characterAnimations[(int)CharacterAnimations::Push] = std::make_pair("push", "push");
 	m_characterAnimations[(int)CharacterAnimations::PushHeavy] = std::make_pair("pushHeavy", "pushHeavy");
 	m_characterAnimations[(int)CharacterAnimations::Fall] = std::make_pair("fall", "fall");
-	m_characterAnimations[(int)CharacterAnimations::WalkToRun] = std::make_pair("walkToRun", "walkToRun");
+	m_characterAnimations[(int)CharacterAnimations::WalkToRun] = std::make_pair("walktorun", "walktorun");
 	m_characterAnimations[(int)CharacterAnimations::WaterWade] = std::make_pair("waterWade", "waterWade");
 }
 
@@ -80,6 +80,7 @@ void Player::BeginInteract()
 		if (FindPushable())
 		{
 			m_activeInteraction = InteractionType::Push;
+			m_allowRunning = false;
 			return;
 		}
 	}
@@ -88,6 +89,7 @@ void Player::BeginInteract()
 void Player::EndInteract()
 {
 	m_activeInteraction = InteractionType::None;
+	m_allowRunning = true;
 	m_currentPushable = nullptr;
 }
 

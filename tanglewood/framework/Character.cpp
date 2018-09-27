@@ -15,13 +15,25 @@ Character::Character(World& world, const GameObject& gameObject, const GameObjec
 	: PhysicsObj(world, gameObject, gameObjType, actor)
 {
 	//Setup default state
-	m_stepHeight = Constants::Player::defaultStepHeight;
+	m_stepHeight = Constants::Character::stepHeight;
+	m_maxVelocityX = Constants::Character::maxVelocityXWalking;
+	m_maxVelocityYUp = Constants::Character::maxVelocityYUp;
+	m_maxVelocityYDown = Constants::Character::maxVelocityYDown;
+	m_deceleration = Constants::Character::decelerationIdle;
 
+	m_walktoRunVelocity = Constants::Character::walkToRunVelocity;
+	m_maxVelocityXWalking = Constants::Character::maxVelocityXWalking;
+	m_maxVelocityXRunning = Constants::Character::maxVelocityXRunning;
+
+	m_allowRunning = true;
+	m_running = false;
 	m_jumping = false;
 	m_onFloor = false;
 	m_closeToFloor = false;
 	m_snapToFloor = false;
 	m_manualAnimation = false;
+
+	m_walkToRunAnimTransition = false;
 }
 
 Character::~Character()
@@ -44,12 +56,7 @@ void Character::Update(float deltaTime)
 	if(m_closeToFloor || m_onFloor)
 	{
 		m_jumping = false;
-
-		//If running, snap to floor
-		//if()
-		{
-			m_snapToFloor = true;
-		}
+		m_snapToFloor = true;
 	}
 
 	//Flip sprite
@@ -60,6 +67,24 @@ void Character::Update(float deltaTime)
 	else if(m_velocity.x > 0.0f)
 	{
 		m_flippedX = false;
+	}
+
+	//Update walk/run
+	bool m_prevRunning = m_running;
+	m_running = (ion::maths::Abs(m_velocity.x) >= m_walktoRunVelocity);
+
+	if (m_allowRunning)
+	{
+		m_maxVelocityX = m_maxVelocityXRunning;
+
+		if (m_running != m_prevRunning)
+		{
+			m_walkToRunAnimTransition = true;
+		}
+	}
+	else
+	{
+		m_maxVelocityX = m_maxVelocityXWalking;
 	}
 }
 
@@ -72,11 +97,21 @@ void Character::Move(float speed)
 {
 	if ((m_velocity.x < 0.0f && speed > 0.0f) || (m_velocity.x > 0.0f && speed < 0.0f))
 	{
-		m_acceleration.x = speed * Constants::Player::defaultPlayerDecelerationForced.x;
+		//TODO: Store as member
+		m_acceleration.x = speed * Constants::Character::decelerationForced.x;
 	}
 	else
 	{
-		m_acceleration.x = speed * Constants::Player::defaultPlayerAcceleration.x;
+		if (m_allowRunning)
+		{
+			//TODO: Store as member
+			m_acceleration.x = speed * Constants::Character::accelerationRunning.x;
+		}
+		else
+		{
+			//TODO: Store as member
+			m_acceleration.x = speed * Constants::Character::accelerationWalking.x;
+		}
 	}
 }
 
@@ -84,7 +119,9 @@ void Character::Jump()
 {
 	if(m_closeToFloor)
 	{
-		m_velocity.y = Constants::Player::defaultPlayerJumpImpulse;
+		//TODO: Store as member
+		m_velocity.y = Constants::Character::jumpImpulse;
+
 		m_jumping = true;
 		m_onFloor = false;
 		m_closeToFloor = false;
@@ -92,31 +129,55 @@ void Character::Jump()
 	}
 }
 
-void Character::SetCharacterAnimation(CharacterAnimations animation)
+void Character::SetCharacterAnimation(CharacterAnimations animation, bool loop, bool interrupt)
 {
-	//TODO: non-looping anims
 	if (!m_characterAnimations[(int)animation].first.empty())
 	{
-		SetAnimation(m_characterAnimations[(int)animation].first, m_characterAnimations[(int)animation].second, true);
+		if (interrupt)
+		{
+			SetAnimation(m_characterAnimations[(int)animation].first, m_characterAnimations[(int)animation].second, loop);
+		}
+		else
+		{
+			QueueAnimation(m_characterAnimations[(int)animation].first, m_characterAnimations[(int)animation].second, loop);
+		}
 	}
 }
 
 void Character::UpdateAnimation()
 {
-	if(m_jumping)
+	SpriteAnimation* currentAnim = GetCurrentAnimation();
+
+	//Don't interrupt non-looping anims
+	if (!currentAnim || (currentAnim->GetState() == ion::render::Animation::eStopped) || (currentAnim->GetPlaybackBehaviour() == ion::render::Animation::eLoop))
 	{
-		SetCharacterAnimation(CharacterAnimations::Jump);
-	}
-	else if(!m_closeToFloor && m_velocity.y < -Constants::Player::defaultFallVelocity)
-	{
-		SetCharacterAnimation(CharacterAnimations::Fall);
-	}
-	else if(m_closeToFloor && m_velocity.GetLength() == 0.0f)
-	{
-		SetCharacterAnimation(CharacterAnimations::Idle);
-	}
-	else if(m_closeToFloor && m_velocity.GetLength() != 0.0f)
-	{
-		SetCharacterAnimation(CharacterAnimations::Run);
+		if (m_jumping)
+		{
+			SetCharacterAnimation(CharacterAnimations::Jump);
+		}
+		else if (!m_closeToFloor && m_velocity.y < -Constants::Character::fallVelocity)	//TODO: Store as member
+		{
+			SetCharacterAnimation(CharacterAnimations::Fall);
+		}
+		else if (m_closeToFloor && m_velocity.GetLength() == 0.0f)
+		{
+			SetCharacterAnimation(CharacterAnimations::Idle);
+		}
+		else if (m_closeToFloor && m_velocity.GetLength() != 0.0f)
+		{
+			if (m_walkToRunAnimTransition)
+			{
+				SetCharacterAnimation(CharacterAnimations::WalkToRun, false);
+				m_walkToRunAnimTransition = false;
+			}
+			else if (m_running)
+			{
+				SetCharacterAnimation(CharacterAnimations::Run);
+			}
+			else
+			{
+				SetCharacterAnimation(CharacterAnimations::Walk);
+			}
+		}
 	}
 }

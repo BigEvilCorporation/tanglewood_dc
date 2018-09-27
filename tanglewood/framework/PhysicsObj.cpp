@@ -15,10 +15,6 @@
 PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: SpriteObj(world, gameObject, gameObjType, actor)
 {
-	m_maxVelocityX = Constants::Player::defaultPlayerMaxVelocityX;
-	m_maxVelocityYUp = Constants::Player::defaultPlayerMaxVelocityYUp;
-	m_maxVelocityYDown = Constants::Player::defaultPlayerMaxVelocityYDown;
-	m_deceleration = Constants::Player::defaultPlayerDecelerationIdle;
 	m_floorProbeOffset = ion::Vector2(m_size.x / 2.0f, m_size.y - Constants::MegaDrive::tileHeight);
 
 	m_stepHeight = 1.0f;

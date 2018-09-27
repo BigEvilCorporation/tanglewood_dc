@@ -43,14 +43,22 @@ public:
 	void Move(float speed);
 	void Jump();
 
+	bool m_allowRunning;
+	bool m_running;
 	bool m_jumping;
 
 	bool m_manualAnimation;
+
+	float m_walktoRunVelocity;
+	float m_maxVelocityXWalking;
+	float m_maxVelocityXRunning;
 
 protected:
 	std::pair<std::string, std::string> m_characterAnimations[(int)CharacterAnimations::Count];
 
 private:
-	void SetCharacterAnimation(CharacterAnimations animation);
+	void SetCharacterAnimation(CharacterAnimations animation, bool loop = true, bool interrupt = true);
 	void UpdateAnimation();
+
+	bool m_walkToRunAnimTransition;
 };

@@ -16,6 +16,16 @@
 Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Character(world, gameObject, gameObjType, actor)
 {
+	//Physics
+	m_stepHeight = Constants::Fuzzl::stepHeight;
+	m_maxVelocityX = Constants::Fuzzl::maxVelocityX;
+	m_maxVelocityYUp = Constants::Fuzzl::maxVelocityYUp;
+	m_maxVelocityYDown = Constants::Fuzzl::maxVelocityYDown;
+	m_deceleration = Constants::Fuzzl::deceleration;
+
+	//Character
+	m_allowRunning = false;
+
 	//Setup states
 	m_stateMachine.AddState(new StateIdle(*this), "idle");
 	m_stateMachine.AddState(new StateWatching(*this), "watching");
@@ -115,7 +125,7 @@ void Fuzzl::StateRolling::OnEnterState()
 void Fuzzl::StateRolling::OnUpdateState(float deltaTime)
 {
 	//Scale anim speed based on velocity
-	float animSpeed = m_fuzzl.m_velocity.x / Constants::Fuzzl::animSpeedVelocityDiv;
+	float animSpeed = m_fuzzl.m_velocity.x * Constants::Fuzzl::animSpeedVelocityMul;
 	m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(animSpeed);
 
 	//Check if player goes out of view distance
