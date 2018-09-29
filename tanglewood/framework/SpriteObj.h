@@ -17,6 +17,7 @@
 #include <ion/beehive/SpriteAnimation.h>
 
 #include "Entity.h"
+#include "Animation.h"
 
 class SpriteObj : public Entity
 {
@@ -27,12 +28,12 @@ public:
 	//Set current sprite sheet
 	void SetSpriteSheet(const std::string& sheetName);
 
-	//Set current animation and begin playback
-	void SetAnimation(const std::string& sheetName, const std::string& animName, bool loop);
-	SpriteAnimation* GetCurrentAnimation() const { return m_currentAnim; }
+	//Animation
+	void PlayAnimation(const AnimType& animation);
+	void QueueAnimation(const AnimType& animation);
 
-	//Queue next animation (interrupts current looping anim)
-	void QueueAnimation(const std::string& sheetName, const std::string& animName, bool loop);
+	const AnimType* GetCurrentAnimType() const { return m_currentAnimType; }
+	SpriteAnimation* GetCurrentAnimation() const { return m_currentAnim; }
 
 	//Update/render
 	virtual void Update(float deltaTime);
@@ -64,15 +65,9 @@ private:
 		std::map<std::string, SpriteAnimation*> m_animations;
 	};
 
-	struct QueuedAnim
-	{
-		std::string sheetName;
-		std::string animName;
-		bool looping;
-	};
-	
 	std::map<std::string, Sheet> m_sheets;
 	Sheet* m_currentSheet;
 	SpriteAnimation* m_currentAnim;
-	std::vector<QueuedAnim> m_animQueue;
+	const AnimType* m_currentAnimType;
+	std::vector<AnimType> m_animQueue;
 };

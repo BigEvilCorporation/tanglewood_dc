@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Nest.h"
+#include "Colour.h"
 
 #include "framework/Character.h"
 #include "framework/State.h"
@@ -24,6 +25,12 @@ public:
 	//Update/render
 	virtual void Update(float deltaTime);
 	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
+
+	bool IsInNest() const;
+
+	ColourAbility m_colour;
+
+	Nest* m_nest;
 
 private:
 	

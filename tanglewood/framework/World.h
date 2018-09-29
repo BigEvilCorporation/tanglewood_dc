@@ -15,10 +15,16 @@
 #include <ion/beehive/Map.h>
 #include <ion/input/Keyboard.h>
 #include <ion/input/Gamepad.h>
+#include <ion/core/utils/STL.h>
 
 #include "Stamp.h"
 #include "Plane.h"
-#include "PlayerController.h"
+
+//TODO: Doesn't belong in framework
+#include "tanglewood/PlayerController.h"
+
+#include <vector>
+#include <map>
 
 class World
 {
@@ -45,9 +51,13 @@ public:
 	//Perform wall test
 	int FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const;
 
+	//Entity map
+	template <typename T> void AddEntity(T& entity);
+	template <typename T> void RemoveEntity(T& entity);
+	template <typename T> const std::vector<T*>& GetEntities() const;
+
 	//Find entities
 	Entity* FindEntity(const std::string& name);
-	int FindEntitiesByType(const std::string& type, std::vector<Entity*>& entities) const;
 
 	//Physics world
 	void RegisterPushableObject(PhysicsObj& physicsObj);
@@ -56,6 +66,7 @@ public:
 	float GetGravity() const { return m_gravity; }
 
 	//Player(s)
+	//TODO: Doesn't belong in framework
 	PlayerController* GetPlayerController() const { return m_playerController; }
 
 private:
@@ -90,8 +101,42 @@ private:
     
     //Entities
     std::vector<Entity*> m_entities;
+	std::map<std::string, std::vector<Entity*>> m_entitiesByType;
 	std::vector<PhysicsObj*> m_pushableObjs;
     
     //Player controller
+	//TODO: Doesn't belong in framework
     PlayerController* m_playerController;
 };
+
+template <typename T> void World::AddEntity(T& entity)
+{
+	std::map<std::string, std::vector<Entity*>>::iterator it = m_entitiesByType.find(typeid(T).name());
+
+	if (it == m_entitiesByType.end())
+	{
+		it = m_entitiesByType.insert(std::make_pair(typeid(T).name(), std::vector<Entity*>())).first;
+	}
+
+	it->second.push_back(&entity);
+}
+
+template <typename T> void World::RemoveEntity(T& entity)
+{
+	std::map<std::string, std::vector<Entity*>>::iterator it = m_entitiesByType.find(typeid(T).name());
+	ion::debug::Assert(it != m_entitiesByType.end(), "World::GetEntities<T>() - Invalid type");
+
+	ion::utils::stl::FindAndRemove(it->second, (Entity*)&entity);
+
+	if (it->second.empty())
+	{
+		m_entitiesByType.erase(it);
+	}
+}
+
+template <typename T> const std::vector<T*>& World::GetEntities() const
+{
+	std::map<std::string, std::vector<Entity*>>::const_iterator it = m_entitiesByType.find(typeid(T).name());
+	ion::debug::Assert(it != m_entitiesByType.end(), "World::GetEntities<T>() - Invalid type");
+	return (std::vector<T*>&)it->second;
+}

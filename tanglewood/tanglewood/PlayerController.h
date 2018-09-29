@@ -7,7 +7,7 @@
 // Description:	Applied keyboard/gamepad input to player
 ///////////////////////////////////////////////////////////////
 
-#include "Player.h"
+#include "tanglewood/Player.h"
 
 #include <ion/input/Keyboard.h>
 #include <ion/input/Gamepad.h>

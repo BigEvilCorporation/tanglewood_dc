@@ -9,12 +9,13 @@
 ///////////////////////////////////////////////////////////////
 
 #include "Firefly.h"
+#include "Animations.h"
 
 Firefly::Firefly(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: SpriteObj(world, gameObject, gameObjType, actor)
 {
 	//Setup animation
-	SetAnimation("red", "idle", true);
+	PlayAnimation(Animations::Firefly::idle);
 }
 
 Firefly::~Firefly()

@@ -21,6 +21,7 @@ C.LinkLibraries tanglewood : imageformats ;
 local SRC =
 	main.cpp
 
+	Animations.h
 	Constants.h
 	Debug.cpp
 	Debug.h
@@ -37,10 +38,6 @@ local SRC =
     framework/PhysicsObj.h
 	framework/Plane.cpp
 	framework/Plane.h
-	framework/Player.cpp
-	framework/Player.h
-	framework/PlayerController.cpp
-	framework/PlayerController.h
 	framework/SpriteObj.cpp
 	framework/SpriteObj.h
 	framework/Stamp.cpp
@@ -60,6 +57,10 @@ local SRC =
 	tanglewood/Mushroom.h
 	tanglewood/Nest.cpp
 	tanglewood/Nest.h
+	tanglewood/Player.cpp
+	tanglewood/Player.h
+	tanglewood/PlayerController.cpp
+	tanglewood/PlayerController.h
 	;
 
 AutoSourceGroup tanglewood : $(SRC) ;

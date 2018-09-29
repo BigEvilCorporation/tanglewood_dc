@@ -11,6 +11,7 @@
 #pragma once
 
 #include "PhysicsObj.h"
+#include "Animation.h"
 
 class Character : public PhysicsObj
 {
@@ -56,10 +57,10 @@ public:
 	float m_maxVelocityXRunning;
 
 protected:
-	std::pair<std::string, std::string> m_characterAnimations[(int)CharacterAnimations::Count];
+	std::pair<std::string, AnimType> m_characterAnimations[(int)CharacterAnimations::Count];
 
 private:
-	void SetCharacterAnimation(CharacterAnimations animation, bool loop = true, bool interrupt = true);
+	void SetCharacterAnimation(CharacterAnimations animation, bool interrupt = true);
 	void UpdateAnimation();
 
 	bool m_walkToRunAnimTransition;

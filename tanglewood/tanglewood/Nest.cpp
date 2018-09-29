@@ -9,23 +9,17 @@
 ///////////////////////////////////////////////////////////////
 
 #include "Nest.h"
+#include "framework/World.h"
 
 #include <ion/core/utils/STL.h>
-
-std::vector<Nest*> Nest::s_allNests;
 
 Nest::Nest(World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
 	: Entity(world, gameObject, gameObjType, nullptr)
 {
-	s_allNests.push_back(this);
+	m_world.AddEntity<Nest>(*this);
 }
 
 Nest::~Nest()
 {
-	ion::utils::stl::FindAndRemove(s_allNests, this);
-}
-
-std::vector<Nest*>& Nest::GetAll()
-{
-	return s_allNests;
+	m_world.RemoveEntity<Nest>(*this);
 }

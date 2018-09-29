@@ -19,9 +19,4 @@ class Nest : public Entity
 public:
 	Nest(World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
 	virtual ~Nest();
-
-	static std::vector<Nest*>& GetAll();
-
-private:
-	static std::vector<Nest*> s_allNests;
 };

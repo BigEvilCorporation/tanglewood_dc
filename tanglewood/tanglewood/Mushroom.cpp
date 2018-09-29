@@ -10,6 +10,7 @@
 
 #include "Mushroom.h"
 #include "Constants.h"
+#include "Animations.h"
 
 #include <ion/core/utils/STL.h>
 #include <ion/maths/Geometry.h>
@@ -58,8 +59,8 @@ void Mushroom::Update(float deltaTime)
 				character.m_jumping = true;
 
 				//Set bounce animation, queue idle
-				SetAnimation("mushroom_180", "bounce", false);
-				QueueAnimation("mushroom_180", "idle", true);
+				PlayAnimation(Animations::Mushroom::Orient180::bounce);
+				QueueAnimation(Animations::Mushroom::Orient180::idle);
 			}
 		}
 	}

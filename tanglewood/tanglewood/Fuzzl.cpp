@@ -11,12 +11,15 @@
 #include "Fuzzl.h"
 #include "Nest.h"
 #include "Constants.h"
+#include "Animations.h"
 
 #include "framework/World.h"
 
 Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Character(world, gameObject, gameObjType, actor)
 {
+	m_world.AddEntity<Fuzzl>(*this);
+
 	//Physics
 	m_stepHeight = Constants::Fuzzl::stepHeight;
 	m_maxVelocityX = Constants::Fuzzl::maxVelocityX;
@@ -26,6 +29,9 @@ Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& g
 
 	//Character
 	m_allowRunning = false;
+
+	m_colour = ColourAbility::Yellow;
+	m_nest = nullptr;
 
 	//Setup states
 	m_stateMachine.AddState(new StateIdle(*this), "idle");
@@ -45,6 +51,7 @@ Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& g
 
 Fuzzl::~Fuzzl()
 {
+	m_world.RemoveEntity<Fuzzl>(*this);
 	m_world.UnregisterPushableObject(*this);
 }
 
@@ -59,9 +66,14 @@ void Fuzzl::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraIn
 	Character::Render(renderer, cameraInv, mapSize);
 }
 
+bool Fuzzl::IsInNest() const
+{
+	return m_nest != nullptr;
+}
+
 Nest* Fuzzl::FindNest() const
 {
-	std::vector<Nest*> nests = Nest::GetAll();
+	const std::vector<Nest*>& nests = m_world.GetEntities<Nest>();
 
 	for (int i = 0; i < nests.size(); i++)
 	{
@@ -77,7 +89,7 @@ Nest* Fuzzl::FindNest() const
 void Fuzzl::StateIdle::OnEnterState()
 {
 	//Set idle anim
-	m_fuzzl.SetAnimation("yellow_idle", "yellow_idle", true);
+	m_fuzzl.PlayAnimation(Animations::Fuzzl::Yellow::idle);
 }
 
 void Fuzzl::StateIdle::OnUpdateState(float deltaTime)
@@ -95,7 +107,7 @@ void Fuzzl::StateIdle::OnUpdateState(float deltaTime)
 void Fuzzl::StateWatching::OnEnterState()
 {
 	//Set watch anim
-	m_fuzzl.SetAnimation("yellow_eyes", "yellow_eyes", true);
+	m_fuzzl.PlayAnimation(Animations::Fuzzl::Yellow::watch);
 	m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(0.0f);
 	m_fuzzl.GetCurrentAnimation()->SetFrame(Constants::Fuzzl::eyeWatchCentreFrame);
 
@@ -136,7 +148,7 @@ void Fuzzl::StateWatching::OnUpdateState(float deltaTime)
 void Fuzzl::StateRolling::OnEnterState()
 {
 	//Set watch anim
-	m_fuzzl.SetAnimation("yellow_roll", "yellow_roll", true);
+	m_fuzzl.PlayAnimation(Animations::Fuzzl::Yellow::roll);
 }
 
 void Fuzzl::StateRolling::OnUpdateState(float deltaTime)
@@ -146,8 +158,9 @@ void Fuzzl::StateRolling::OnUpdateState(float deltaTime)
 	m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(animSpeed);
 
 	//Check if touching nest
-	if (m_fuzzl.FindNest())
+	if (Nest* nest = m_fuzzl.FindNest())
 	{
+		m_fuzzl.m_nest = nest;
 		m_stateMachine->SetState("nest");
 	}
 
@@ -167,10 +180,9 @@ void Fuzzl::StateRolling::OnUpdateState(float deltaTime)
 void Fuzzl::StateNest::OnEnterState()
 {
 	//Snap to nest centre
-	Nest* nest = m_fuzzl.FindNest();
-	ion::debug::Assert(nest, "Fuzzl::StateNest::OnEnterState() - No nest to enter");
-	m_fuzzl.m_worldPos.x = (nest->m_worldPos.x + (nest->m_size.x / 2.0f)) - (m_fuzzl.m_size.x / 2.0f);
-	m_fuzzl.m_worldPos.y = (nest->m_worldPos.y + (nest->m_size.y / 2.0f)) - (m_fuzzl.m_size.y / 2.0f);
+	ion::debug::Assert(m_fuzzl.m_nest, "Fuzzl::StateNest::OnEnterState() - No nest to enter");
+	m_fuzzl.m_worldPos.x = (m_fuzzl.m_nest->m_worldPos.x + (m_fuzzl.m_nest->m_size.x / 2.0f)) - (m_fuzzl.m_size.x / 2.0f);
+	m_fuzzl.m_worldPos.y = (m_fuzzl.m_nest->m_worldPos.y + (m_fuzzl.m_nest->m_size.y / 2.0f)) - (m_fuzzl.m_size.y / 2.0f);
 
 	//Clear movement
 	m_fuzzl.m_velocity = ion::Vector2();
@@ -180,7 +192,7 @@ void Fuzzl::StateNest::OnEnterState()
 	m_fuzzl.m_world.UnregisterPushableObject(m_fuzzl);
 
 	//Set roll anim
-	m_fuzzl.SetAnimation("yellow_roll", "yellow_roll", true);
+	m_fuzzl.PlayAnimation(Animations::Fuzzl::Yellow::roll);
 	m_fuzzl.GetCurrentAnimation()->SetStart();
 
 	//Init bounce timer

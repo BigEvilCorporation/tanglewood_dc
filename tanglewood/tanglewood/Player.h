@@ -10,7 +10,10 @@
 
 #pragma once
 
-#include "Character.h"
+#include "Colour.h"
+
+#include "framework/Character.h"
+#include "framework/State.h"
 
 class Player : public Character
 {
@@ -31,11 +34,33 @@ public:
 	void BeginInteract();
 	void EndInteract();
 
+	void SwitchColour(ColourAbility colour);
+
+	ColourAbility m_colour;
+
 private:
-	bool FindPushable();
+
+	class AbilityGlide : public State
+	{
+	public:
+		AbilityGlide(Player& player)
+			: m_player(player) {}
+
+		virtual void OnEnterState();
+		virtual void OnUpdateState(float deltaTime);
+		virtual void OnExitState(State* newState);
+
+		Player& m_player;
+	};
+
+	bool TryInteractPushable();
+	bool TryInteractFindFuzzl();
+
 	void UpdatePushable();
 
 	InteractionType m_activeInteraction;
+
+	StateMachine m_abilityState;
 
 	PhysicsObj* m_currentPushable;
 };

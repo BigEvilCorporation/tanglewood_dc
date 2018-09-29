@@ -20,6 +20,7 @@ SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjec
 {
 	m_currentSheet = NULL;
 	m_currentAnim = NULL;
+	m_currentAnimType = NULL;
 
 	m_flippedX = false;
 	m_flippedY = false;
@@ -195,12 +196,12 @@ void SpriteObj::SetSpriteSheet(const std::string& sheetName)
 	}
 }
 
-void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& animName, bool loop)
+void SpriteObj::PlayAnimation(const AnimType& animation)
 {
-	std::map<std::string, Sheet>::iterator sheetIt = m_sheets.find(sheetName);
+	std::map<std::string, Sheet>::iterator sheetIt = m_sheets.find(animation.sheetName);
 	if(sheetIt != m_sheets.end())
 	{
-		std::map<std::string, SpriteAnimation*>::iterator animIt = sheetIt->second.m_animations.find(animName);
+		std::map<std::string, SpriteAnimation*>::iterator animIt = sheetIt->second.m_animations.find(animation.animName);
 		if(animIt != sheetIt->second.m_animations.end())
 		{
 			if(m_currentAnim != animIt->second)
@@ -214,9 +215,10 @@ void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& an
 						delete m_currentAnim;
 					}
 
+					m_currentAnimType = &animation;
 					m_currentAnim = new SpriteAnimation(*animIt->second);
 					m_currentAnim->SetStart();
-					m_currentAnim->SetPlaybackBehaviour(loop ? ion::render::Animation::eLoop : ion::render::Animation::ePlayOnce);
+					m_currentAnim->SetPlaybackBehaviour((animation.flags & AnimFlags::Loop) ? ion::render::Animation::eLoop : ion::render::Animation::ePlayOnce);
 				}
 
 				//Set speed
@@ -228,23 +230,18 @@ void SpriteObj::SetAnimation(const std::string& sheetName, const std::string& an
 		}
 		else
 		{
-			ion::debug::error << "Could not find animation " << animName << " in sprite sheet " << sheetName << ion::debug::end;
+			ion::debug::error << "Could not find animation " << animation.animName << " in sprite sheet " << animation.sheetName << ion::debug::end;
 		}
 	}
 	else
 	{
-		ion::debug::error << "Could not find sprite sheet " << sheetName << ion::debug::end;
+		ion::debug::error << "Could not find sprite sheet " << animation.sheetName << ion::debug::end;
 	}
 }
 
-void SpriteObj::QueueAnimation(const std::string& sheetName, const std::string& animName, bool loop)
+void SpriteObj::QueueAnimation(const AnimType& animation)
 {
-	QueuedAnim anim;
-	anim.sheetName = sheetName;
-	anim.animName = animName;
-	anim.looping = loop;
-
-	m_animQueue.push_back(anim);
+	m_animQueue.push_back(animation);
 }
 
 void SpriteObj::Update(float deltaTime)
@@ -261,7 +258,7 @@ void SpriteObj::Update(float deltaTime)
 		if (!m_currentAnim || m_currentAnim->GetState() == ion::render::Animation::eStopped)
 		{
 			//Current anim stopped, pop front of queue
-			SetAnimation(m_animQueue.front().sheetName, m_animQueue.front().animName, m_animQueue.front().looping);
+			PlayAnimation(m_animQueue.front());
 			m_animQueue.erase(m_animQueue.begin());
 		}
 	}

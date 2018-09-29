@@ -12,7 +12,6 @@
 #include <ion/core/string/String.h>
 
 #include "Character.h"
-#include "Player.h"
 #include "PhysicsObj.h"
 #include "SpriteObj.h"
 
@@ -21,6 +20,7 @@
 #include "tanglewood/Fuzzl.h"
 #include "tanglewood/Mushroom.h"
 #include "tanglewood/Nest.h"
+#include "tanglewood/Player.h"
 
 namespace ObjectFactory
 {

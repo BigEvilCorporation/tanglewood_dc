@@ -7,6 +7,8 @@
 // Description:	Micro state machine, for embedded object states and A.I.
 ///////////////////////////////////////////////////////////////
 
+#pragma once
+
 #include <ion/core/cryptography/UUID.h>
 
 #include <string>

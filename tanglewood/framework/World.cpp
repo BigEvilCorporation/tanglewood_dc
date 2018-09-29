@@ -16,7 +16,7 @@
 #include <ion/core/utils/STL.h>
 
 //TODO: Move
-#include "Player.h"
+#include "tanglewood/Player.h"
 const char* nymnObjectName = "nymn";
 
 World::World()
@@ -158,7 +158,11 @@ bool World::CreateGameObjects()
                 //Create entity
                 if(Entity* entity = ObjectFactory::Create(*this, m_actors, it->second[i].m_gameObject, *gameObjType))
                 {
-                    m_entities.push_back(entity);
+					//Add to typed list
+					AddEntity<Entity>(*entity);
+
+					//Add to flat list
+					m_entities.push_back(entity);
                 }
             }
         }
@@ -166,10 +170,10 @@ bool World::CreateGameObjects()
     
     //Find Nymn, create player controller
     //TODO: move
-	std::vector<Entity*> nymns;
-	if (FindEntitiesByType("Nymn", nymns))
+	std::vector<Player*> players = GetEntities<Player>();
+	if (!players.empty())
 	{
-		m_playerController = new PlayerController((Player&)*nymns[0]);
+		m_playerController = new PlayerController(*players[0]);
 	}
 	else
     {
@@ -384,19 +388,6 @@ Entity* World::FindEntity(const std::string& name)
 	}
 
 	return nullptr;
-}
-
-int World::FindEntitiesByType(const std::string& type, std::vector<Entity*>& entities) const
-{
-	for (int i = 0; i < m_entities.size(); i++)
-	{
-		if (ion::string::CompareNoCase(m_entities[i]->m_gameObjType.GetName(), type))
-		{
-			entities.push_back(m_entities[i]);
-		}
-	}
-
-	return entities.size();
 }
 
 void World::RegisterPushableObject(PhysicsObj& physicsObj)

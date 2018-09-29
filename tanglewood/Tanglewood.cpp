@@ -82,12 +82,6 @@ bool Tanglewood::Initialise()
 		m_debugUI->AddWatchObj((const SpriteObj&)*nymn);
 	}
 
-	std::vector<Entity*> fireflies;
-	if (m_world->FindEntitiesByType("firefly", fireflies) > 0)
-	{
-		m_debugUI->AddWatchObj((const SpriteObj&)*fireflies[0]);
-	}
-
 	return true;
 }
 
