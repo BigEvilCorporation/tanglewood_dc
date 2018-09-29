@@ -39,6 +39,9 @@ public:
 	virtual void Update(float deltaTime);
 	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
+	//Draw sprite sheet to texture with specified palette
+	void PaintSheet(SpriteSheet& spriteSheet, const Palette& palette);
+
 	ion::Vector2 m_drawOffset;	//Sprite draw offset
 	bool m_flippedX;			//Sprite flip X
 	bool m_flippedY;			//Sprite flip Y

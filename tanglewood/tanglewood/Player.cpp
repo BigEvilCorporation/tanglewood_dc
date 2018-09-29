@@ -225,6 +225,18 @@ void Player::UpdatePushable()
 void Player::AbilityGlide::OnEnterState()
 {
 	m_player.PlayAnimation(Animations::Player::colourSwitch);
+
+	Palette testPalette;
+
+	for (int i = 0; i < 16; i++)
+	{
+		testPalette.SetColour(i, Colour(255, 255, 0));
+	}
+
+	for (TSpriteSheetMap::iterator it = m_player.m_actor->SpriteSheetsBegin(), end = m_player.m_actor->SpriteSheetsEnd(); it != end; ++it)
+	{
+		m_player.PaintSheet(it->second, testPalette);
+	}
 }
 
 void Player::AbilityGlide::OnUpdateState(float deltaTime)

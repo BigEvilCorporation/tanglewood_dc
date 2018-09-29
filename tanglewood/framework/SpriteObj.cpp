@@ -103,25 +103,67 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 
 	sheet.m_primitive->SetTexCoords(coords);
 
-	const Palette& palette = spriteSheet.GetPalette();
-
-	for(int i = 0; i < spriteSheet.GetNumFrames(); i++)
+	//Create all render frame textures
+	for (int i = 0; i < spriteSheet.GetNumFrames(); i++)
 	{
-		//Get spriteSheet frame
-		const SpriteSheetFrame& spriteSheetFrame = spriteSheet.GetFrame(i);
-
 		//Create new render frame
 		Sheet::Frame renderFrame;
 
 		//Create tileset texture for frame
 		renderFrame.texture = ion::render::Texture::Create(textureWidth, textureHeight);
 
+		//Create material
+		renderFrame.material = new ion::render::Material();
+		renderFrame.material->AddDiffuseMap(renderFrame.texture);
+		renderFrame.material->SetDiffuseColour(ion::Colour(1.0f, 1.0f, 1.0f, 1.0f));
+
+#if defined ION_RENDERER_SHADER
+		renderFrame.material->SetVertexShader(vertexShader);
+		renderFrame.material->SetPixelShader(pixelshader);
+#endif
+
+		//Insert frame
+		sheet.m_frames.push_back(renderFrame);
+
+		//Enumerate anims
+		for (TSpriteAnimMap::iterator it = spriteSheet.AnimationsBegin(), end = spriteSheet.AnimationsEnd(); it != end; ++it)
+		{
+			sheet.m_animations[it->second.GetName()] = &it->second;
+		}
+	}
+
+	//Paint sprite sheet
+	PaintSheet(spriteSheet, spriteSheet.GetPalette());
+}
+
+void SpriteObj::PaintSheet(SpriteSheet& spriteSheet, const Palette& palette)
+{
+	Sheet& sheet = m_sheets[spriteSheet.GetName()];
+
+	const int tileWidth = 8;
+	const int tileHeight = 8;
+	u32 widthTiles = spriteSheet.GetWidthTiles();
+	u32 heightTiles = spriteSheet.GetHeightTiles();
+
+	for (int i = 0; i < spriteSheet.GetNumFrames(); i++)
+	{
+		//Get spriteSheet frame
+		const SpriteSheetFrame& spriteSheetFrame = spriteSheet.GetFrame(i);
+
+		//Get render frame
+		Sheet::Frame& renderFrame = sheet.m_frames[i];
+
+		u32 bytesPerPixel = 4;
+		u32 textureWidth = renderFrame.texture->GetWidth();
+		u32 textureHeight = renderFrame.texture->GetHeight();
+		u32 textureSize = textureWidth * textureHeight * bytesPerPixel;
+
 		u8* data = new u8[textureSize];
 		ion::memory::MemSet(data, 0, textureSize);
 
-		for(int tileX = 0; tileX < spriteSheet.GetWidthTiles(); tileX++)
+		for (int tileX = 0; tileX < spriteSheet.GetWidthTiles(); tileX++)
 		{
-			for(int tileY = 0; tileY < spriteSheet.GetHeightTiles(); tileY++)
+			for (int tileY = 0; tileY < spriteSheet.GetHeightTiles(); tileY++)
 			{
 				//Genesis spriteSheet order = column major
 				const Tile& tile = spriteSheetFrame[(tileX * heightTiles) + tileY];
@@ -130,9 +172,9 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 				int tileY_inv = spriteSheet.GetHeightTiles() - 1 - tileY;
 
 				//Paint tile to texture
-				for(int pixelY = 0; pixelY < tileHeight; pixelY++)
+				for (int pixelY = 0; pixelY < tileHeight; pixelY++)
 				{
-					for(int pixelX = 0; pixelX < tileWidth; pixelX++)
+					for (int pixelX = 0; pixelX < tileWidth; pixelX++)
 					{
 						//Invert Y for OpenGL
 						int pixelY_OGL = tileHeight - 1 - pixelY;
@@ -155,31 +197,15 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 			}
 		}
 
+		//Load texture data
 		renderFrame.texture->Load(textureWidth, textureHeight, ion::render::Texture::eRGBA, ion::render::Texture::eRGBA, ion::render::Texture::eBPP24, false, false, data);
+
+		//Reset filter
 		renderFrame.texture->SetMinifyFilter(ion::render::Texture::eFilterNearest);
 		renderFrame.texture->SetMagnifyFilter(ion::render::Texture::eFilterNearest);
 		renderFrame.texture->SetWrapping(ion::render::Texture::eWrapClamp);
 
-		//Create material
-		renderFrame.material = new ion::render::Material();
-		renderFrame.material->AddDiffuseMap(renderFrame.texture);
-		renderFrame.material->SetDiffuseColour(ion::Colour(1.0f, 1.0f, 1.0f, 1.0f));
-
-#if defined ION_RENDERER_SHADER
-		renderFrame.material->SetVertexShader(vertexShader);
-		renderFrame.material->SetPixelShader(pixelshader);
-#endif
-
-		//Insert frame
-		sheet.m_frames.push_back(renderFrame);
-
-		//Enumerate anims
-		for(TSpriteAnimMap::iterator it = spriteSheet.AnimationsBegin(), end = spriteSheet.AnimationsEnd(); it != end; ++it)
-		{
-			sheet.m_animations[it->second.GetName()] = &it->second;
-		}
-
-		delete [] data;
+		delete[] data;
 	}
 }
 

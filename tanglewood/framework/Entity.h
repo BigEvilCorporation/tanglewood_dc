@@ -40,6 +40,7 @@ public:
 	ion::Vector2 m_boundsBottomRight;
 	bool m_active;					//Active flag
 
+	Actor* m_actor;
 	const GameObjectType& m_gameObjType;
 	World& m_world;
 };
