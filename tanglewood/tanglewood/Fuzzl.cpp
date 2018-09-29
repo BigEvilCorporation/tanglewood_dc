@@ -201,22 +201,26 @@ void Fuzzl::StateNest::OnEnterState()
 
 void Fuzzl::StateNest::OnUpdateState(float deltaTime)
 {
-	//TODO: If player within distance, and not same colour
+	//If player not same colour
+	const Player& player = m_fuzzl.m_world.GetPlayerController()->GetPlayer();
 
-	m_bounceTimer -= deltaTime;
-	if (m_bounceTimer <= 0.0f)
+	if (m_fuzzl.m_colour != player.m_colour)
 	{
-		m_fuzzl.AddImpulse(ion::Vector2(0.0f, Constants::Fuzzl::bounceImpulse));
-		m_bounceTimer = Constants::Fuzzl::bounceDelay;
-	}
+		m_bounceTimer -= deltaTime;
+		if (m_bounceTimer <= 0.0f)
+		{
+			m_fuzzl.AddImpulse(ion::Vector2(0.0f, Constants::Fuzzl::bounceImpulse));
+			m_bounceTimer = Constants::Fuzzl::bounceDelay;
+		}
 
-	//Roll if off floor
-	if (m_fuzzl.m_closeToFloor)
-	{
-		m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(0.0f);
-	}
-	else
-	{
-		m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(Constants::Fuzzl::bounceAnimSpeed);
+		//Roll if off floor
+		if (m_fuzzl.m_closeToFloor)
+		{
+			m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(0.0f);
+		}
+		else
+		{
+			m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(Constants::Fuzzl::bounceAnimSpeed);
+		}
 	}
 }

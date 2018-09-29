@@ -33,6 +33,8 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	m_colour = ColourAbility::Red;
 
 	m_activeInteraction = InteractionType::None;
+	m_activeAbility = nullptr;
+	m_abilityTimer = 0.0f;
 
 	m_currentPushable = nullptr;
 
@@ -70,6 +72,7 @@ void Player::Update(float deltaTime)
 	//If jumping, ignore terrain holes
 	m_ignoreHoles = m_jumping;
 
+	//Update interaction
 	switch (m_activeInteraction)
 	{
 	case InteractionType::Push:
@@ -77,7 +80,20 @@ void Player::Update(float deltaTime)
 		break;
 	}
 
-	m_abilityState.Update(deltaTime);
+	//Update ability
+	if (m_activeAbility)
+	{
+		m_abilityTimer -= deltaTime;
+		if (m_abilityTimer <= 0.0f)
+		{
+			//Reset back to red
+			SwitchColour(ColourAbility::Red);
+		}
+		else
+		{
+			m_abilityState.Update(deltaTime);
+		}
+	}
 }
 
 void Player::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
@@ -106,7 +122,7 @@ void Player::BeginInteract()
 			return;
 		}
 
-		if (TryInteractFindFuzzl())
+		if (TryInteractFuzzl())
 		{
 			return;
 		}
@@ -122,9 +138,100 @@ void Player::EndInteract()
 	m_pushingHeavy = false;
 }
 
+void Player::BeginAbility()
+{
+	if (m_activeAbility)
+	{
+		m_activeAbility->BeginUse();
+	}
+}
+
+void Player::EndAbility()
+{
+	if (m_activeAbility)
+	{
+		m_activeAbility->EndUse();
+	}
+}
+
 void Player::SwitchColour(ColourAbility colour)
 {
+	//set new colour
 	m_colour = colour;
+
+	//End existing ability
+	if (m_activeAbility)
+	{
+		EndAbility();
+	}
+
+	//Set new ability
+	switch (colour)
+	{
+	case ColourAbility::Yellow:
+		m_abilityState.SetState("glide");
+		break;
+	default:
+		m_abilityState.SetState(nullptr);
+	}
+
+	//Set active ability
+	m_activeAbility = (Ability*)m_abilityState.GetCurrentState();
+
+	//Red = return to normal
+	if (colour != ColourAbility::Red)
+	{
+		//Play animation
+		PlayAnimation(Animations::Player::colourSwitch);
+
+		//Start timer
+		m_abilityTimer = Constants::Player::colourAbilityMaxTime;
+	}
+
+	//TODO: Palette lerping
+	Colour testColour;
+	bool overwritePalette = true;
+
+	switch (colour)
+	{
+	case ColourAbility::Red:
+		overwritePalette = false;
+		break;
+	case ColourAbility::Yellow:
+		testColour = Colour(255, 255, 0);
+		break;
+	case ColourAbility::Green:
+		testColour = Colour(0, 255, 0);
+		break;
+	case ColourAbility::Blue:
+		testColour = Colour(0, 0, 255);
+		break;
+	case ColourAbility::White:
+		testColour = Colour(255, 255, 255);
+		break;
+	}
+
+	Palette testPalette;
+
+	if (overwritePalette)
+	{
+		for (int i = 0; i < 16; i++)
+		{
+			testPalette.SetColour(i, testColour);
+		}
+	}
+
+	for (TSpriteSheetMap::iterator it = m_actor->SpriteSheetsBegin(), end = m_actor->SpriteSheetsEnd(); it != end; ++it)
+	{
+		if (overwritePalette)
+		{
+			PaintSheet(it->second, testPalette);
+		}
+		else
+		{
+			PaintSheet(it->second, it->second.GetPalette());
+		}
+	}
 }
 
 bool Player::TryInteractPushable()
@@ -145,7 +252,7 @@ bool Player::TryInteractPushable()
 	return m_currentPushable != nullptr;
 }
 
-bool Player::TryInteractFindFuzzl()
+bool Player::TryInteractFuzzl()
 {
 	const std::vector<Fuzzl*>& fuzzls = m_world.GetEntities<Fuzzl>();
 
@@ -158,16 +265,6 @@ bool Player::TryInteractFindFuzzl()
 			{
 				//Change colour
 				SwitchColour(fuzzls[i]->m_colour);
-
-				//Change ability
-				switch (fuzzls[i]->m_colour)
-				{
-				case ColourAbility::Yellow:
-					m_abilityState.SetState("glide");
-					break;
-				default:
-					m_abilityState.SetState(nullptr);
-				}
 
 				return true;
 			}
@@ -224,27 +321,40 @@ void Player::UpdatePushable()
 
 void Player::AbilityGlide::OnEnterState()
 {
-	m_player.PlayAnimation(Animations::Player::colourSwitch);
 
-	Palette testPalette;
-
-	for (int i = 0; i < 16; i++)
-	{
-		testPalette.SetColour(i, Colour(255, 255, 0));
-	}
-
-	for (TSpriteSheetMap::iterator it = m_player.m_actor->SpriteSheetsBegin(), end = m_player.m_actor->SpriteSheetsEnd(); it != end; ++it)
-	{
-		m_player.PaintSheet(it->second, testPalette);
-	}
 }
 
 void Player::AbilityGlide::OnUpdateState(float deltaTime)
 {
-
+	//Disable if on floor or heading upwards
+	if (m_active && (m_player.m_closeToFloor || m_player.m_velocity.y >= 0.0f))
+	{
+		EndUse();
+	}
 }
 
 void Player::AbilityGlide::OnExitState(State* newState)
 {
 
+}
+
+void Player::AbilityGlide::BeginUse()
+{
+	//In not active, player in air, and heading downwards
+	if (!m_active && !m_player.m_closeToFloor && m_player.m_velocity.y < 0.0f)
+	{
+		//Set glide animation and physics properties
+		m_active = true;
+		m_player.m_maxVelocityYDown = Constants::Player::maxVelocityYDownGlide;
+		m_player.m_manualAnimation = true;
+		m_player.PlayAnimation(Animations::Player::glide);
+	}
+}
+
+void Player::AbilityGlide::EndUse()
+{
+	//Reset animation and physics properties
+	m_active = false;
+	m_player.m_maxVelocityYDown = Constants::Character::maxVelocityYDown;
+	m_player.m_manualAnimation = false;
 }

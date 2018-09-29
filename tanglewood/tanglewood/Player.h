@@ -34,33 +34,52 @@ public:
 	void BeginInteract();
 	void EndInteract();
 
+	void BeginAbility();
+	void EndAbility();
+
 	void SwitchColour(ColourAbility colour);
 
 	ColourAbility m_colour;
 
 private:
 
-	class AbilityGlide : public State
+	class Ability : public State
+	{
+	public:
+		virtual void BeginUse() = 0;
+		virtual void EndUse() = 0;
+	};
+
+	class AbilityGlide : public Ability
 	{
 	public:
 		AbilityGlide(Player& player)
-			: m_player(player) {}
+			: m_player(player)
+		{
+			m_active = false;
+		}
 
 		virtual void OnEnterState();
 		virtual void OnUpdateState(float deltaTime);
 		virtual void OnExitState(State* newState);
 
+		virtual void BeginUse();
+		virtual void EndUse();
+
 		Player& m_player;
+		bool m_active;
 	};
 
 	bool TryInteractPushable();
-	bool TryInteractFindFuzzl();
+	bool TryInteractFuzzl();
 
 	void UpdatePushable();
 
 	InteractionType m_activeInteraction;
 
 	StateMachine m_abilityState;
+	Ability* m_activeAbility;
+	float m_abilityTimer;
 
 	PhysicsObj* m_currentPushable;
 };

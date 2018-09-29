@@ -65,6 +65,12 @@ namespace Constants
 
 		//Pushing
 		static const float heavyPushObjectHeight = 0x0010;
+
+		//Colour ability
+		static const float colourAbilityMaxTime = FRAMES_TO_SECONDS(0x0600);
+
+		//Gliding
+		static const float maxVelocityYDownGlide = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
 	}
 
 	namespace Flue

@@ -67,10 +67,15 @@ void PlayerController::Update(float deltaTime, const ion::input::Keyboard& keybo
 	{
 		//Update input
 		float moveSpeed = gamepad.GetLeftStick().x;
-		bool jump = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_A)
-			|| keyboard.KeyDown(ion::input::Keycode::SPACE);
-		bool interact = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_B)
+
+		bool interact = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_X)
 			|| keyboard.KeyDown(ion::input::Keycode::A);
+
+		bool ability = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_A)
+			|| keyboard.KeyDown(ion::input::Keycode::S);
+
+		bool jump = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_B)
+			|| keyboard.KeyDown(ion::input::Keycode::D);
 
 		if (keyboard.KeyDown(ion::input::Keycode::LEFT))
 		{
@@ -89,13 +94,14 @@ void PlayerController::Update(float deltaTime, const ion::input::Keyboard& keybo
 		}
 
 		if (interact)
-		{
 			m_player.BeginInteract();
-		}
 		else
-		{
 			m_player.EndInteract();
-		}
+
+		if (ability)
+			m_player.BeginAbility();
+		else
+			m_player.EndAbility();
 	}
 }
 
