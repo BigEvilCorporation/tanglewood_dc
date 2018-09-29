@@ -34,6 +34,8 @@ Character::Character(World& world, const GameObject& gameObject, const GameObjec
 	m_manualAnimation = false;
 
 	m_walkToRunAnimTransition = false;
+
+	SetCharacterAnimation(CharacterAnimations::Idle);
 }
 
 Character::~Character()

@@ -15,6 +15,7 @@
 #include "PhysicsObj.h"
 #include "SpriteObj.h"
 
+#include "tanglewood/Boulder.h"
 #include "tanglewood/Firefly.h"
 #include "tanglewood/Flue.h"
 #include "tanglewood/Fuzzl.h"
@@ -62,7 +63,7 @@ namespace ObjectFactory
 		}
 		else if (typeName == "Boulder")
 		{
-			entity = new SpriteObj(world, gameObject, gameObjType, actor);
+			entity = new Boulder(world, gameObject, gameObjType, actor);
 		}
 		else if(typeName == "Firefly")
 		{

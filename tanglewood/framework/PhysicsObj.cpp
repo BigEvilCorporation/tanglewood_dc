@@ -17,11 +17,14 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 {
 	m_floorProbeOffset = ion::Vector2(m_size.x / 2.0f, m_size.y - Constants::MegaDrive::tileHeight);
 
+	m_maxVelocityX = 100.0f;
+	m_maxVelocityYUp = 100.0f;
+	m_maxVelocityYDown = 100.0f;
+	m_deceleration.x = 100.0f;
 	m_stepHeight = 1.0f;
+
 	m_snapToFloor = false;
-
 	m_ignoreHoles = false;
-
 	m_onFloor = false;
 	m_closeToFloor = false;
 	m_hitWall = false;

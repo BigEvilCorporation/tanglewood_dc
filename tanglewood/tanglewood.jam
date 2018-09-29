@@ -35,7 +35,7 @@ local SRC =
 	framework/ObjectFactory.cpp
 	framework/ObjectFactory.h
 	framework/PhysicsObj.cpp
-    framework/PhysicsObj.h
+	framework/PhysicsObj.h
 	framework/Plane.cpp
 	framework/Plane.h
 	framework/SpriteObj.cpp
@@ -47,6 +47,8 @@ local SRC =
 	framework/World.cpp
 	framework/World.h
 
+	tanglewood/Boulder.cpp
+	tanglewood/Boulder.h
 	tanglewood/Firefly.cpp
 	tanglewood/Firefly.h
 	tanglewood/Flue.cpp

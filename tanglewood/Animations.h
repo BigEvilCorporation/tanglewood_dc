@@ -13,11 +13,16 @@ namespace Animations
 		static const AnimType jump =			{ "jump",			"jump",			AnimFlags::Loop };
 		static const AnimType glide =			{ "glide",			"glide",		AnimFlags::Loop };
 		static const AnimType push =			{ "push",			"push",			AnimFlags::Loop };
-		static const AnimType pushHeavy =		{ "pushHeavy",		"pushHeavy",	AnimFlags::Loop };
+		static const AnimType pushHeavy =		{ "pushheavy",		"pushheavy",	AnimFlags::Loop };
 		static const AnimType fall =			{ "fall",			"fall",			AnimFlags::Loop };
 		static const AnimType walktorun =		{ "walktorun",		"walktorun",	0 };
 		static const AnimType waterWade =		{ "waterWade",		"waterWade",	AnimFlags::Loop };
 		static const AnimType colourSwitch =	{ "colourswitch",	"colourswitch",	AnimFlags::FreezeMovementX };
+	}
+
+	namespace Boulder
+	{
+		static const AnimType roll =			{ "roll",			"roll",			AnimFlags::Loop };
 	}
 
 	namespace Firefly
