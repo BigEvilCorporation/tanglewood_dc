@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "World.h"
+#include "Physics.h"
 #include "Constants.h"
 #include "ObjectFactory.h"
 
@@ -30,8 +31,6 @@ World::World()
 	m_planeFg = NULL;
 	m_planeBg = NULL;
 	m_playerController = NULL;
-
-	m_gravity = Constants::World::defaultGravity;
 }
 
 World::~World()
@@ -191,10 +190,13 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
     {
         m_playerController->Update(deltaTime, keyboard, gamepad);
     }
-    
-	//Update game objects
+
 	if (!m_playerController || !m_playerController->m_debugMove)
 	{
+		//Step physics world
+		m_physicsWorld.Step(deltaTime);
+
+		//Update game objects
 		for (int i = 0; i < m_entities.size(); i++)
 		{
 			if (m_entities[i]->m_active)
@@ -388,19 +390,4 @@ Entity* World::FindEntity(const std::string& name)
 	}
 
 	return nullptr;
-}
-
-void World::RegisterPushableObject(PhysicsObj& physicsObj)
-{
-	m_pushableObjs.push_back(&physicsObj);
-}
-
-void World::UnregisterPushableObject(PhysicsObj& physicsObj)
-{
-	ion::utils::stl::FindAndRemove(m_pushableObjs, &physicsObj);
-}
-
-const std::vector<PhysicsObj*>& World::GetPushableObjects() const
-{
-	return m_pushableObjs;
 }

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "framework/PhysicsObj.h"
+#include "framework/Platform.h"
 
 class Boulder : public PhysicsObj
 {
@@ -21,4 +22,7 @@ public:
 	//Update/render
 	virtual void Update(float deltaTime);
 	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
+
+private:
+	Platform m_platform;
 };

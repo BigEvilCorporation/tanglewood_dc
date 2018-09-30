@@ -21,12 +21,16 @@ Boulder::Boulder(World& world, const GameObject& gameObject, const GameObjectTyp
 	PlayAnimation(Animations::Boulder::roll);
 
 	//Add as pushable
-	m_world.RegisterPushableObject(*this);
+	m_world.GetPhysicsWorld().AddPushableObject(*this);
+
+	//Add platform
+	m_world.GetPhysicsWorld().AddPlatform(m_platform);
 }
 
 Boulder::~Boulder()
 {
-	m_world.UnregisterPushableObject(*this);
+	m_world.GetPhysicsWorld().RemovePushableObject(*this);
+	m_world.GetPhysicsWorld().RemovePlatform(m_platform);
 }
 
 void Boulder::Update(float deltaTime)

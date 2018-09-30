@@ -46,13 +46,13 @@ Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& g
 	m_manualAnimation = true;
 
 	//Register as pushable obj
-	m_world.RegisterPushableObject(*this);
+	m_world.GetPhysicsWorld().AddPushableObject(*this);
 }
 
 Fuzzl::~Fuzzl()
 {
 	m_world.RemoveEntity<Fuzzl>(*this);
-	m_world.UnregisterPushableObject(*this);
+	m_world.GetPhysicsWorld().RemovePushableObject(*this);
 }
 
 void Fuzzl::Update(float deltaTime)
@@ -189,7 +189,7 @@ void Fuzzl::StateNest::OnEnterState()
 	m_fuzzl.m_acceleration = ion::Vector2();
 
 	//Remove as pushable object
-	m_fuzzl.m_world.UnregisterPushableObject(m_fuzzl);
+	m_fuzzl.m_world.GetPhysicsWorld().RemovePushableObject(m_fuzzl);
 
 	//Set roll anim
 	m_fuzzl.PlayAnimation(Animations::Fuzzl::Yellow::roll);

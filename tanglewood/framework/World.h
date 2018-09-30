@@ -19,6 +19,7 @@
 
 #include "Stamp.h"
 #include "Plane.h"
+#include "Physics.h"
 
 //TODO: Doesn't belong in framework
 #include "tanglewood/PlayerController.h"
@@ -60,10 +61,7 @@ public:
 	Entity* FindEntity(const std::string& name);
 
 	//Physics world
-	void RegisterPushableObject(PhysicsObj& physicsObj);
-	void UnregisterPushableObject(PhysicsObj& physicsObj);
-	const std::vector<PhysicsObj*>& GetPushableObjects() const;
-	float GetGravity() const { return m_gravity; }
+	PhysicsWorld& GetPhysicsWorld() { return m_physicsWorld; }
 
 	//Player(s)
 	//TODO: Doesn't belong in framework
@@ -96,13 +94,12 @@ private:
 	//Background colour
 	ion::Colour m_bgColour;
 
-	//Gravity
-	float m_gravity;
+	//Physics world
+	PhysicsWorld m_physicsWorld;
     
     //Entities
     std::vector<Entity*> m_entities;
 	std::map<std::string, std::vector<Entity*>> m_entitiesByType;
-	std::vector<PhysicsObj*> m_pushableObjs;
     
     //Player controller
 	//TODO: Doesn't belong in framework

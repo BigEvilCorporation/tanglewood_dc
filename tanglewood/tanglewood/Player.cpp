@@ -236,7 +236,7 @@ void Player::SwitchColour(ColourAbility colour)
 
 bool Player::TryInteractPushable()
 {
-	const std::vector<PhysicsObj*>& pushableObjs = m_world.GetPushableObjects();
+	const std::vector<PhysicsObj*>& pushableObjs = m_world.GetPhysicsWorld().GetPushableObjects();
 
 	//Find intersecting pushable obj
 	for (int i = 0; i < pushableObjs.size() && !m_currentPushable; i++)
