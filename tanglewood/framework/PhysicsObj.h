@@ -23,6 +23,7 @@ public:
 	virtual void Update(float deltaTime);
 	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
+	//Step
 	void PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld);
 
 	void AddImpulse(const ion::Vector2& impulse);

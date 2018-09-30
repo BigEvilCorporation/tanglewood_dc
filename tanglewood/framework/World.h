@@ -46,12 +46,6 @@ public:
 	//Set camera position, correcting for viewport size
 	void SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize);
 
-	//Perform terrain test
-	int FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& tileFlags) const;
-
-	//Perform wall test
-	int FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const;
-
 	//Entity map
 	template <typename T> void AddEntity(T& entity);
 	template <typename T> void RemoveEntity(T& entity);
@@ -79,10 +73,6 @@ private:
 	//Beehive maps
 	Map* m_currentMap;
 	Map* m_backgroundMap;
-
-	//Physics data
-	TerrainTileset* m_terrainTileset;
-	CollisionMap* m_collisionMap;
 
 	//Current stamp set
 	StampSet* m_stampSet;

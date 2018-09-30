@@ -111,7 +111,7 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 			//Find wall
 			ion::Vector2i wallProbe((int)(m_worldPos.x + (m_size.x / 2.0f)), (int)(m_worldPos.y + m_floorProbeOffset.y));
 
-			float wallPos = (float)m_world.FindWall(wallProbe, velocitySlice.x > 0.0f ? 1 : -1, (m_size.x / 2.0f) + Constants::World::wallSearchDist);
+			float wallPos = (float)physicsWorld.FindWall(wallProbe, velocitySlice.x > 0.0f ? 1 : -1, (m_size.x / 2.0f) + Constants::World::wallSearchDist);
 
 			if (wallPos >= 0.0f && velocitySlice.x > 0.0f && wallPos < (boundsBottomRight.x))
 			{
@@ -147,7 +147,7 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 				const float objectBottom = m_worldPos.y + m_size.y;
 
 				u16 floorFlags = 0;
-				float floorHeight = (float)m_world.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), Constants::World::floorSearchDist, floorFlags);
+				float floorHeight = (float)physicsWorld.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), Constants::World::floorSearchDist, floorFlags);
 
 				//Ignore holes if congiured
 				if (!m_ignoreHoles || !(floorFlags & eCollisionTileFlagHole))

@@ -14,10 +14,14 @@
 #include "Constants.h"
 #include "PhysicsObj.h"
 
+#include <ion/beehive/Project.h>
+#include <ion/beehive/Map.h>
 #include <ion/core/utils/STL.h>
 
 PhysicsWorld::PhysicsWorld()
 {
+	m_terrainTileset = NULL;
+	m_collisionMap = NULL;
 	m_gravity = Constants::World::defaultGravity;
 }
 
@@ -41,11 +45,145 @@ void PhysicsWorld::RemovePlatform(Platform& platform)
 	ion::utils::stl::FindAndRemove(m_platforms, &platform);
 }
 
+void PhysicsWorld::LoadWorld(Project& project, const std::string& levelMap)
+{
+	//Get collision map
+	m_collisionMap = &project.GetCollisionMap(project.FindMapId(levelMap));
+
+	//Get terrain tileset
+	m_terrainTileset = &project.GetTerrainTileset();
+}
+
 void PhysicsWorld::Step(float deltaTime)
 {
 	for (int i = 0; i < m_physicsObjs.size(); i++)
 	{
 		m_physicsObjs[i]->PhysicsStep(deltaTime, *this);
+	}
+}
+
+int PhysicsWorld::FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& tileFlags) const
+{
+	//Position to starting tile
+	ion::Vector2i tilePos(position.x / 8, position.y / 8);
+
+	int tileHeight = 0;
+	bool found = false;
+
+	if (tilePos.x >= 0 && tilePos.x < m_collisionMap->GetWidth())
+	{
+		//X offset
+		int offsetX = position.x % 8;
+
+		int lengthSearched = 0;
+		int solidTilesFound = 0;
+		int hollowTilesFound = 0;
+
+		while (!found && lengthSearched <= maxSearchLength && tilePos.y >= 0 && tilePos.y < m_collisionMap->GetHeight())
+		{
+			//Assume hollow if no tile
+			int height = 0;
+
+			//Get terrain tile id
+			TerrainTileId terrainTileId = m_collisionMap->GetTerrainTile(tilePos.x, tilePos.y);
+
+			//Get terrain tile
+			if (const TerrainTile* terrainTile = m_terrainTileset->GetTerrainTile(terrainTileId))
+			{
+				//Get height at offset
+				height = (int)terrainTile->GetHeight(offsetX);
+			}
+
+			if (height == 8)
+			{
+				//Solid tile
+				solidTilesFound++;
+
+				if (hollowTilesFound > 0)
+				{
+					//Last tile was hollow, found terrain
+					found = true;
+				}
+				else
+				{
+					//Search upwards
+					tilePos.y--;
+				}
+			}
+			else if (height == 0)
+			{
+				//Hollow tile
+				hollowTilesFound++;
+
+				if (solidTilesFound > 0)
+				{
+					//Last tile was solid, found terrain
+					found = true;
+				}
+				else
+				{
+					//Search downwards
+					tilePos.y++;
+				}
+
+				lengthSearched += 8;
+			}
+			else
+			{
+				//Found
+				found = true;
+			}
+
+			tileHeight = height;
+		}
+	}
+
+	if (found)
+	{
+		//Get flags
+		tileFlags = m_collisionMap->GetCollisionTileFlags(tilePos.x, tilePos.y);
+
+		//Tile to pixel space + total height accumulated - 1 tile
+		return ((tilePos.y + 1) * 8) - tileHeight;
+	}
+	else
+	{
+		//No terrain within search distance
+		tileFlags = 0;
+		return -1;
+	}
+}
+
+int PhysicsWorld::FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const
+{
+	//Position to starting tile
+	ion::Vector2i tilePos(position.x / 8, position.y / 8);
+	u32 flags = 0;
+
+	if (tilePos.y >= 0 && tilePos.y < m_collisionMap->GetHeight())
+	{
+		flags = m_collisionMap->GetCollisionTileFlags(tilePos.x, tilePos.y);
+		int lengthSearched = 0;
+
+		while ((flags & eCollisionTileFlagSolid) == 0 && lengthSearched < maxSearchLength)
+		{
+			if (tilePos.x >= 0 && tilePos.x < m_collisionMap->GetWidth())
+			{
+				tilePos.x += direction;
+				flags = m_collisionMap->GetCollisionTileFlags(tilePos.x, tilePos.y);
+			}
+
+			lengthSearched += 8;
+		}
+	}
+
+	if ((flags & eCollisionTileFlagSolid) != 0)
+	{
+		return (tilePos.x * 8) + ((direction < 0) ? 8 : 0);
+	}
+	else
+	{
+		return -1;
 	}
 }
 

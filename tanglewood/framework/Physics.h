@@ -13,6 +13,9 @@
 #include "Platform.h"
 
 class PhysicsObj;
+class Project;
+class TerrainTileset;
+class CollisionMap;
 
 class PhysicsWorld
 {
@@ -31,9 +34,23 @@ public:
 
 	float GetGravity() const { return m_gravity; }
 
+	//Load physics world
+	void LoadWorld(Project& project, const std::string& levelMap);
+
+	//Step physics world
 	void Step(float deltaTime);
 
+	//Perform terrain test
+	int FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& tileFlags) const;
+
+	//Perform wall test
+	int FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const;
+
 private:
+
+	//Physics data
+	TerrainTileset* m_terrainTileset;
+	CollisionMap* m_collisionMap;
 
 	//Gravity
 	float m_gravity;
