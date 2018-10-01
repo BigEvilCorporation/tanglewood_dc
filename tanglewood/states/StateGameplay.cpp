@@ -10,6 +10,8 @@
 
 #include "StateGameplay.h"
 
+#include "Globals.h"
+
 StateGameplay::StateGameplay(World& world, Level& level, ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
 	: ion::gamekit::State(stateManager, resourceManager)
 	, m_world(world)
@@ -50,6 +52,8 @@ bool StateGameplay::Update(float deltaTime, ion::input::Keyboard* keyboard, ion:
 	m_level.Update(deltaTime);
 	if (!m_level.IsRunning())
 	{
+		//TODO: End act/end level/failure state
+		Globals::World::levelIdx++;
 		return false;
 	}
 }

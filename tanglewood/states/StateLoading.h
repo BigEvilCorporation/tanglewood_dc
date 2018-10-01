@@ -19,7 +19,7 @@ class StateGameplay;
 class StateLoading : public ion::gamekit::State
 {
 public:
-	StateLoading(World& world, Level& level, StateGameplay& stateGameplay, ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager);
+	StateLoading(World& world, const LevelDescriptor& levelDesc, StateGameplay& stateGameplay, ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager);
 	virtual ~StateLoading();
 
 	virtual void OnEnterState();
@@ -32,6 +32,6 @@ public:
 
 private:
 	World& m_world;
-	Level& m_level;
+	const LevelDescriptor& m_levelDesc;
 	StateGameplay& m_stateGameplay;
 };

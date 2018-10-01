@@ -2,12 +2,13 @@
 
 namespace Globals
 {
-	void Serialise(ion::io::archive& archive)
+	void Serialise(ion::io::Archive& archive)
 	{
-		archive.Serialise(levelIdx, "levelIdx");
-		archive.Serialise(screenSize, "screenSize");
+		archive.Serialise(World::levelIdx, "World::levelIdx");
 	}
 
-	int levelIdx = 0;
-	ion::Vector2i screenSize;
+	namespace World
+	{
+		int levelIdx = 0;
+	}
 }

@@ -25,6 +25,8 @@ local SRC =
 	Constants.h
 	Debug.cpp
 	Debug.h
+	Globals.cpp
+	Globals.h
 	Tanglewood.cpp
 	Tanglewood.h
 
@@ -76,8 +78,11 @@ local SRC =
 	states/StateGameplay.cpp
 	states/StateGameplay.h
 
+	levels/LevelList.h
 	levels/L1A1.cpp
 	levels/L1A1.h
+	levels/L1A2.cpp
+	levels/L1A2.h
 	;
 
 AutoSourceGroup tanglewood : $(SRC) ;

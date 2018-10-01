@@ -22,9 +22,17 @@ Plane::Plane(const Map& map, StampSet& stampSet)
 		instance.position.y = ((float)it->m_position.y * 8);
 		instance.flippedX = (flags & Map::eFlipX) != 0;
 		instance.flippedY = (flags & Map::eFlipY) != 0;
-		instance.stamp = &stampSet.m_stamps[it->m_id];
 
-		m_stampInstances.push_back(instance);
+		std::map<StampId, StampRenderer>::iterator stampRndIt = stampSet.m_stamps.find(it->m_id);
+		if (stampRndIt != stampSet.m_stamps.end())
+		{
+			instance.stamp = &stampRndIt->second;
+			m_stampInstances.push_back(instance);
+		}
+		else
+		{
+			ion::debug::log << "Plane::Plane() - Could not find stamp id " << it->m_id << ion::debug::end;
+		}
 	}
 }
 

@@ -9,10 +9,10 @@
 
 #include "StateLoading.h"
 
-StateLoading::StateLoading(World& world, Level& level, StateGameplay& stateGameplay, ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
+StateLoading::StateLoading(World& world, const LevelDescriptor& levelDesc, StateGameplay& stateGameplay, ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
 	: ion::gamekit::State(stateManager, resourceManager)
 	, m_world(world)
-	, m_level(level)
+	, m_levelDesc(levelDesc)
 	, m_stateGameplay(stateGameplay)
 {
 
@@ -28,19 +28,16 @@ void StateLoading::OnEnterState()
 	//TODO: Thread this
 
 	//Load sprite data from Beehive project file
-	m_world.LoadSprites(m_level.m_levelData.spriteDataFile);
+	m_world.LoadSprites(m_levelDesc.spriteDataFile);
 
 	//Load first level data file from Beehive project file
-	m_world.LoadLevel(m_level.m_levelData.levelDataFile);
+	m_world.LoadLevel(m_levelDesc.levelDataFile);
 
 	//Load first act
-	m_world.LoadAct(m_level.m_levelData.actName, m_level.m_levelData.bgName);
+	m_world.LoadAct(m_levelDesc.actName, m_levelDesc.bgName);
 
 	//Create game objects
 	m_world.CreateGameObjects();
-
-	//Next state
-	m_stateManager.SwapState((ion::gamekit::State&)m_stateGameplay);
 }
 
 void StateLoading::OnLeaveState()
@@ -60,7 +57,10 @@ void StateLoading::OnResumeState()
 
 bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
-	return false;
+	//Next state
+	m_stateManager.SwapState((ion::gamekit::State&)m_stateGameplay);
+
+	return true;
 }
 
 void StateLoading::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)

@@ -11,19 +11,25 @@
 #pragma once
 
 #include <string>
+#include <functional>
 
-struct LevelData
+class Level;
+
+typedef std::function<Level*()> LevelFactory;
+
+struct LevelDescriptor
 {
 	std::string spriteDataFile;
 	std::string levelDataFile;
 	std::string actName;
 	std::string bgName;
+	LevelFactory levelfactory;
 };
 
 class Level
 {
 public:
-	Level(const LevelData& levelData);
+	Level();
 
 	virtual void Start() = 0;
 	virtual void Update(float deltaTime) = 0;
@@ -32,8 +38,6 @@ public:
 	void EndLevel();
 
 	bool IsRunning() const { return m_levelRunning; }
-
-	const LevelData& m_levelData;
 
 private:
 	bool m_levelRunning;

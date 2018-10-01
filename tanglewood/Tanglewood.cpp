@@ -9,11 +9,10 @@
 
 #include "Tanglewood.h"
 #include "Constants.h"
+#include "Globals.h"
+#include "levels/LevelList.h"
 
 #include <ion/core/debug/Debug.h>
-
-//TEMP
-#include "levels/L1A1.h"
 
 Tanglewood::Tanglewood()
 	: Application("Tanglewood")
@@ -53,8 +52,8 @@ bool Tanglewood::Initialise()
 	m_debugUI = new DebugUI(*m_gui, ion::Vector2i(), ion::Vector2i());
 	//m_gui->AddWindow(*m_debugUI);
 
-	//Begin level 0
-	BeginGameplay(0);
+	//Begin level
+	BeginGameplay(Globals::World::levelIdx);
 
 	return true;
 }
@@ -128,7 +127,12 @@ bool Tanglewood::Update(float deltaTime)
 	m_world->Update(deltaTime, *m_camera, *m_keyboard, *m_gamepad, *m_window, m_screenSize);
 
 	//Update gamestate
-	m_stateManager->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
+	if (!m_stateManager->Update(deltaTime, m_keyboard, nullptr, m_gamepad))
+	{
+		//Restart gameplay
+		EndGameplay();
+		BeginGameplay(Globals::World::levelIdx);
+	}
 
 	//Update UI
 	m_gui->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
@@ -173,21 +177,15 @@ void Tanglewood::BeginGameplay(int levelIdx)
 	//Create world
 	m_world = new World();
 
-	//Create level
-	//TODO: From level list
-	static const LevelData levelData =
-	{
-		"cd/sprites.bee_sprites",
-		"cd/l1.bee",
-		"l1a1",
-		"l1bg"
-	};
+	//Get level desc
+	const LevelDescriptor& levelDesc = Constants::levels[levelIdx];
 
-	m_level = new L1A1(levelData);
+	//Create level
+	m_level = levelDesc.levelfactory();
 
 	//Create game states
 	m_stateGameplay = new StateGameplay(*m_world, *m_level, *m_stateManager, *m_resourceManager);
-	m_stateLoading = new StateLoading(*m_world, *m_level, *m_stateGameplay, *m_stateManager, *m_resourceManager);
+	m_stateLoading = new StateLoading(*m_world, levelDesc, *m_stateGameplay, *m_stateManager, *m_resourceManager);
 
 	//Begin loading state
 	m_stateManager->PushState(*m_stateLoading);
@@ -195,6 +193,8 @@ void Tanglewood::BeginGameplay(int levelIdx)
 
 void Tanglewood::EndGameplay()
 {
+	m_stateManager->PopState();
+
 	delete m_stateLoading;
 	delete m_stateGameplay;
 	delete m_level;

@@ -10,8 +10,7 @@
 
 #include "Level.h"
 
-Level::Level(const LevelData& levelData)
-	: m_levelData(levelData)
+Level::Level()
 {
 	m_levelRunning = true;
 }

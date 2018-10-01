@@ -4,8 +4,10 @@
 
 namespace Globals
 {
-	void Serialise(ion::io::archive& archive);
+	void Serialise(ion::io::Archive& archive);
 
-	extern int levelIdx;
-	extern ion::Vector2i screenSize;
+	namespace World
+	{
+		extern int levelIdx;
+	}
 }
