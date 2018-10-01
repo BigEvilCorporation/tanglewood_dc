@@ -10,6 +10,7 @@
 
 #include "Fuzzl.h"
 #include "Nest.h"
+#include "Flue.h"
 #include "Constants.h"
 #include "Animations.h"
 
@@ -26,6 +27,7 @@ Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& g
 	m_maxVelocityYUp = Constants::Fuzzl::maxVelocityYUp;
 	m_maxVelocityYDown = Constants::Fuzzl::maxVelocityYDown;
 	m_deceleration = Constants::Fuzzl::deceleration;
+	m_ignoreHoles = true;
 
 	//Character
 	m_allowRunning = false;
@@ -45,12 +47,16 @@ Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& g
 	//Managing character animations manually
 	m_manualAnimation = true;
 
+	//Register as flue occupant
+	Flue::RegisterPotentialOccupant(*this);
+
 	//Register as pushable obj
 	m_world.GetPhysicsWorld().AddPushableObject(*this);
 }
 
 Fuzzl::~Fuzzl()
 {
+	Flue::UnregisterPotentialOccupant(*this);
 	m_world.RemoveEntity<Fuzzl>(*this);
 	m_world.GetPhysicsWorld().RemovePushableObject(*this);
 }
