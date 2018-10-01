@@ -16,6 +16,7 @@
 #include "Flue.h"
 #include "Mushroom.h"
 #include "Fuzzl.h"
+#include "TriggerBox.h"
 
 Player::Player(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Character(world, gameObject, gameObjType, actor)
@@ -38,6 +39,7 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 
 	m_currentPushable = nullptr;
 
+	TriggerBox::RegisterPotentialOccupant(*this);
 	Flue::RegisterPotentialOccupant(*this);
 	Mushroom::RegisterPotentialUser(*this);
 
@@ -61,6 +63,7 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 Player::~Player()
 {
 	m_world.RemoveEntity<Player>(*this);
+	TriggerBox::UnregisterPotentialOccupant(*this);
 	Flue::UnregisterPotentialOccupant(*this);
 	Mushroom::UnregisterPotentialUser(*this);
 }

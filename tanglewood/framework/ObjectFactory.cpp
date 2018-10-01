@@ -22,6 +22,7 @@
 #include "tanglewood/Mushroom.h"
 #include "tanglewood/Nest.h"
 #include "tanglewood/Player.h"
+#include "tanglewood/TriggerBox.h"
 
 namespace ObjectFactory
 {
@@ -82,6 +83,10 @@ namespace ObjectFactory
 			//Actor name differs
 			actor = FindActor(actors, "mushroom");
 			entity = new Mushroom(world, gameObject, gameObjType, actor);
+		}
+		else if (typeName == "TriggerBox")
+		{
+			entity = new TriggerBox(world, gameObject, gameObjType);
 		}
 		
 		return entity;

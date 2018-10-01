@@ -18,6 +18,7 @@
 #include <ion/gamekit/FPSCounter.h>
 
 #include "framework/World.h"
+#include "framework/Level.h"
 #include "Debug.h"
 
 #if defined ION_PLATFORM_WINDOWS
@@ -55,6 +56,7 @@ private:
 	ion::Vector2i m_screenSize;
 
 	World* m_world;
+	Level* m_level;
 
 	//Debugging
 	DebugUI* m_debugUI;

@@ -13,6 +13,9 @@
 #include <ion/core/debug/Debug.h>
 
 //TEMP
+#include "levels/L1A1.h"
+
+//TEMP
 const char* spriteDataFile = "cd/sprites.bee_sprites";
 const char* levelDataFile = "cd/l1.bee";
 const char* actName = "l1a1";
@@ -53,6 +56,10 @@ bool Tanglewood::Initialise()
 	//Create world
 	m_world = new World();
 
+	//Create level (before loading objects)
+	//TODO: Move to gameplay game state
+	m_level = new L1A1();
+
 	//Load sprite data from Beehive project file
 	if(!m_world->LoadSprites(spriteDataFile))
 	{
@@ -82,6 +89,9 @@ bool Tanglewood::Initialise()
 		m_debugUI->AddWatchObj((const SpriteObj&)*nymn);
 	}
 
+	//TODO: Move to gameplay game state
+	m_level->Start();
+
 	return true;
 }
 
@@ -95,6 +105,12 @@ void Tanglewood::Shutdown()
 	if (m_gui)
 	{
 		delete m_gui;
+	}
+
+	//TODO: Move to gameplay game state
+	if (m_level)
+	{
+		delete m_level;
 	}
 
 	if(m_world)
@@ -136,6 +152,13 @@ bool Tanglewood::Update(float deltaTime)
 
 	//Update world
 	m_world->Update(deltaTime, *m_camera, *m_keyboard, *m_gamepad, *m_window, m_screenSize);
+
+	//TODO: Move to gameplay game state
+	m_level->Update(deltaTime);
+	if (!m_level->IsRunning())
+	{
+		return false;
+	}
 
 	//Update UI
 	m_gui->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
