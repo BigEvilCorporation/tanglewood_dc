@@ -154,6 +154,26 @@ int PhysicsWorld::FindFloor(const ion::Vector2i& position, int maxSearchLength, 
 	}
 }
 
+int PhysicsWorld::FindPlatform(const ion::Vector2i& position, int maxSearchLength) const
+{
+	for (int i = 0; i < m_platforms.size(); i++)
+	{
+		const Platform& platform = *m_platforms[i];
+
+		//If point between platform left and right
+		if (position.x >= platform.position.x && position.x < (platform.position.x + platform.width))
+		{
+			//If platform between point and search dist
+			if (platform.position.y >= position.y && platform.position.y < (position.y + maxSearchLength))
+			{
+				return platform.position.y;
+			}
+		}
+	}
+
+	return -1;
+}
+
 int PhysicsWorld::FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const
 {
 	//Position to starting tile

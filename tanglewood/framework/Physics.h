@@ -40,10 +40,9 @@ public:
 	//Step physics world
 	void Step(float deltaTime);
 
-	//Perform terrain test
+	//COllision queries
 	int FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& tileFlags) const;
-
-	//Perform wall test
+	int FindPlatform(const ion::Vector2i& position, int maxSearchLength) const;
 	int FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const;
 
 private:

@@ -20,6 +20,10 @@ Boulder::Boulder(World& world, const GameObject& gameObject, const GameObjectTyp
 	//Setup animation
 	PlayAnimation(Animations::Boulder::roll);
 
+	//Setup platform
+	m_platform.position = m_worldPos + ion::Vector2(0.0f, Constants::Boulder::platformYOffset);
+	m_platform.width = m_size.x;
+
 	//Add as pushable
 	m_world.GetPhysicsWorld().AddPushableObject(*this);
 
@@ -36,6 +40,9 @@ Boulder::~Boulder()
 void Boulder::Update(float deltaTime)
 {
 	PhysicsObj::Update(deltaTime);
+
+	//Update platform
+	m_platform.position = m_worldPos + ion::Vector2(0.0f, Constants::Boulder::platformYOffset);
 
 	//Scale anim speed based on velocity
 	float animSpeed = m_velocity.x * Constants::Fuzzl::animSpeedVelocityMul;

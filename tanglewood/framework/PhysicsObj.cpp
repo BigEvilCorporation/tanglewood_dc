@@ -142,12 +142,21 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 
 			if (m_velocity.y < 0.0f)
 			{
-				//Find floor
+				//Find terrain
 				ion::Vector2 floorProbe(m_worldPos.x + m_floorProbeOffset.x, m_worldPos.y + m_floorProbeOffset.y);
 				const float objectBottom = m_worldPos.y + m_size.y;
 
 				u16 floorFlags = 0;
-				float floorHeight = (float)physicsWorld.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), Constants::World::floorSearchDist, floorFlags);
+				float floorHeight = 0.0f;
+				
+				//Find platform first
+				floorHeight = (float)physicsWorld.FindPlatform(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), Constants::World::floorSearchDist);
+
+				if (floorHeight < 0.0f)
+				{
+					//No platform found, try terrain
+					floorHeight = (float)physicsWorld.FindFloor(ion::Vector2i((int)floorProbe.x, (int)floorProbe.y), Constants::World::floorSearchDist, floorFlags);
+				}
 
 				//Ignore holes if congiured
 				if (!m_ignoreHoles || !(floorFlags & eCollisionTileFlagHole))

@@ -37,6 +37,11 @@ namespace Constants
 		static const float wallSearchDist = MegaDrive::tileWidth * 2;
 	}
 
+	namespace Boulder
+	{
+		static const float platformYOffset = 0x0008;
+	}
+
 	namespace Character
 	{
 		static const ion::Vector2 accelerationWalking(SUBPIXELS_TO_ACCELERATION(0x0600), 0.0f);

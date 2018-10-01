@@ -14,5 +14,7 @@
 
 struct Platform
 {
-
+	float width;
+	ion::Vector2 position;
+	ion::Vector2 velocity;
 };
