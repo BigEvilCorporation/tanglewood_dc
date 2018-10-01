@@ -71,6 +71,11 @@ local SRC =
 	tanglewood/TriggerBox.cpp
 	tanglewood/TriggerBox.h
 
+	states/StateLoading.cpp
+	states/StateLoading.h
+	states/StateGameplay.cpp
+	states/StateGameplay.h
+
 	levels/L1A1.cpp
 	levels/L1A1.h
 	;

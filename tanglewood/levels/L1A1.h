@@ -16,7 +16,7 @@
 class L1A1 : public Level
 {
 public:
-	L1A1();
+	L1A1(const LevelData& levelData);
 	virtual ~L1A1();
 
 	virtual void Start();

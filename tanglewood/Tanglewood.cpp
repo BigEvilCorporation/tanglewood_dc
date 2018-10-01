@@ -15,12 +15,6 @@
 //TEMP
 #include "levels/L1A1.h"
 
-//TEMP
-const char* spriteDataFile = "cd/sprites.bee_sprites";
-const char* levelDataFile = "cd/l1.bee";
-const char* actName = "l1a1";
-const char* bgName = "l1bg";
-
 Tanglewood::Tanglewood()
 	: Application("Tanglewood")
 {
@@ -34,6 +28,9 @@ Tanglewood::~Tanglewood()
 
 bool Tanglewood::Initialise()
 {
+	//Create resource manager
+	m_resourceManager = new ion::io::ResourceManager();
+
 	//Create window/renderer/camera/viewport
 	m_window = ion::render::Window::Create("Tanglewood", s_defaultWindowWidth, s_defaultWindowHeight, false);
 	m_renderer = ion::render::Renderer::Create(m_window->GetDeviceContext());
@@ -44,6 +41,9 @@ bool Tanglewood::Initialise()
 	m_keyboard = new ion::input::Keyboard();
 	m_gamepad = new ion::input::Gamepad();
 
+	//Create state manager
+	m_stateManager = new ion::gamekit::StateManager();
+
 	//Set initial screen size
 	m_screenSize.x = s_defaultScreenWidth;
 	m_screenSize.y = s_defaultScreenHeight;
@@ -53,50 +53,19 @@ bool Tanglewood::Initialise()
 	m_debugUI = new DebugUI(*m_gui, ion::Vector2i(), ion::Vector2i());
 	//m_gui->AddWindow(*m_debugUI);
 
-	//Create world
-	m_world = new World();
-
-	//Create level (before loading objects)
-	//TODO: Move to gameplay game state
-	m_level = new L1A1();
-
-	//Load sprite data from Beehive project file
-	if(!m_world->LoadSprites(spriteDataFile))
-	{
-		return false;
-	}
-
-	//Load first level data file from Beehive project file
-	if(!m_world->LoadLevel(levelDataFile))
-	{
-		return false;
-	}
-
-	//Load first act
-	if(!m_world->LoadAct(actName, bgName))
-	{
-		return false;
-	}
-
-	//Create game objects
-	if(!m_world->CreateGameObjects())
-	{
-		return false;
-	}
-
-	if (Entity* nymn = m_world->FindEntity("Nymn"))
-	{
-		m_debugUI->AddWatchObj((const SpriteObj&)*nymn);
-	}
-
-	//TODO: Move to gameplay game state
-	m_level->Start();
+	//Begin level 0
+	BeginGameplay(0);
 
 	return true;
 }
 
 void Tanglewood::Shutdown()
 {
+	if (m_stateManager)
+	{
+		delete m_stateManager;
+	}
+
 	if (m_debugUI)
 	{
 		delete m_debugUI;
@@ -142,6 +111,11 @@ void Tanglewood::Shutdown()
 	{
 		delete m_window;
 	}
+
+	if (m_resourceManager)
+	{
+		delete m_resourceManager;
+	}
 }
 
 bool Tanglewood::Update(float deltaTime)
@@ -153,12 +127,8 @@ bool Tanglewood::Update(float deltaTime)
 	//Update world
 	m_world->Update(deltaTime, *m_camera, *m_keyboard, *m_gamepad, *m_window, m_screenSize);
 
-	//TODO: Move to gameplay game state
-	m_level->Update(deltaTime);
-	if (!m_level->IsRunning())
-	{
-		return false;
-	}
+	//Update gamestate
+	m_stateManager->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
 
 	//Update UI
 	m_gui->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
@@ -188,9 +158,45 @@ void Tanglewood::Render()
 	//Render world
 	m_world->Render(*m_renderer, cameraInv);
 
+	//Render gamestate
+	m_stateManager->Render(*m_renderer, *m_camera, *m_viewport);
+
 	//Render UI
 	m_gui->Render(*m_renderer, *m_viewport);
 
 	m_renderer->SwapBuffers();
 	m_renderer->EndFrame();
+}
+
+void Tanglewood::BeginGameplay(int levelIdx)
+{
+	//Create world
+	m_world = new World();
+
+	//Create level
+	//TODO: From level list
+	static const LevelData levelData =
+	{
+		"cd/sprites.bee_sprites",
+		"cd/l1.bee",
+		"l1a1",
+		"l1bg"
+	};
+
+	m_level = new L1A1(levelData);
+
+	//Create game states
+	m_stateGameplay = new StateGameplay(*m_world, *m_level, *m_stateManager, *m_resourceManager);
+	m_stateLoading = new StateLoading(*m_world, *m_level, *m_stateGameplay, *m_stateManager, *m_resourceManager);
+
+	//Begin loading state
+	m_stateManager->PushState(*m_stateLoading);
+}
+
+void Tanglewood::EndGameplay()
+{
+	delete m_stateLoading;
+	delete m_stateGameplay;
+	delete m_level;
+	delete m_world;
 }

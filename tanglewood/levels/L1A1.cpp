@@ -10,7 +10,8 @@
 
 #include "L1A1.h"
 
-L1A1::L1A1()
+L1A1::L1A1(const LevelData& levelData)
+	: Level(levelData)
 {
 	TriggerBox::RegisterTriggerFunc("L1A1_Trigger_End", std::bind(&L1A1::OnTriggerEndLevel, this, std::placeholders::_1));
 }

@@ -14,11 +14,17 @@
 #include <ion/renderer/Window.h>
 #include <ion/input/Keyboard.h>
 #include <ion/input/Gamepad.h>
+#include <ion/io/ResourceManager.h>
 #include <ion/gui/GUI.h>
 #include <ion/gamekit/FPSCounter.h>
+#include <ion/gamekit/StateManager.h>
 
 #include "framework/World.h"
 #include "framework/Level.h"
+
+#include "states/StateLoading.h"
+#include "states/StateGameplay.h"
+
 #include "Debug.h"
 
 #if defined ION_PLATFORM_WINDOWS
@@ -44,6 +50,9 @@ public:
 	virtual bool Update(float deltaTime);
 	virtual void Render();
 
+	void BeginGameplay(int levelIdx);
+	void EndGameplay();
+
 private:
 	ion::render::Window* m_window;
 	ion::render::Renderer* m_renderer;
@@ -51,7 +60,12 @@ private:
 	ion::render::Camera* m_camera;
 	ion::input::Keyboard* m_keyboard;
 	ion::input::Gamepad* m_gamepad;
+	ion::io::ResourceManager* m_resourceManager;
 	ion::gui::GUI* m_gui;
+	ion::gamekit::StateManager* m_stateManager;
+
+	StateLoading* m_stateLoading;
+	StateGameplay* m_stateGameplay;
 
 	ion::Vector2i m_screenSize;
 

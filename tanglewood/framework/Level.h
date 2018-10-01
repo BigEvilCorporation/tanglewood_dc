@@ -10,10 +10,20 @@
 
 #pragma once
 
+#include <string>
+
+struct LevelData
+{
+	std::string spriteDataFile;
+	std::string levelDataFile;
+	std::string actName;
+	std::string bgName;
+};
+
 class Level
 {
 public:
-	Level();
+	Level(const LevelData& levelData);
 
 	virtual void Start() = 0;
 	virtual void Update(float deltaTime) = 0;
@@ -22,6 +32,8 @@ public:
 	void EndLevel();
 
 	bool IsRunning() const { return m_levelRunning; }
+
+	const LevelData& m_levelData;
 
 private:
 	bool m_levelRunning;
