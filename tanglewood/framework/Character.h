@@ -44,11 +44,15 @@ public:
 	void Move(float speed);
 	void Jump();
 
+	void Kill();
+
 	bool m_allowRunning;
 	bool m_running;
 	bool m_jumping;
 	bool m_pushingLight;
 	bool m_pushingHeavy;
+
+	bool m_alive;
 
 	bool m_manualAnimation;
 

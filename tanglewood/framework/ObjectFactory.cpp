@@ -16,6 +16,7 @@
 #include "SpriteObj.h"
 
 #include "tanglewood/Boulder.h"
+#include "tanglewood/Djakk.h"
 #include "tanglewood/Firefly.h"
 #include "tanglewood/Flue.h"
 #include "tanglewood/Fuzzl.h"
@@ -65,6 +66,12 @@ namespace ObjectFactory
 		else if (typeName == "Boulder")
 		{
 			entity = new Boulder(world, gameObject, gameObjType, actor);
+		}
+		else if (typeName == "Monster")
+		{
+			//Actor name differs
+			actor = FindActor(actors, "Djakk");
+			entity = new Djakk(world, gameObject, gameObjType, actor);
 		}
 		else if(typeName == "Firefly")
 		{

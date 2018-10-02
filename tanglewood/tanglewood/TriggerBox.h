@@ -38,4 +38,7 @@ private:
 	static std::vector<const Entity*> s_triggerEntities;
 	static std::map<std::string, std::function<void(const TriggerBox&)>> s_triggerFuncMap;
 	std::function<void(const TriggerBox&)> m_onTriggered;
+
+	int m_triggerCount;
+	bool m_triggerOnce;
 };

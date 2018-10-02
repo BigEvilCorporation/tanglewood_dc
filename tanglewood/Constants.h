@@ -40,6 +40,7 @@ namespace Constants
 	namespace Boulder
 	{
 		static const float platformYOffset = 0x0008;
+		static const float minDamageYVel = SUBPIXELS_TO_PIXELS_PER_SEC(0x050000);
 	}
 
 	namespace Character
@@ -60,6 +61,16 @@ namespace Constants
 		static const float fallVelocity = SUBPIXELS_TO_PIXELS_PER_SEC(0x020000);
 
 		static const float stepHeight = 0x04;
+	}
+
+	namespace Djakk
+	{
+		static const float minChaseDistance = 0x0090/2;
+		static const float searchRandDistMax = 0x00FF;
+		static const float searchRandDelayMin = FRAMES_TO_SECONDS(0x0018);
+		static const float searchRandDelayMax = FRAMES_TO_SECONDS(0x0080);
+		static const float searchNearTargetDist = 0x4;
+		static const int biteAttackFrame = 0x2;
 	}
 
 	namespace Player

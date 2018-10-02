@@ -11,6 +11,7 @@
 #include "Boulder.h"
 #include "Constants.h"
 #include "Animations.h"
+#include "Djakk.h"
 
 #include "framework/World.h"
 
@@ -47,9 +48,39 @@ void Boulder::Update(float deltaTime)
 	//Scale anim speed based on velocity
 	float animSpeed = m_velocity.x * Constants::Fuzzl::animSpeedVelocityMul;
 	GetCurrentAnimation()->SetPlaybackSpeed(animSpeed);
+
+	//If fall valocity is enough to cause damage
+	if (m_velocity.y < -Constants::Boulder::minDamageYVel)
+	{
+		//Check if squashing enemies
+		CheckSquashDjakk();
+	}
 }
 
 void Boulder::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
 {
 	PhysicsObj::Render(renderer, cameraInv, mapSize);
+}
+
+void Boulder::Smash()
+{
+	PlayAnimation(Animations::Boulder::crack);
+	m_velocity.x = 0.0f;
+	m_acceleration.x = 0.0f;
+	m_world.GetPhysicsWorld().RemovePushableObject(*this);
+}
+
+void Boulder::CheckSquashDjakk()
+{
+	const std::vector<Djakk*>& djakks = m_world.GetEntities<Djakk>();
+
+	for (int i = 0; i < djakks.size() && m_active; i++)
+	{
+		if (djakks[i]->m_active && Intersects(*djakks[i]))
+		{
+			//Kill Djakk and smash boulder
+			djakks[i]->Kill();
+			Smash();
+		}
+	}
 }

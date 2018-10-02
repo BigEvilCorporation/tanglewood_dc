@@ -7,7 +7,7 @@ namespace Animations
 	namespace Player
 	{
 		static const AnimType idle =			{ "idle",			"idle",			AnimFlags::Loop };
-		static const AnimType dead =			{ "dead",			"dead",			AnimFlags::FreezeMovementX };
+		static const AnimType dead =			{ "death",			"death",		AnimFlags::FreezeMovementX };
 		static const AnimType run =				{ "run",			"run",			AnimFlags::Loop };
 		static const AnimType walk =			{ "walk",			"walk",			AnimFlags::Loop };
 		static const AnimType jump =			{ "jump",			"jump",			AnimFlags::Loop };
@@ -23,6 +23,18 @@ namespace Animations
 	namespace Boulder
 	{
 		static const AnimType roll =			{ "roll",			"roll",			AnimFlags::Loop };
+		static const AnimType crack =			{ "crack",			"crack",		AnimFlags::FreezeMovementX };
+	}
+
+	namespace Djakk
+	{
+		static const AnimType idle =			{ "idle",			"idle",			AnimFlags::Loop };
+		static const AnimType roar =			{ "roar",			"roar",			AnimFlags::FreezeMovementX };
+		static const AnimType bite =			{ "bite",			"bite",			AnimFlags::FreezeMovementX };
+		static const AnimType dead =			{ "death",			"death",		AnimFlags::FreezeMovementX };
+		static const AnimType run =				{ "run",			"run",			AnimFlags::Loop };
+		static const AnimType walk =			{ "walk",			"walk",			AnimFlags::Loop };
+		static const AnimType jump =			{ "jump",			"jump",			AnimFlags::Loop };
 	}
 
 	namespace Firefly

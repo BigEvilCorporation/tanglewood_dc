@@ -14,6 +14,7 @@
 #include <ion/core/debug/Debug.h>
 #include <ion/core/memory/Memory.h>
 #include <ion/core/utils/STL.h>
+#include <ion/core/string/String.h>
 
 SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Entity(world, gameObject, gameObjType, actor)
@@ -36,6 +37,8 @@ SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjec
 			m_currentSheet = &m_sheets.begin()->second;
 		}
 	}
+
+	ReadVars(gameObject.GetVariables());
 }
 
 SpriteObj::~SpriteObj()
@@ -49,6 +52,20 @@ SpriteObj::~SpriteObj()
 		}
 
 		delete it->second.m_primitive;
+	}
+}
+
+void SpriteObj::ReadVars(const std::vector<GameObjectVariable>& vars)
+{
+	for (int i = 0; i < vars.size(); i++)
+	{
+		if (ion::string::CompareNoCase(vars[i].m_name, "SpriteObj_FlippedX"))
+		{
+			if (vars[i].m_value == "0x1")
+			{
+				m_flippedX = true;
+			}
+		}
 	}
 }
 

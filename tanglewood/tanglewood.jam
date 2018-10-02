@@ -30,7 +30,6 @@ local SRC =
 	Tanglewood.cpp
 	Tanglewood.h
 
-	framework/Boulder.h
 	framework/Character.cpp
 	framework/Character.h
 	framework/Entity.cpp
@@ -56,6 +55,10 @@ local SRC =
 
 	tanglewood/Boulder.cpp
 	tanglewood/Boulder.h
+	tanglewood/Djakk.cpp
+	tanglewood/Djakk.h
+	tanglewood/Enemy.cpp
+	tanglewood/Enemy.h
 	tanglewood/Firefly.cpp
 	tanglewood/Firefly.h
 	tanglewood/Flue.cpp

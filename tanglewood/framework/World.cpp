@@ -10,6 +10,7 @@
 #include "World.h"
 #include "Physics.h"
 #include "Constants.h"
+#include "Globals.h"
 #include "ObjectFactory.h"
 
 #include <ion/core/debug/Debug.h>
@@ -167,6 +168,7 @@ bool World::CreateGameObjects()
 	std::vector<Player*> players = GetEntities<Player>();
 	if (!players.empty())
 	{
+		Globals::Players::player1 = players[0];
 		m_playerController = new PlayerController(*players[0]);
 	}
 	else

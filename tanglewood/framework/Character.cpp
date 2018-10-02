@@ -25,6 +25,7 @@ Character::Character(World& world, const GameObject& gameObject, const GameObjec
 	m_maxVelocityXWalking = Constants::Character::maxVelocityXWalking;
 	m_maxVelocityXRunning = Constants::Character::maxVelocityXRunning;
 
+	m_alive = true;
 	m_allowRunning = true;
 	m_running = false;
 	m_jumping = false;
@@ -32,7 +33,8 @@ Character::Character(World& world, const GameObject& gameObject, const GameObjec
 	m_closeToFloor = false;
 	m_snapToFloor = false;
 	m_manualAnimation = false;
-
+	m_pushingLight = false;
+	m_pushingHeavy = false;
 	m_walkToRunAnimTransition = false;
 
 	SetCharacterAnimation(CharacterAnimations::Idle);
@@ -128,6 +130,14 @@ void Character::Jump()
 	}
 }
 
+void Character::Kill()
+{
+	SetCharacterAnimation(CharacterAnimations::Dead, true);
+	m_alive = false;
+	m_acceleration.x = 0.0f;
+	m_velocity.x = 0.0f;
+}
+
 void Character::SetCharacterAnimation(CharacterAnimations animation, bool interrupt)
 {
 	if (!m_characterAnimations[(int)animation].first.empty())
@@ -145,7 +155,7 @@ void Character::SetCharacterAnimation(CharacterAnimations animation, bool interr
 
 void Character::UpdateAnimation()
 {
-	if (!m_manualAnimation)
+	if (!m_manualAnimation && m_alive)
 	{
 		SpriteAnimation* currentAnim = GetCurrentAnimation();
 

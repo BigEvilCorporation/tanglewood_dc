@@ -23,5 +23,6 @@ public:
 	virtual void Update(float deltaTime);
 	virtual void End();
 
+	void OnTriggerDjakk(const TriggerBox& triggerBox);
 	void OnTriggerEndLevel(const TriggerBox& triggerBox);
 };

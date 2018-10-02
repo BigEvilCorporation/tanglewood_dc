@@ -4,11 +4,19 @@ namespace Globals
 {
 	void Serialise(ion::io::Archive& archive)
 	{
-		archive.Serialise(World::levelIdx, "World::levelIdx");
+		archive.Serialise(Game::levelIdx, "Game::levelIdx");
 	}
 
-	namespace World
+	namespace Players
 	{
-		int levelIdx = 0;
+		Player* player1 = nullptr;
+		Player* player2 = nullptr;
+	}
+
+	namespace Game
+	{
+		int levelIdx = 1;
+		World* world = nullptr;
+		Level* level = nullptr;
 	}
 }

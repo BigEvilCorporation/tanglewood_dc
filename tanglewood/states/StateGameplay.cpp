@@ -53,7 +53,7 @@ bool StateGameplay::Update(float deltaTime, ion::input::Keyboard* keyboard, ion:
 	if (!m_level.IsRunning())
 	{
 		//TODO: End act/end level/failure state
-		Globals::World::levelIdx++;
+		Globals::Game::levelIdx++;
 		return false;
 	}
 }

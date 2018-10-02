@@ -9,14 +9,21 @@
 ///////////////////////////////////////////////////////////////
 
 #include "L1A2.h"
+#include "Globals.h"
+#include "framework/World.h"
+#include "tanglewood/Djakk.h"
+
+#include <ion/core/string/String.h>
 
 L1A2::L1A2()
 {
+	TriggerBox::RegisterTriggerFunc("L1A2_Trigger_Djakk", std::bind(&L1A2::OnTriggerDjakk, this, std::placeholders::_1));
 	TriggerBox::RegisterTriggerFunc("L1A2_Trigger_End", std::bind(&L1A2::OnTriggerEndLevel, this, std::placeholders::_1));
 }
 
 L1A2::~L1A2()
 {
+	TriggerBox::UnregisterTriggerFunc("L1A2_Trigger_Djakk");
 	TriggerBox::UnregisterTriggerFunc("L1A2_Trigger_End");
 }
 
@@ -33,6 +40,25 @@ void L1A2::Update(float deltaTime)
 void L1A2::End()
 {
 
+}
+
+void L1A2::OnTriggerDjakk(const TriggerBox& triggerBox)
+{
+	std::vector<Djakk*> djakks = Globals::Game::world->GetEntities<Djakk>();
+	
+	Djakk* djakk = nullptr;
+
+	for (int i = 0; i < djakks.size() && !djakk; i++)
+	{
+		if (ion::string::CompareNoCase(djakks[i]->m_name, "djakk"))
+		{
+			djakk = djakks[i];
+		}
+	}
+
+	ion::debug::Assert(djakk, "L1A2::OnTriggerDjakk() - Djakk not found");
+
+	djakk->BeginChase(true);
 }
 
 void L1A2::OnTriggerEndLevel(const TriggerBox& triggerBox)

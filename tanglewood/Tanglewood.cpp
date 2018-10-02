@@ -53,7 +53,7 @@ bool Tanglewood::Initialise()
 	//m_gui->AddWindow(*m_debugUI);
 
 	//Begin level
-	BeginGameplay(Globals::World::levelIdx);
+	BeginGameplay(Globals::Game::levelIdx);
 
 	return true;
 }
@@ -131,7 +131,7 @@ bool Tanglewood::Update(float deltaTime)
 	{
 		//Restart gameplay
 		EndGameplay();
-		BeginGameplay(Globals::World::levelIdx);
+		BeginGameplay(Globals::Game::levelIdx);
 	}
 
 	//Update UI
@@ -183,6 +183,10 @@ void Tanglewood::BeginGameplay(int levelIdx)
 	//Create level
 	m_level = levelDesc.levelfactory();
 
+	//TODO: Replace all with this
+	Globals::Game::world = m_world;
+	Globals::Game::level = m_level;
+
 	//Create game states
 	m_stateGameplay = new StateGameplay(*m_world, *m_level, *m_stateManager, *m_resourceManager);
 	m_stateLoading = new StateLoading(*m_world, levelDesc, *m_stateGameplay, *m_stateManager, *m_resourceManager);
@@ -199,4 +203,7 @@ void Tanglewood::EndGameplay()
 	delete m_stateGameplay;
 	delete m_level;
 	delete m_world;
+
+	Globals::Game::world = nullptr;
+	Globals::Game::level = nullptr;
 }

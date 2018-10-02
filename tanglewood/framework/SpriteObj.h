@@ -49,6 +49,9 @@ public:
 	bool m_drawnLastFrame;		//Was sprite drawn last frame
 
 private:
+	//Read object vars
+	void ReadVars(const std::vector<GameObjectVariable>& vars);
+
 	//Load actor from Beehive data
 	void LoadActor(Actor& actor);
 
