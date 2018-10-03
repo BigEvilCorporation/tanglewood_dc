@@ -10,7 +10,10 @@
 
 #include "Flue.h"
 #include "Constants.h"
+#include "Globals.h"
+#include "framework/World.h"
 
+#include <ion/core/string/String.h>
 #include <ion/core/utils/STL.h>
 #include <ion/maths/Geometry.h>
 
@@ -19,13 +22,17 @@ std::vector<PhysicsObj*> Flue::s_potentialOccupants;
 Flue::Flue(World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
 	: Entity(world, gameObject, gameObjType, nullptr)
 {
+	m_world.AddEntity<Flue>(*this);
+
+	ReadVars(gameObject.GetVariables());
+
 	m_ejectTime = Constants::Flue::defaultEjectTime;
 	m_ejectForce = Constants::Flue::defaultEjectForce;
 }
 
 Flue::~Flue()
 {
-
+	m_world.RemoveEntity<Flue>(*this);
 }
 
 void Flue::Update(float deltaTime)
@@ -52,6 +59,17 @@ void Flue::Update(float deltaTime)
 		if (CanHold(*s_potentialOccupants[i]))
 		{
 			AddOccupant(*s_potentialOccupants[i]);
+		}
+	}
+}
+
+void Flue::ReadVars(const std::vector<GameObjectVariable>& vars)
+{
+	for (int i = 0; i < vars.size(); i++)
+	{
+		if (ion::string::CompareNoCase(vars[i].m_name, "Flue_Link"))
+		{
+			m_linkedFlue = vars[i].m_value;
 		}
 	}
 }
@@ -90,9 +108,17 @@ void Flue::AddOccupant(PhysicsObj& object)
 	object.m_acceleration.x = 0.0f;
 	object.m_acceleration.y = 0.0f;
 
-	//Centre object in flue
-	object.m_worldPos.x = (m_worldPos.x + (m_size.x / 2.0f)) - (object.m_size.x / 2.0f);
-	object.m_worldPos.y = (m_worldPos.y + (m_size.y / 2.0f)) - (object.m_size.y / 2.0f);
+	//Find output flue
+	m_outputFlue = this;
+	if (!m_linkedFlue.empty())
+	{
+		m_outputFlue = m_world.FindEntity<Flue>(m_linkedFlue);
+		ion::debug::Assert(m_outputFlue, "Flue::AddOccupant() - Could not find output flue");
+	}
+
+	//Centre object in output flue
+	object.m_worldPos.x = (m_outputFlue->m_worldPos.x + (m_outputFlue->m_size.x / 2.0f)) - (object.m_size.x / 2.0f);
+	object.m_worldPos.y = (m_outputFlue->m_worldPos.y + (m_outputFlue->m_size.y / 2.0f)) - (object.m_size.y / 2.0f);
 }
 
 void Flue::EjectOccupant(PhysicsObj& object)

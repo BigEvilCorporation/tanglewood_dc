@@ -217,15 +217,34 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 
 void World::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv)
 {
+	//TODO: One plane per draw priority (store sprites on plane)
+	const std::vector<SpriteObj*>& sprites = GetEntities<SpriteObj>();
+
 	//Draw planes
-	m_planeBg->Render(renderer, cameraInv, m_mapSizeBg);
-	m_planeFg->Render(renderer, cameraInv, m_mapSizeFg);
+	m_planeBg->Render(renderer, cameraInv, m_mapSizeBg, PlanePriority::PlaneALow);
+	m_planeFg->Render(renderer, cameraInv, m_mapSizeFg, PlanePriority::PlaneALow);
 
 	//Draw sprites
-    for(int i = 0; i < m_entities.size(); i++)
-    {
-        m_entities[i]->Render(renderer, cameraInv, m_mapSizeFg);
-    }
+	for (int i = 0; i < sprites.size(); i++)
+	{
+		if (sprites[i]->m_planePriority == PlanePriority::SpriteLow)
+		{
+			sprites[i]->Render(renderer, cameraInv, m_mapSizeFg);
+		}
+	}
+
+	//Draw planes
+	m_planeBg->Render(renderer, cameraInv, m_mapSizeBg, PlanePriority::PlaneAHigh);
+	m_planeFg->Render(renderer, cameraInv, m_mapSizeFg, PlanePriority::PlaneAHigh);
+
+	//Draw sprites
+	for (int i = 0; i < sprites.size(); i++)
+	{
+		if (sprites[i]->m_planePriority == PlanePriority::SpriteHigh)
+		{
+			sprites[i]->Render(renderer, cameraInv, m_mapSizeFg);
+		}
+	}
 }
 
 void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize)
@@ -249,17 +268,4 @@ void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera&
 	camera.SetPosition(cameraPos);
 
 	m_cameraPos = position;
-}
-
-Entity* World::FindEntity(const std::string& name)
-{
-	for (int i = 0; i < m_entities.size(); i++)
-	{
-		if (ion::string::CompareNoCase(m_entities[i]->m_name, name))
-		{
-			return m_entities[i];
-		}
-	}
-
-	return nullptr;
 }

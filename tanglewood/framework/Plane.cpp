@@ -36,15 +36,18 @@ Plane::Plane(const Map& map, StampSet& stampSet)
 	}
 }
 
-void Plane::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
+void Plane::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize, PlanePriority priority)
 {
 	for(int i = 0; i < m_stampInstances.size(); i++)
 	{
-		//Centred quad to top-left + draw offset + scroll, inverted for OpenGL
-		ion::Vector2 position;
-		position.x = m_stampInstances[i].position.x + (m_stampInstances[i].stamp->m_size.x / 2.0f) + m_scroll.x + m_drawOffset.x;
-		position.y = mapSize.y - m_stampInstances[i].position.y - (m_stampInstances[i].stamp->m_size.y / 2.0f) + m_scroll.y + m_drawOffset.y;
+		if (m_stampInstances[i].stamp->m_planePriority == priority)
+		{
+			//Centred quad to top-left + draw offset + scroll, inverted for OpenGL
+			ion::Vector2 position;
+			position.x = m_stampInstances[i].position.x + (m_stampInstances[i].stamp->m_size.x / 2.0f) + m_scroll.x + m_drawOffset.x;
+			position.y = mapSize.y - m_stampInstances[i].position.y - (m_stampInstances[i].stamp->m_size.y / 2.0f) + m_scroll.y + m_drawOffset.y;
 
-		m_stampInstances[i].stamp->Render(renderer, position, cameraInv, m_stampInstances[i].flippedX, m_stampInstances[i].flippedY);
+			m_stampInstances[i].stamp->Render(renderer, position, cameraInv, m_stampInstances[i].flippedX, m_stampInstances[i].flippedY);
+		}
 	}
 }

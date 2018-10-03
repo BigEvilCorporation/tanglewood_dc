@@ -11,6 +11,7 @@
 #include <ion/core/memory/Memory.h>
 
 #include "Stamp.h"
+#include "Constants.h"
 
 StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const Palette& palette)
 {
@@ -28,6 +29,7 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 
 	m_size.x = widthTiles * tileWidth;
 	m_size.y = heightTiles * tileHeight;
+	m_planePriority = (stamp.GetTileFlags(0, 0) & Map::eHighPlane) ? PlanePriority::PlaneAHigh : PlanePriority::PlaneALow;
 
 	//Create primitive
 	m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2((float)widthTiles * (tileWidth / 2.0f), (float)heightTiles * (tileHeight / 2.0f)));
@@ -132,7 +134,7 @@ void StampRenderer::Render(ion::render::Renderer& renderer, const ion::Vector2& 
 		transform.SetScale(scale);
 
 		//Translate
-		transform.SetTranslation(ion::Vector3(position.x, position.y, 0.0f));
+		transform.SetTranslation(ion::Vector3(position.x, position.y, Constants::Rendering::planePriorities[(int)m_planePriority]));
 
 		//Bind material
 		m_material->Bind(transform, cameraInv, renderer.GetProjectionMatrix());

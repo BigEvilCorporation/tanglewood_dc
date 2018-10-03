@@ -16,6 +16,7 @@
 #include <ion/input/Keyboard.h>
 #include <ion/input/Gamepad.h>
 #include <ion/core/utils/STL.h>
+#include <ion/core/string/String.h>
 
 #include "Stamp.h"
 #include "Plane.h"
@@ -52,7 +53,7 @@ public:
 	template <typename T> const std::vector<T*>& GetEntities() const;
 
 	//Find entities
-	Entity* FindEntity(const std::string& name);
+	template <typename T> T* FindEntity(const std::string& name) const;
 
 	//Physics world
 	PhysicsWorld& GetPhysicsWorld() { return m_physicsWorld; }
@@ -126,4 +127,18 @@ template <typename T> const std::vector<T*>& World::GetEntities() const
 	std::map<std::string, std::vector<Entity*>>::const_iterator it = m_entitiesByType.find(typeid(T).name());
 	ion::debug::Assert(it != m_entitiesByType.end(), "World::GetEntities<T>() - Invalid type");
 	return (std::vector<T*>&)it->second;
+}
+
+template <typename T> T* World::FindEntity(const std::string& name) const
+{
+	T* entity = nullptr;
+	const std::vector<T*>& entities = GetEntities<T>();
+
+	std::vector<T*>::const_iterator it = std::find_if(entities.begin(), entities.end(), [&name](const T* rhs) { return ion::string::CompareNoCase(name, rhs->m_name); });
+	if (it != entities.end())
+	{
+		entity = *it;
+	}
+
+	return entity;
 }

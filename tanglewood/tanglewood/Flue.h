@@ -26,6 +26,8 @@ public:
 	static void UnregisterPotentialOccupant(PhysicsObj& occupant);
 
 private:
+	void ReadVars(const std::vector<GameObjectVariable>& vars);
+
 	bool CanHold(PhysicsObj& object) const;
 	void AddOccupant(PhysicsObj& object);
 	void EjectOccupant(PhysicsObj& object);
@@ -50,4 +52,6 @@ private:
 
 	float m_ejectTime;
 	float m_ejectForce;
+	std::string m_linkedFlue;
+	Flue* m_outputFlue;
 };

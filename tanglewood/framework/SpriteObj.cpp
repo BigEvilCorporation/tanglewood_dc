@@ -10,6 +10,7 @@
 
 #include "SpriteObj.h"
 #include "Constants.h"
+#include "World.h"
 
 #include <ion/core/debug/Debug.h>
 #include <ion/core/memory/Memory.h>
@@ -19,6 +20,8 @@
 SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Entity(world, gameObject, gameObjType, actor)
 {
+	m_world.AddEntity<SpriteObj>(*this);
+
 	m_currentSheet = NULL;
 	m_currentAnim = NULL;
 	m_currentAnimType = NULL;
@@ -27,6 +30,8 @@ SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjec
 	m_flippedY = false;
 	m_visible = true;
 	m_drawnLastFrame = false;
+
+	m_planePriority = PlanePriority::SpriteLow;
 
 	if(actor)
 	{
@@ -43,6 +48,8 @@ SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjec
 
 SpriteObj::~SpriteObj()
 {
+	m_world.RemoveEntity<SpriteObj>(*this);
+
 	for(std::map<std::string, Sheet>::iterator it = m_sheets.begin(), end = m_sheets.end(); it != end; it++)
 	{
 		for(int i = 0; i < it->second.m_frames.size(); i++)
@@ -318,7 +325,7 @@ void SpriteObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& came
 		{
 			//Draw offset (centred quad to top-left + draw offset, inverted for OpenGL)
 			ion::Matrix4 transform;
-			transform.SetTranslation(ion::Vector3(m_worldPos.x + m_drawOffset.x + (m_size.x / 2.0f), mapSize.y - m_worldPos.y + m_drawOffset.y - (m_size.y / 2.0f), 0.0f));
+			transform.SetTranslation(ion::Vector3(m_worldPos.x + m_drawOffset.x + (m_size.x / 2.0f), mapSize.y - m_worldPos.y + m_drawOffset.y - (m_size.y / 2.0f), Constants::Rendering::planePriorities[(int)m_planePriority]));
 
 			//Flip
 			ion::Vector3 scale(m_flippedX ? -1.0f : 1.0f, m_flippedY ? -1.0f : 1.0f, 1.0f);

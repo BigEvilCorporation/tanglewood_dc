@@ -18,6 +18,7 @@
 
 #include "Entity.h"
 #include "Animation.h"
+#include "PlanePriority.h"
 
 class SpriteObj : public Entity
 {
@@ -47,6 +48,8 @@ public:
 	bool m_flippedY;			//Sprite flip Y
 	bool m_visible;				//Is visible
 	bool m_drawnLastFrame;		//Was sprite drawn last frame
+
+	PlanePriority m_planePriority;
 
 private:
 	//Read object vars

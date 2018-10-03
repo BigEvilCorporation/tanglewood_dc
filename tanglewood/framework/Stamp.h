@@ -17,6 +17,8 @@
 #include <ion/beehive/Project.h>
 #include <ion/beehive/Stamp.h>
 
+#include "PlanePriority.h"
+
 #include <map>
 
 class StampRenderer
@@ -32,6 +34,9 @@ public:
 
 	//Size (pixels)
 	ion::Vector2 m_size;
+
+	//Plane
+	PlanePriority m_planePriority;
 
 private:
 	ion::render::Texture* m_texture;

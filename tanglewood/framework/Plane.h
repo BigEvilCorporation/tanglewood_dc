@@ -8,6 +8,8 @@
 //				(loosely mirrors Mega Drive framework)
 ///////////////////////////////////////////////////////////////////
 
+#pragma once
+
 #include <ion/renderer/Renderer.h>
 #include <ion/beehive/Map.h>
 #include <ion/beehive/Stamp.h>
@@ -22,7 +24,7 @@ class Plane
 public:
 	Plane(const Map& map, StampSet& stampSet);
 
-	void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
+	void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize, PlanePriority priority);
 
 	ion::Vector2 m_scroll;
 	ion::Vector2 m_drawOffset;

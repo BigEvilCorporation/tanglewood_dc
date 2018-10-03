@@ -11,6 +11,8 @@
 #include <ion/maths/Maths.h>
 #include <ion/maths/Vector.h>
 
+#include "framework/PlanePriority.h"
+
 #define SUBPIXELS_TO_PIXELS(val) (float)((float)(val>>16)+((float)(val&0xFFFF)/Constants::MegaDrive::subPixelsPerPixel))
 #define SUBPIXELS_TO_PIXELS_PER_SEC(val) SUBPIXELS_TO_PIXELS(val) * Constants::MegaDrive::frameRate
 #define SUBPIXELS_TO_ACCELERATION(val) SUBPIXELS_TO_PIXELS(val) * ion::maths::Square(Constants::MegaDrive::frameRate)
@@ -28,6 +30,20 @@ namespace Constants
 
 		static const float tileWidth = 8.0f;
 		static const float tileHeight = 8.0f;
+	}
+
+	namespace Rendering
+	{
+		static const float planePriorities[(int)PlanePriority::Count] =
+		{
+			-0.7,
+			-0.6,
+			-0.5,
+			-0.4,
+			-0.3,
+			-0.2,
+			-0.1
+		};
 	}
 
 	namespace World
