@@ -20,6 +20,17 @@ Djakk::Djakk(World& world, const GameObject& gameObject, const GameObjectType& g
 {
 	world.AddEntity<Djakk>(*this);
 
+	m_maxVelocityX = Constants::Djakk::maxVelocityXWalking;
+	m_deceleration = Constants::Djakk::decelerationIdle;
+
+	m_walktoRunVelocity = Constants::Djakk::walkToRunVelocity;
+	m_maxVelocityXWalking = Constants::Djakk::maxVelocityXWalking;
+	m_maxVelocityXRunning = Constants::Djakk::maxVelocityXRunning;
+	m_accelerationWalking = Constants::Djakk::accelerationWalking;
+	m_accelerationRunning = Constants::Djakk::accelerationRunning;
+	m_decelerationIdle = Constants::Djakk::decelerationIdle;
+	m_decelerationForced = Constants::Djakk::decelerationForced;
+
 	//Setup animations
 	m_characterAnimations[(int)CharacterAnimations::Idle] = std::make_pair("idle", Animations::Djakk::idle);
 	m_characterAnimations[(int)CharacterAnimations::Dead] = std::make_pair("dead", Animations::Djakk::dead);

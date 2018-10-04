@@ -85,6 +85,17 @@ namespace Constants
 
 	namespace Djakk
 	{
+		static const ion::Vector2 accelerationWalking(SUBPIXELS_TO_ACCELERATION(0x0200), 0.0f);
+		static const ion::Vector2 accelerationRunning(SUBPIXELS_TO_ACCELERATION(0x1600), 0.0f);
+		static const ion::Vector2 decelerationIdle(SUBPIXELS_TO_ACCELERATION(0x2000), 0.0f);
+		static const ion::Vector2 decelerationForced(SUBPIXELS_TO_ACCELERATION(0x4000), 0.0f);
+
+		static const float maxVelocityXWalking = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
+		static const float maxVelocityXRunning = SUBPIXELS_TO_PIXELS_PER_SEC(0x042000);
+
+		static const float walkToRunVelocity = SUBPIXELS_TO_PIXELS_PER_SEC(0x030000);
+		static const float jumpImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x038000);
+
 		static const float minChaseDistance = 0x0090/2;
 		static const float searchRandDistMax = 0x00FF;
 		static const float searchRandDelayMin = FRAMES_TO_SECONDS(0x0018);
