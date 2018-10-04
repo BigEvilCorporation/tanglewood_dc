@@ -52,6 +52,16 @@ namespace Animations
 		}
 	}
 
+	namespace Hogg
+	{
+		static const AnimType idle =			{ "run",			"idle",			AnimFlags::Loop };
+		static const AnimType dead =			{ "dead",			"dead",			AnimFlags::FreezeMovementX };
+		static const AnimType run =				{ "run",			"run",			AnimFlags::Loop };
+		static const AnimType wall =			{ "wall",			"hit",			AnimFlags::FreezeMovementX };
+		static const AnimType stuck =			{ "wall",			"stuck",		AnimFlags::Loop };
+		static const AnimType unstuck =			{ "wall",			"recover",		AnimFlags::FreezeMovementX };
+	}
+
 	namespace Mushroom
 	{
 		namespace Orient180

@@ -44,4 +44,5 @@ public:
 	bool m_hitWall;
 
 	float m_lastFloorVelocity;
+	float m_lastWallVelocity;
 };

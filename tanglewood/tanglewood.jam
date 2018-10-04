@@ -65,6 +65,8 @@ local SRC =
 	tanglewood/Flue.h
 	tanglewood/Fuzzl.cpp
 	tanglewood/Fuzzl.h
+	tanglewood/Hogg.cpp
+	tanglewood/Hogg.h
 	tanglewood/Mushroom.cpp
 	tanglewood/Mushroom.h
 	tanglewood/Nest.cpp

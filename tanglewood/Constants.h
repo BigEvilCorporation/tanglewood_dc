@@ -141,6 +141,28 @@ namespace Constants
 		static const float bounceAnimSpeed = SUBFRAMES_TO_SECONDS(0x40);
 	}
 
+	namespace Hogg
+	{
+		//Movement
+		static const ion::Vector2 accelerationWalking(SUBPIXELS_TO_ACCELERATION(0x000800), 0.0f);
+		static const ion::Vector2 accelerationRunning(SUBPIXELS_TO_ACCELERATION(0x000800), 0.0f);
+		static const ion::Vector2 decelerationIdle(SUBPIXELS_TO_ACCELERATION(0x000800), 0.0f);
+		static const ion::Vector2 decelerationForced(SUBPIXELS_TO_ACCELERATION(0x001000), 0.0f);
+
+		static const float maxVelocityXWalking = SUBPIXELS_TO_PIXELS_PER_SEC(0x060000);
+		static const float maxVelocityXRunning = SUBPIXELS_TO_PIXELS_PER_SEC(0x060000);
+
+		//Chase
+		static const float alertDistance = 0x0090;
+		static const float sleepDistance = 0x0400;
+		static const float minChaseDistance = 0x0010;
+
+		//Stuck in wall
+		static const float stuckVelocity = SUBPIXELS_TO_PIXELS_PER_SEC(0x020000);
+		static const float stuckTime = FRAMES_TO_SECONDS(0x0100);
+		static const float stuckExitImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x100000);
+	}
+
 	namespace Mushroom
 	{
 		static const float defaultBounceVelX = SUBPIXELS_TO_PIXELS_PER_SEC(0x000000);

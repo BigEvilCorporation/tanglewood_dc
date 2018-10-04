@@ -58,6 +58,10 @@ public:
 	float m_walktoRunVelocity;
 	float m_maxVelocityXWalking;
 	float m_maxVelocityXRunning;
+	ion::Vector2 m_accelerationWalking;
+	ion::Vector2 m_accelerationRunning;
+	ion::Vector2 m_decelerationIdle;
+	ion::Vector2 m_decelerationForced;
 
 protected:
 	std::pair<std::string, AnimType> m_characterAnimations[(int)CharacterAnimations::Count];

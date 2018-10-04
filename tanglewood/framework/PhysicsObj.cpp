@@ -42,6 +42,22 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 {
 	if (m_active)
 	{
+		//Check if velocity is to be cancelled by animation
+		if (const AnimType* animType = GetCurrentAnimType())
+		{
+			if (animType->flags & AnimFlags::FreezeMovementX)
+			{
+				m_acceleration.x = 0.0f;
+				m_velocity.x = 0.0f;
+			}
+
+			if (animType->flags & AnimFlags::FreezeMovementY)
+			{
+				m_acceleration.y = 0.0f;
+				m_velocity.y = 0.0f;
+			}
+		}
+
 		//Apply acceleration
 		m_velocity += m_acceleration * deltaTime;
 
@@ -71,6 +87,7 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 
 		//Clear hit velocity
 		m_lastFloorVelocity = 0.0f;
+		m_lastWallVelocity = 0.0f;
 
 		//Apply gravity
 		m_velocity.y -= physicsWorld.GetGravity() * deltaTime;
@@ -121,6 +138,9 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 				//Collision with wall to right, adjust position
 				m_worldPos.x = wallPos - m_boundsTopLeft.x - m_boundsSize.x;
 
+				//Record hit velocity
+				m_lastWallVelocity = m_velocity.x;
+
 				//Kill X velocity/acceleration
 				m_velocity.x = 0.0f;
 				m_acceleration.x = 0.0f;
@@ -133,6 +153,9 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 			{
 				//Collision with wall to left, adjust position
 				m_worldPos.x = wallPos - m_boundsTopLeft.x;
+
+				//Record hit velocity
+				m_lastWallVelocity = m_velocity.x;
 
 				//Kill X velocity/acceleration
 				m_velocity.x = 0.0f;

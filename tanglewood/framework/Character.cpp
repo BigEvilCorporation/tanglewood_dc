@@ -24,6 +24,10 @@ Character::Character(World& world, const GameObject& gameObject, const GameObjec
 	m_walktoRunVelocity = Constants::Character::walkToRunVelocity;
 	m_maxVelocityXWalking = Constants::Character::maxVelocityXWalking;
 	m_maxVelocityXRunning = Constants::Character::maxVelocityXRunning;
+	m_accelerationWalking = Constants::Character::accelerationWalking;
+	m_accelerationRunning = Constants::Character::accelerationRunning;
+	m_decelerationIdle = Constants::Character::decelerationIdle;
+	m_decelerationForced = Constants::Character::decelerationForced;
 
 	m_alive = true;
 	m_allowRunning = true;
@@ -93,20 +97,18 @@ void Character::Move(float speed)
 {
 	if ((m_velocity.x < 0.0f && speed > 0.0f) || (m_velocity.x > 0.0f && speed < 0.0f))
 	{
-		//TODO: Store as member
-		m_acceleration.x = speed * Constants::Character::decelerationForced.x;
+		//Character is already moving, force in other direction
+		m_acceleration.x = speed * m_decelerationForced.x;
 	}
 	else
 	{
 		if (m_allowRunning)
 		{
-			//TODO: Store as member
-			m_acceleration.x = speed * Constants::Character::accelerationRunning.x;
+			m_acceleration.x = speed * m_accelerationRunning.x;
 		}
 		else
 		{
-			//TODO: Store as member
-			m_acceleration.x = speed * Constants::Character::accelerationWalking.x;
+			m_acceleration.x = speed * m_accelerationWalking.x;
 		}
 	}
 }
@@ -193,21 +195,6 @@ void Character::UpdateAnimation()
 					SetCharacterAnimation(CharacterAnimations::Walk);
 				}
 			}
-		}
-	}
-
-	if (const AnimType* animType = GetCurrentAnimType())
-	{
-		if (animType->flags & AnimFlags::FreezeMovementX)
-		{
-			m_acceleration.x = 0.0f;
-			m_velocity.x = 0.0f;
-		}
-
-		if (animType->flags & AnimFlags::FreezeMovementY)
-		{
-			m_acceleration.y = 0.0f;
-			m_velocity.y = 0.0f;
 		}
 	}
 }

@@ -20,6 +20,7 @@
 #include "tanglewood/Firefly.h"
 #include "tanglewood/Flue.h"
 #include "tanglewood/Fuzzl.h"
+#include "tanglewood/Hogg.h"
 #include "tanglewood/Mushroom.h"
 #include "tanglewood/Nest.h"
 #include "tanglewood/Player.h"
@@ -84,6 +85,10 @@ namespace ObjectFactory
 		else if (typeName == "Fuzzl")
 		{
 			entity = new Fuzzl(world, gameObject, gameObjType, actor);
+		}
+		else if (typeName == "Hogg")
+		{
+			entity = new Hogg(world, gameObject, gameObjType, actor);
 		}
 		else if (typeName == "BouncePlant")
 		{
