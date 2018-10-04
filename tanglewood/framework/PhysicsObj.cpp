@@ -24,6 +24,7 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 	m_maxVelocityYDown = 800.0f;
 	m_deceleration.x = 100.0f;
 	m_stepHeight = 1.0f;
+	m_lastFloorVelocity = 0.0f;
 
 	m_snapToFloor = false;
 	m_ignoreHoles = false;
@@ -66,8 +67,10 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 					m_velocity.x = 0.0f;
 				}
 			}
-
 		}
+
+		//Clear hit velocity
+		m_lastFloorVelocity = 0.0f;
 
 		//Apply gravity
 		m_velocity.y -= physicsWorld.GetGravity() * deltaTime;
@@ -172,6 +175,9 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 						//Collision with floor, adjust position
 						m_worldPos.y = floorHeight - m_size.y;
 
+						//Record hit velocity
+						m_lastFloorVelocity = m_velocity.y;
+
 						//Kill Y velocity/acceleration
 						m_velocity.y = 0.0f;
 						m_acceleration.y = 0.0f;
@@ -185,16 +191,6 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 			}
 		}
 	}
-}
-
-void PhysicsObj::Update(float deltaTime)
-{
-	SpriteObj::Update(deltaTime);
-}
-
-void PhysicsObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
-{
-	SpriteObj::Render(renderer, cameraInv, mapSize);
 }
 
 void PhysicsObj::AddImpulse(const ion::Vector2& impulse)

@@ -37,9 +37,8 @@ public:
 	Character(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Character();
 
-	//Update/render
+	//Update
 	virtual void Update(float deltaTime);
-	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
 	void Move(float speed);
 	void Jump();

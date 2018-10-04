@@ -22,9 +22,8 @@ public:
 	Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Fuzzl();
 
-	//Update/render
+	//Update
 	virtual void Update(float deltaTime);
-	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
 	bool IsInNest() const;
 

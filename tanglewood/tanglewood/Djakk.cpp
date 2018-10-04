@@ -52,11 +52,6 @@ void Djakk::Update(float deltaTime)
 	}
 }
 
-void Djakk::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
-{
-	Enemy::Render(renderer, cameraInv, mapSize);
-}
-
 void Djakk::BeginChase(bool roar)
 {
 	if (roar)

@@ -19,10 +19,6 @@ public:
 	PhysicsObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~PhysicsObj();
 
-	//Update/render
-	virtual void Update(float deltaTime);
-	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
-
 	//Step
 	void PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld);
 
@@ -46,4 +42,6 @@ public:
 	bool m_onFloor;
 	bool m_closeToFloor;
 	bool m_hitWall;
+
+	float m_lastFloorVelocity;
 };

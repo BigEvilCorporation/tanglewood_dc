@@ -19,9 +19,8 @@ public:
 	Mushroom(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Mushroom();
 
-	//Update/render
+	//Update
 	virtual void Update(float deltaTime);
-	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
 	static void RegisterPotentialUser(Character& user);
 	static void UnregisterPotentialUser(Character& user);

@@ -27,9 +27,8 @@ public:
 	Player(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
     virtual ~Player();
     
-    //Update/render
+    //Update
     virtual void Update(float deltaTime);
-    virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
 	void BeginInteract();
 	void EndInteract();

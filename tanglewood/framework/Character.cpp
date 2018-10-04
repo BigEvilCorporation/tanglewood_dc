@@ -89,11 +89,6 @@ void Character::Update(float deltaTime)
 	}
 }
 
-void Character::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
-{
-	PhysicsObj::Render(renderer, cameraInv, mapSize);
-}
-
 void Character::Move(float speed)
 {
 	if ((m_velocity.x < 0.0f && speed > 0.0f) || (m_velocity.x > 0.0f && speed < 0.0f))

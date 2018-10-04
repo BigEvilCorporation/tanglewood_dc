@@ -99,11 +99,6 @@ void Player::Update(float deltaTime)
 	}
 }
 
-void Player::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
-{
-	Character::Render(renderer, cameraInv, mapSize);
-}
-
 void Player::BeginInteract()
 {
 	if (m_activeInteraction == InteractionType::None)

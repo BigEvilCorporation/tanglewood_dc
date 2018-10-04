@@ -17,8 +17,4 @@ class Enemy : public Character
 public:
 	Enemy(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Enemy();
-
-	//Update/render
-	virtual void Update(float deltaTime);
-	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 };

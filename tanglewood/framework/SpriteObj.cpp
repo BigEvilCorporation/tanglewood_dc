@@ -16,6 +16,7 @@
 #include <ion/core/memory/Memory.h>
 #include <ion/core/utils/STL.h>
 #include <ion/core/string/String.h>
+#include <ion/maths/Geometry.h>
 
 SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Entity(world, gameObject, gameObjType, actor)
@@ -316,12 +317,26 @@ void SpriteObj::Update(float deltaTime)
 	Entity::Update(deltaTime);
 }
 
-void SpriteObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
+void SpriteObj::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
 {
 	if(m_currentSheet && m_visible)
 	{
-		//TODO: Visibility test
-		if(true)
+		//Visibility test
+		ion::Vector2 topLeft;
+		ion::Vector2 bottomRight;
+		ion::Vector2 camTopLeft;
+		ion::Vector2 camBottomRight;
+
+		GetWorldBounds(topLeft, bottomRight);
+
+		camTopLeft.x = camera.GetPosition().x;
+		camTopLeft.y = mapSize.y - camera.GetPosition().y - Constants::MegaDrive::screenHeight;
+		camBottomRight.x = camera.GetPosition().x + Constants::MegaDrive::screenWidth;
+		camBottomRight.y = mapSize.y - camera.GetPosition().y;
+
+		m_drawnLastFrame = ion::maths::BoxIntersectsBox(topLeft, bottomRight, camTopLeft, camBottomRight);
+
+		if(m_drawnLastFrame)
 		{
 			//Draw offset (centred quad to top-left + draw offset, inverted for OpenGL)
 			ion::Matrix4 transform;
@@ -341,6 +356,10 @@ void SpriteObj::Render(ion::render::Renderer& renderer, const ion::Matrix4& came
 			renderer.DrawVertexBuffer(m_currentSheet->m_primitive->GetVertexBuffer(), m_currentSheet->m_primitive->GetIndexBuffer());
 		}
 	}
+	else
+	{
+		m_drawnLastFrame = false;
+	}
 
-	Entity::Render(renderer, cameraInv, mapSize);
+	Entity::Render(renderer, camera, viewport, cameraInv, mapSize);
 }

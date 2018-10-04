@@ -27,8 +27,3 @@ void Firefly::Update(float deltaTime)
 {
 	SpriteObj::Update(deltaTime);
 }
-
-void Firefly::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
-{
-	SpriteObj::Render(renderer, cameraInv, mapSize);
-}

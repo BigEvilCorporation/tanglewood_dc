@@ -18,5 +18,6 @@ namespace Globals
 		int levelIdx = 1;
 		World* world = nullptr;
 		Level* level = nullptr;
+		ion::render::Camera* camera = nullptr;
 	}
 }

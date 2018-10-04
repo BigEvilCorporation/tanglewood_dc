@@ -30,6 +30,9 @@ namespace Constants
 
 		static const float tileWidth = 8.0f;
 		static const float tileHeight = 8.0f;
+
+		static const float screenWidth = 320.0f;
+		static const float screenHeight = 240.0f;
 	}
 
 	namespace Rendering
@@ -57,6 +60,7 @@ namespace Constants
 	{
 		static const float platformYOffset = 0x0008;
 		static const float minDamageYVel = SUBPIXELS_TO_PIXELS_PER_SEC(0x050000);
+		static const float respawnDistance = MegaDrive::screenWidth;
 	}
 
 	namespace Character

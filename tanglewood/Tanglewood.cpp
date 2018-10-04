@@ -160,7 +160,7 @@ void Tanglewood::Render()
 	ion::Matrix4 cameraInv = m_camera->GetTransform().GetInverse();
 
 	//Render world
-	m_world->Render(*m_renderer, cameraInv);
+	m_world->Render(*m_renderer, *m_camera, *m_viewport, cameraInv);
 
 	//Render gamestate
 	m_stateManager->Render(*m_renderer, *m_camera, *m_viewport);
@@ -186,6 +186,9 @@ void Tanglewood::BeginGameplay(int levelIdx)
 	//TODO: Replace all with this
 	Globals::Game::world = m_world;
 	Globals::Game::level = m_level;
+	
+	//Set camera
+	Globals::Game::camera = m_camera;
 
 	//Create game states
 	m_stateGameplay = new StateGameplay(*m_world, *m_level, *m_stateManager, *m_resourceManager);

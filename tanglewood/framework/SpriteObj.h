@@ -38,7 +38,7 @@ public:
 
 	//Update/render
 	virtual void Update(float deltaTime);
-	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
+	virtual void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
 	//Draw sprite sheet to texture with specified palette
 	void PaintSheet(SpriteSheet& spriteSheet, const Palette& palette);

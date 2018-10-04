@@ -66,11 +66,6 @@ void Mushroom::Update(float deltaTime)
 	}
 }
 
-void Mushroom::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
-{
-	SpriteObj::Render(renderer, cameraInv, mapSize);
-}
-
 void Mushroom::RegisterPotentialUser(Character& user)
 {
 	s_potentialUsers.push_back(&user);

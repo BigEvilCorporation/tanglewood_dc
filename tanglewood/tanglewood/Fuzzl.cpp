@@ -67,11 +67,6 @@ void Fuzzl::Update(float deltaTime)
 	Character::Update(deltaTime);
 }
 
-void Fuzzl::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
-{
-	Character::Render(renderer, cameraInv, mapSize);
-}
-
 bool Fuzzl::IsInNest() const
 {
 	return m_nest != nullptr;

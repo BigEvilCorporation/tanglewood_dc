@@ -20,13 +20,3 @@ Enemy::~Enemy()
 {
 
 }
-
-void Enemy::Update(float deltaTime)
-{
-	Character::Update(deltaTime);
-}
-
-void Enemy::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
-{
-	Character::Render(renderer, cameraInv, mapSize);
-}

@@ -215,7 +215,7 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 	m_planeBg->m_scroll.y = m_cameraPos.y;
 }
 
-void World::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv)
+void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv)
 {
 	//TODO: One plane per draw priority (store sprites on plane)
 	const std::vector<SpriteObj*>& sprites = GetEntities<SpriteObj>();
@@ -229,7 +229,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraIn
 	{
 		if (sprites[i]->m_planePriority == PlanePriority::SpriteLow)
 		{
-			sprites[i]->Render(renderer, cameraInv, m_mapSizeFg);
+			sprites[i]->Render(renderer, camera, viewport, cameraInv, m_mapSizeFg);
 		}
 	}
 
@@ -242,7 +242,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraIn
 	{
 		if (sprites[i]->m_planePriority == PlanePriority::SpriteHigh)
 		{
-			sprites[i]->Render(renderer, cameraInv, m_mapSizeFg);
+			sprites[i]->Render(renderer, camera, viewport, cameraInv, m_mapSizeFg);
 		}
 	}
 }

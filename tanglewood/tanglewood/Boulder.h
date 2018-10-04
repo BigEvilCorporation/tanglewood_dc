@@ -19,13 +19,15 @@ public:
 	Boulder(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Boulder();
 
-	//Update/render
+	//Update
 	virtual void Update(float deltaTime);
-	virtual void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
 private:
 	void Smash();
+	void Respawn();
 	void CheckSquashDjakk();
 
 	Platform m_platform;
+	bool m_smashed;
+	ion::Vector2 m_spawnPos;
 };

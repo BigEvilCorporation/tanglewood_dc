@@ -10,6 +10,7 @@
 
 #include "Boulder.h"
 #include "Constants.h"
+#include "Globals.h"
 #include "Animations.h"
 #include "Djakk.h"
 
@@ -18,18 +19,9 @@
 Boulder::Boulder(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: PhysicsObj(world, gameObject, gameObjType, actor)
 {
-	//Setup animation
-	PlayAnimation(Animations::Boulder::roll);
+	m_spawnPos = m_worldPos;
 
-	//Setup platform
-	m_platform.position = m_worldPos + ion::Vector2(0.0f, Constants::Boulder::platformYOffset);
-	m_platform.width = m_size.x;
-
-	//Add as pushable
-	m_world.GetPhysicsWorld().AddPushableObject(*this);
-
-	//Add platform
-	m_world.GetPhysicsWorld().AddPlatform(m_platform);
+	Respawn();
 }
 
 Boulder::~Boulder()
@@ -45,21 +37,36 @@ void Boulder::Update(float deltaTime)
 	//Update platform
 	m_platform.position = m_worldPos + ion::Vector2(0.0f, Constants::Boulder::platformYOffset);
 
-	//Scale anim speed based on velocity
-	float animSpeed = m_velocity.x * Constants::Fuzzl::animSpeedVelocityMul;
-	GetCurrentAnimation()->SetPlaybackSpeed(animSpeed);
-
-	//If fall valocity is enough to cause damage
-	if (m_velocity.y < -Constants::Boulder::minDamageYVel)
+	if (m_active)
 	{
-		//Check if squashing enemies
-		CheckSquashDjakk();
-	}
-}
+		//If smashed, respawn if of screen and out of respawn distance
+		if (m_smashed)
+		{
+			if (!m_drawnLastFrame && (Globals::Game::camera->GetPosition().xy() - m_worldPos).GetLength() > Constants::Boulder::respawnDistance)
+			{
+				Respawn();
+			}
+		}
+		else
+		{
+			//Scale anim speed based on velocity
+			float animSpeed = m_velocity.x * Constants::Fuzzl::animSpeedVelocityMul;
+			GetCurrentAnimation()->SetPlaybackSpeed(animSpeed);
 
-void Boulder::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
-{
-	PhysicsObj::Render(renderer, cameraInv, mapSize);
+			//If fall valocity is enough to cause damage
+			if (m_velocity.y < -Constants::Boulder::minDamageYVel)
+			{
+				//Check if squashing enemies
+				CheckSquashDjakk();
+			}
+
+			//Check if hit floor
+			if (m_lastFloorVelocity < -Constants::Boulder::minDamageYVel)
+			{
+				Smash();
+			}
+		}
+	}
 }
 
 void Boulder::Smash()
@@ -68,6 +75,29 @@ void Boulder::Smash()
 	m_velocity.x = 0.0f;
 	m_acceleration.x = 0.0f;
 	m_world.GetPhysicsWorld().RemovePushableObject(*this);
+	m_world.GetPhysicsWorld().RemovePlatform(m_platform);
+	m_smashed = true;
+}
+
+void Boulder::Respawn()
+{
+	//Reset pos
+	m_worldPos = m_spawnPos;
+
+	//Setup animation
+	PlayAnimation(Animations::Boulder::roll);
+
+	//Setup platform
+	m_platform.position = m_worldPos + ion::Vector2(0.0f, Constants::Boulder::platformYOffset);
+	m_platform.width = m_size.x;
+
+	//Add as pushable
+	m_world.GetPhysicsWorld().AddPushableObject(*this);
+
+	//Add platform
+	m_world.GetPhysicsWorld().AddPlatform(m_platform);
+
+	m_smashed = false;
 }
 
 void Boulder::CheckSquashDjakk()
@@ -81,6 +111,9 @@ void Boulder::CheckSquashDjakk()
 			//Kill Djakk and smash boulder
 			djakks[i]->Kill();
 			Smash();
+
+			//Can't respawn
+			m_active = false;
 		}
 	}
 }
