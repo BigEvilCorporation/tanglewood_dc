@@ -27,6 +27,9 @@ void StateGameplay::OnEnterState()
 {
 	//Begin level logic
 	Globals::Game::level->Start();
+
+	//Begin fade up
+	Globals::Game::world->BeginFade(1.0f);
 }
 
 void StateGameplay::OnLeaveState()

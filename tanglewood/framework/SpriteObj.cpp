@@ -354,6 +354,9 @@ void SpriteObj::Render(ion::render::Renderer& renderer, const ion::render::Camer
 
 			//Draw vertex buffer
 			renderer.DrawVertexBuffer(m_currentSheet->m_primitive->GetVertexBuffer(), m_currentSheet->m_primitive->GetIndexBuffer());
+
+			//Unbind material
+			m_currentSheet->m_frames[spriteFrame].material->Unbind();
 		}
 	}
 	else

@@ -48,10 +48,12 @@ bool StateFail::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::inp
 	//Wait for death animation to finish
 	if (!Globals::Players::player1->GetCurrentAnimation() || Globals::Players::player1->GetCurrentAnimation()->GetState() == ion::render::Animation::eStopped)
 	{
-		//TODO: Fade down
-
-		//Re-enter loading state
-		m_stateManager.SwapState("loading");
+		//Fade down
+		if (!Globals::Game::world->BeginFade(-1.0f))
+		{
+			//Re-enter loading state
+			m_stateManager.SwapState("loading");
+		}
 	}
 
 	return true;

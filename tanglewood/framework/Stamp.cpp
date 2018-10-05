@@ -141,6 +141,9 @@ void StampRenderer::Render(ion::render::Renderer& renderer, const ion::Vector2& 
 
 		//Draw vertex buffer
 		renderer.DrawVertexBuffer(m_primitive->GetVertexBuffer(), m_primitive->GetIndexBuffer());
+
+		//Unbind material
+		m_material->Unbind();
 	}
 }
 

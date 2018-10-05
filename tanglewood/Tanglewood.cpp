@@ -30,11 +30,22 @@ bool Tanglewood::Initialise()
 	//Create resource manager
 	m_resourceManager = new ion::io::ResourceManager();
 
+	Globals::Rendering::windowWidth = s_defaultWindowWidth;
+	Globals::Rendering::windowHeight = s_defaultWindowHeight;
+
 	//Create window/renderer/camera/viewport
 	m_window = ion::render::Window::Create("Tanglewood", s_defaultWindowWidth, s_defaultWindowHeight, false);
 	m_renderer = ion::render::Renderer::Create(m_window->GetDeviceContext());
 	m_camera = new ion::render::Camera();
 	m_viewport = new ion::render::Viewport(s_defaultWindowWidth, s_defaultWindowHeight, ion::render::Viewport::eOrtho2DAbsolute);
+
+	//Clear screen
+	m_renderer->SetClearColour(ion::Colour(0.0f, 0.0f, 0.0f));
+	m_renderer->BeginFrame(*m_viewport, m_window->GetDeviceContext());
+	m_renderer->ClearColour();
+	m_renderer->ClearDepth();
+	m_renderer->SwapBuffers();
+	m_renderer->EndFrame();
 
 	//Create input devices
 	m_keyboard = new ion::input::Keyboard();

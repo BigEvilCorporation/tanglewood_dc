@@ -25,4 +25,10 @@ namespace Globals
 		extern World* world;
 		extern ion::render::Camera* camera;
 	}
+
+	namespace Rendering
+	{
+		extern int windowWidth;
+		extern int windowHeight;
+	}
 }

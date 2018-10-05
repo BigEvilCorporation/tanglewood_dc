@@ -68,7 +68,13 @@ public:
 	//TODO: Doesn't belong in framework
 	PlayerController* GetPlayerController() const { return m_playerController; }
 
+	//Effects
+	bool BeginFade(float speed);
+	bool IsFading() const;
+
 private:
+	void UpdateFader(float deltaTime);
+
 	int m_levelIdx;
 
 	ion::Vector2 m_mapSizeFg;
@@ -103,6 +109,12 @@ private:
     //Player controller
 	//TODO: Doesn't belong in framework
     PlayerController* m_playerController;
+
+	//Effects
+	float m_fader;
+	float m_fadeSpeed;
+	ion::render::Quad* m_fadeQuad;
+	ion::render::Material* m_fadeMaterial;
 };
 
 template <typename T> void World::AddEntity(T& entity)

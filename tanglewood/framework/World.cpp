@@ -33,11 +33,21 @@ World::World()
 	m_levelIdx = -1;
 
 	m_physicsWorld = new PhysicsWorld();
+
+	//Init effects
+	m_fader = 0.0f;
+	m_fadeSpeed = 0.0f;
+	m_fadeQuad = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2(Globals::Rendering::windowWidth / 2, Globals::Rendering::windowHeight / 2));
+	m_fadeQuad->SetColour(ion::Colour(0.0f, 0.0f, 0.0f, 1.0f));
+	m_fadeMaterial = new ion::render::Material();
 }
 
 World::~World()
 {
 	DeleteGameObjects();
+
+	delete m_fadeQuad;
+	delete m_fadeMaterial;
 
 	if (m_physicsWorld)
 	{
@@ -240,14 +250,17 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 
 	//Centre camera on player
     if(m_playerController)
-    {
-        ion::Vector2 playerPos = m_playerController->GetCentre();
-        SetCameraPosition(ion::Vector2(playerPos.x, m_mapSizeFg.y - playerPos.y), camera, window, screenSize);
-    }
+	{
+	ion::Vector2 playerPos = m_playerController->GetCentre();
+	SetCameraPosition(ion::Vector2(playerPos.x, m_mapSizeFg.y - playerPos.y), camera, window, screenSize);
+	}
 
 	//Update background scroll
 	m_planeBg->m_scroll.x = m_cameraPos.x;
 	m_planeBg->m_scroll.y = m_cameraPos.y;
+
+	//Update effects
+	UpdateFader(deltaTime);
 }
 
 void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv)
@@ -280,6 +293,12 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 			sprites[i]->Render(renderer, camera, viewport, cameraInv, m_mapSizeFg);
 		}
 	}
+
+	//Draw fade plane
+	ion::Matrix4 quadMatrix;
+	quadMatrix.SetTranslation(ion::Vector3(Globals::Rendering::windowWidth / 2, Globals::Rendering::windowHeight / 2, 0.0f));
+	m_fadeMaterial->Bind(quadMatrix, ion::Matrix4(), renderer.GetProjectionMatrix());
+	renderer.DrawVertexBuffer(m_fadeQuad->GetVertexBuffer(), m_fadeQuad->GetIndexBuffer());
 }
 
 void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize)
@@ -303,4 +322,36 @@ void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera&
 	camera.SetPosition(cameraPos);
 
 	m_cameraPos = position;
+}
+
+bool World::BeginFade(float speed)
+{
+	m_fadeSpeed = speed;
+	return ((speed < 1.0f && m_fader > 0.0f) || (speed > 1.0f && m_fader < 1.0f));
+}
+
+bool World::IsFading() const
+{
+	return m_fadeSpeed != 0.0f;
+}
+
+void World::UpdateFader(float deltaTime)
+{
+	if (!ion::maths::IsZero(m_fadeSpeed))
+	{
+		m_fader += m_fadeSpeed * deltaTime;
+
+		if (m_fader <= 0.0f)
+		{
+			m_fader = 0.0f;
+			m_fadeSpeed = 0.0f;
+		}
+		else if (m_fader >= 1.0f)
+		{
+			m_fader = 1.0f;
+			m_fadeSpeed = 0.0f;
+		}
+
+		m_fadeQuad->SetColour(ion::Colour(0.0f, 0.0f, 0.0f, 1.0f - m_fader));
+	}
 }
