@@ -14,7 +14,22 @@
 
 #include "Entity.h"
 
+#include <vector>
+
+#define REGISTER_OBJECT(name, actorName, type) name, actorName, [](World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor) { return (Entity*)new type(world, gameObject, gameObjType, actor); }
+
 namespace ObjectFactory
 {
+	typedef Entity* (*ObjectAllocator)(World&, const GameObject&, const GameObjectType&, Actor*);
+
+	struct ObjectRegistryEntry
+	{
+		std::string typeName;
+		std::string actorName;
+		ObjectAllocator allocator;
+	};
+
 	Entity* Create(World& world, TActorMap& actors, const GameObject& gameObject, const GameObjectType& gameObjType);
+
+	extern const std::vector<ObjectRegistryEntry> objectRegistry;
 }

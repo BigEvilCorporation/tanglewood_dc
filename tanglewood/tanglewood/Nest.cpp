@@ -13,8 +13,8 @@
 
 #include <ion/core/utils/STL.h>
 
-Nest::Nest(World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
-	: Entity(world, gameObject, gameObjType, nullptr)
+Nest::Nest(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+	: Entity(world, gameObject, gameObjType, actor)
 {
 	m_world.AddEntity<Nest>(*this);
 }

@@ -10,21 +10,9 @@
 #include "ObjectFactory.h"
 
 #include <ion/core/string/String.h>
+#include <ion/core/debug/Debug.h>
 
-#include "Character.h"
-#include "PhysicsObj.h"
-#include "SpriteObj.h"
-
-#include "tanglewood/Boulder.h"
-#include "tanglewood/Djakk.h"
-#include "tanglewood/Firefly.h"
-#include "tanglewood/Flue.h"
-#include "tanglewood/Fuzzl.h"
-#include "tanglewood/Hogg.h"
-#include "tanglewood/Mushroom.h"
-#include "tanglewood/Nest.h"
-#include "tanglewood/Player.h"
-#include "tanglewood/TriggerBox.h"
+#include <algorithm>
 
 namespace ObjectFactory
 {
@@ -50,57 +38,34 @@ namespace ObjectFactory
 		
 		const std::string& typeName = gameObjType.GetName();
 
-		//Find default actor
-		Actor* actor = FindActor(actors, typeName);
-		
-		//Simple, but it works for now
-		//TODO: allow static type registration
-		if (typeName == "Nest")
+		//Find in registry
+		std::vector<ObjectRegistryEntry>::const_iterator it = std::find_if(objectRegistry.begin(), objectRegistry.end(), [&typeName](const ObjectRegistryEntry& rhs) { return typeName == rhs.typeName; });
+
+		if (it != objectRegistry.end())
 		{
-			entity = new Nest(world, gameObject, gameObjType);
+			const ObjectRegistryEntry& registryEntry = (*it);
+
+			//Find actor
+			Actor* actor = nullptr;
+			if (!registryEntry.actorName.empty())
+			{
+				//Find actor
+				actor = FindActor(actors, registryEntry.actorName);
+
+				if (!actor)
+				{
+					ion::debug::log << "ObjectFactory::Create() - Could not find sprite actor \'" << registryEntry.actorName << "\'" << ion::debug::end;
+				}
+			}
+
+			//Create!
+			entity = registryEntry.allocator(world, gameObject, gameObjType, actor);
 		}
-		else if(	typeName == "Nymn"
-				||	typeName == "Echo")
+		else
 		{
-			entity = new Player(world, gameObject, gameObjType, actor);
+			ion::debug::log << "ObjectFactory::Create() - Could not find object factory for type \'" << typeName << "\'" << ion::debug::end;
 		}
-		else if (typeName == "Boulder")
-		{
-			entity = new Boulder(world, gameObject, gameObjType, actor);
-		}
-		else if (typeName == "Monster")
-		{
-			//Actor name differs
-			actor = FindActor(actors, "Djakk");
-			entity = new Djakk(world, gameObject, gameObjType, actor);
-		}
-		else if(typeName == "Firefly")
-		{
-			entity = new Firefly(world, gameObject, gameObjType, actor);
-		}
-		else if (typeName == "Flue")
-		{
-			entity = new Flue(world, gameObject, gameObjType);
-		}
-		else if (typeName == "Fuzzl")
-		{
-			entity = new Fuzzl(world, gameObject, gameObjType, actor);
-		}
-		else if (typeName == "Hogg")
-		{
-			entity = new Hogg(world, gameObject, gameObjType, actor);
-		}
-		else if (typeName == "BouncePlant")
-		{
-			//Actor name differs
-			actor = FindActor(actors, "mushroom");
-			entity = new Mushroom(world, gameObject, gameObjType, actor);
-		}
-		else if (typeName == "TriggerBox")
-		{
-			entity = new TriggerBox(world, gameObject, gameObjType);
-		}
-		
+
 		return entity;
 	}
 }

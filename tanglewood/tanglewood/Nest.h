@@ -17,6 +17,6 @@
 class Nest : public Entity
 {
 public:
-	Nest(World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
+	Nest(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Nest();
 };

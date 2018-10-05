@@ -16,8 +16,8 @@
 std::vector<const Entity*> TriggerBox::s_triggerEntities;
 std::map<std::string, std::function<void(const TriggerBox&)>> TriggerBox::s_triggerFuncMap;
 
-TriggerBox::TriggerBox(World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
-	: Entity(world, gameObject, gameObjType, nullptr)
+TriggerBox::TriggerBox(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+	: Entity(world, gameObject, gameObjType, actor)
 {
 	m_triggerCount = 0;
 	m_triggerOnce = false;

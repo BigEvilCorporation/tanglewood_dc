@@ -16,7 +16,7 @@
 class Flue : public Entity
 {
 public:
-	Flue(World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
+	Flue(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Flue();
 
 	//Update

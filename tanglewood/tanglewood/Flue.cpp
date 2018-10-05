@@ -19,8 +19,8 @@
 
 std::vector<PhysicsObj*> Flue::s_potentialOccupants;
 
-Flue::Flue(World& world, const GameObject& gameObject, const GameObjectType& gameObjType)
-	: Entity(world, gameObject, gameObjType, nullptr)
+Flue::Flue(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
+	: Entity(world, gameObject, gameObjType, actor)
 {
 	m_world.AddEntity<Flue>(*this);
 

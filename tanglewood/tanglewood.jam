@@ -27,6 +27,7 @@ local SRC =
 	Debug.h
 	Globals.cpp
 	Globals.h
+	ObjectRegistry.cpp
 	Tanglewood.cpp
 	Tanglewood.h
 

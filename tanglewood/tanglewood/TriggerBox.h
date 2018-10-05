@@ -20,7 +20,7 @@
 class TriggerBox : public Entity
 {
 public:
-	TriggerBox(World& world, const GameObject& gameObject, const GameObjectType& gameObjType);
+	TriggerBox(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~TriggerBox();
 
 	//Update/render
