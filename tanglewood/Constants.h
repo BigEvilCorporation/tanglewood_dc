@@ -110,6 +110,9 @@ namespace Constants
 		static const float boundsWidth = 0x0010;
 		static const float boundsHeight = 0x0030;
 
+		//Collision
+		static const float minWallHeight = 0x11;
+
 		//Pushing
 		static const float heavyPushObjectHeight = 0x0010;
 

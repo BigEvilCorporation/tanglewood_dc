@@ -24,6 +24,7 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 	m_maxVelocityYDown = 800.0f;
 	m_deceleration.x = 100.0f;
 	m_stepHeight = 1.0f;
+	m_minWallHeight = 0.0f;
 	m_lastFloorVelocity = 0.0f;
 
 	m_snapToFloor = false;
@@ -127,11 +128,19 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 			ion::Vector2 boundsTopLeft;
 			ion::Vector2 boundsBottomRight;
 			GetWorldBounds(boundsTopLeft, boundsBottomRight);
+			
+			//Get probe pos
+			ion::Vector2i wallProbe((int)(m_worldPos.x + (m_size.x / 2.0f)), (int)(m_worldPos.y + m_floorProbeOffset.y));
+			float wallPos = 0.0f;
+
+			//Find barrier first
+			wallPos = (float)physicsWorld.FindBarrier(ion::Vector2i((int)wallProbe.x, (int)wallProbe.y), Constants::World::wallSearchDist, (int)m_minWallHeight);
 
 			//Find wall
-			ion::Vector2i wallProbe((int)(m_worldPos.x + (m_size.x / 2.0f)), (int)(m_worldPos.y + m_floorProbeOffset.y));
-
-			float wallPos = (float)physicsWorld.FindWall(wallProbe, velocitySlice.x > 0.0f ? 1 : -1, (m_size.x / 2.0f) + Constants::World::wallSearchDist);
+			if (ion::maths::IsZero(wallPos))
+			{
+				wallPos = (float)physicsWorld.FindWall(wallProbe, velocitySlice.x > 0.0f ? 1 : -1, (m_size.x / 2.0f) + Constants::World::wallSearchDist);
+			}
 
 			if (wallPos >= 0.0f && velocitySlice.x > 0.0f && wallPos < (boundsBottomRight.x))
 			{

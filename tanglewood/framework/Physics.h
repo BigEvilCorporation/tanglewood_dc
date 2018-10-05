@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "Barrier.h"
 #include "Platform.h"
 
 class PhysicsObj;
@@ -28,6 +29,9 @@ public:
 	void AddPlatform(Platform& platform);
 	void RemovePlatform(Platform& platform);
 
+	void AddBarrier(Barrier& barrier);
+	void RemoveBarrier(Barrier& barrier);
+
 	void AddPushableObject(PhysicsObj& physicsObj);
 	void RemovePushableObject(PhysicsObj& physicsObj);
 	const std::vector<PhysicsObj*>& GetPushableObjects() const;
@@ -44,6 +48,7 @@ public:
 	int FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& tileFlags) const;
 	int FindPlatform(const ion::Vector2i& position, int maxSearchLength) const;
 	int FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const;
+	int FindBarrier(const ion::Vector2i& position, int maxSearchLength, int minBarrierHeight) const;
 
 private:
 
@@ -57,4 +62,5 @@ private:
 	std::vector<PhysicsObj*> m_physicsObjs;
 	std::vector<PhysicsObj*> m_pushableObjs;
 	std::vector<Platform*> m_platforms;
+	std::vector<Barrier*> m_barriers;
 };

@@ -30,6 +30,8 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	m_boundsBottomRight.x = m_boundsTopLeft.x + Constants::Player::boundsWidth;
 	m_boundsBottomRight.y = m_boundsTopLeft.y + Constants::Player::boundsHeight;
 
+	m_minWallHeight = Constants::Player::minWallHeight;
+
 	//Initial colour
 	m_colour = ColourAbility::Red;
 

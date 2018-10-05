@@ -31,6 +31,7 @@ local SRC =
 	Tanglewood.cpp
 	Tanglewood.h
 
+	framework/Barrier.h
 	framework/Character.cpp
 	framework/Character.h
 	framework/Entity.cpp
@@ -39,6 +40,7 @@ local SRC =
 	framework/Level.h
 	framework/ObjectFactory.cpp
 	framework/ObjectFactory.h
+	framework/Platform.h
 	framework/Physics.cpp
 	framework/Physics.h
 	framework/PhysicsObj.cpp
@@ -76,6 +78,8 @@ local SRC =
 	tanglewood/Player.h
 	tanglewood/PlayerController.cpp
 	tanglewood/PlayerController.h
+	tanglewood/Stone.cpp
+	tanglewood/Stone.h
 	tanglewood/TriggerBox.cpp
 	tanglewood/TriggerBox.h
 

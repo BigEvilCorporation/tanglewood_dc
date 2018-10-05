@@ -45,6 +45,16 @@ void PhysicsWorld::RemovePlatform(Platform& platform)
 	ion::utils::stl::FindAndRemove(m_platforms, &platform);
 }
 
+void PhysicsWorld::AddBarrier(Barrier& barrier)
+{
+	m_barriers.push_back(&barrier);
+}
+
+void PhysicsWorld::RemoveBarrier(Barrier& barrier)
+{
+	ion::utils::stl::FindAndRemove(m_barriers, &barrier);
+}
+
 void PhysicsWorld::LoadWorld(Project& project, const std::string& levelMap)
 {
 	//Get collision map
@@ -205,6 +215,29 @@ int PhysicsWorld::FindWall(const ion::Vector2i& position, int direction, int max
 	{
 		return -1;
 	}
+}
+
+int PhysicsWorld::FindBarrier(const ion::Vector2i& position, int maxSearchLength, int minBarrierHeight) const
+{
+	for (int i = 0; i < m_platforms.size(); i++)
+	{
+		const Barrier& barrier = *m_barriers[i];
+
+		if (barrier.height >= minBarrierHeight)
+		{
+			//If point between barrier top and bottom
+			if (position.y >= barrier.position.y && barrier.position.y < (barrier.position.y + barrier.height))
+			{
+				//If barrier between point and search dist
+				if (barrier.position.x >= position.y && barrier.position.x < (position.x + maxSearchLength))
+				{
+					return barrier.position.x;
+				}
+			}
+		}
+	}
+
+	return -1;
 }
 
 void PhysicsWorld::AddPushableObject(PhysicsObj& physicsObj)
