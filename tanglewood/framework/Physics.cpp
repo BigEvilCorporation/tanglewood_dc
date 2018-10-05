@@ -217,21 +217,35 @@ int PhysicsWorld::FindWall(const ion::Vector2i& position, int direction, int max
 	}
 }
 
-int PhysicsWorld::FindBarrier(const ion::Vector2i& position, int maxSearchLength, int minBarrierHeight) const
+int PhysicsWorld::FindBarrier(const ion::Vector2i& position, int direction, int maxSearchLength, int minBarrierHeight) const
 {
-	for (int i = 0; i < m_platforms.size(); i++)
+	int searchLeft = position.x;
+	int searchRight = position.x + (maxSearchLength * direction);
+
+	if (searchRight < searchLeft)
+	{
+		std::swap(searchLeft, searchRight);
+	}
+
+	for (int i = 0; i < m_barriers.size(); i++)
 	{
 		const Barrier& barrier = *m_barriers[i];
 
 		if (barrier.height >= minBarrierHeight)
 		{
 			//If point between barrier top and bottom
-			if (position.y >= barrier.position.y && barrier.position.y < (barrier.position.y + barrier.height))
+			if (position.y >= barrier.position.y && position.y < (barrier.position.y + barrier.height))
 			{
-				//If barrier between point and search dist
-				if (barrier.position.x >= position.y && barrier.position.x < (position.x + maxSearchLength))
+				//If barrier width and search width intersect
+				int barrierLeft = barrier.position.x;
+				int barrierRight = (barrier.position.x + barrier.width);
+
+				if ((searchLeft <= barrierRight) && (searchRight >= barrierLeft))
 				{
-					return barrier.position.x;
+					if(direction < 0)
+						return barrierRight;
+					else
+						return barrierLeft;
 				}
 			}
 		}

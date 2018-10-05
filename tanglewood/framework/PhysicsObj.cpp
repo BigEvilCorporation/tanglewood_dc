@@ -133,13 +133,16 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 			ion::Vector2i wallProbe((int)(m_worldPos.x + (m_size.x / 2.0f)), (int)(m_worldPos.y + m_floorProbeOffset.y));
 			float wallPos = 0.0f;
 
+			int direction = velocitySlice.x >= 0.0f ? 1 : -1;
+			int searchDistance = (int)(m_size.x / 2.0f) + Constants::World::wallSearchDist;
+
 			//Find barrier first
-			wallPos = (float)physicsWorld.FindBarrier(ion::Vector2i((int)wallProbe.x, (int)wallProbe.y), Constants::World::wallSearchDist, (int)m_minWallHeight);
+			wallPos = (float)physicsWorld.FindBarrier(wallProbe, direction, searchDistance, (int)m_minWallHeight);
 
 			//Find wall
-			if (ion::maths::IsZero(wallPos))
+			if (wallPos < 0)
 			{
-				wallPos = (float)physicsWorld.FindWall(wallProbe, velocitySlice.x > 0.0f ? 1 : -1, (m_size.x / 2.0f) + Constants::World::wallSearchDist);
+				wallPos = (float)physicsWorld.FindWall(wallProbe, direction, searchDistance);
 			}
 
 			if (wallPos >= 0.0f && velocitySlice.x > 0.0f && wallPos < (boundsBottomRight.x))
