@@ -27,6 +27,8 @@ local SRC =
 	Debug.h
 	Globals.cpp
 	Globals.h
+	LevelSystem.cpp
+	LevelSystem.h
 	ObjectRegistry.cpp
 	Tanglewood.cpp
 	Tanglewood.h
@@ -83,6 +85,12 @@ local SRC =
 	tanglewood/TriggerBox.cpp
 	tanglewood/TriggerBox.h
 
+	states/StateEndAct.cpp
+	states/StateEndAct.h
+	states/StateEndChapter.cpp
+	states/StateEndChapter.h
+	states/StateFail.cpp
+	states/StateFail.h
 	states/StateLoading.cpp
 	states/StateLoading.h
 	states/StateGameplay.cpp

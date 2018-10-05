@@ -1,10 +1,10 @@
 ///////////////////////////////////////////////////////////////
 // (c) 2018 Matt Phillips, Big Evil Corporation
 //
-// File:		StateEndAct.h
+// File:		StateFail.h
 // Date:		5th October 2018
 // Authors:		Matt Phillips
-// Description:	End of act state
+// Description:	Failure/restart state
 //				(loosely mirrors Mega Drive framework)
 ///////////////////////////////////////////////////////////////
 
@@ -15,11 +15,11 @@
 
 #include <ion/gamekit/StateManager.h>
 
-class StateEndAct : public ion::gamekit::State
+class StateFail : public ion::gamekit::State
 {
 public:
-	StateEndAct(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager);
-	virtual ~StateEndAct();
+	StateFail(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager);
+	virtual ~StateFail();
 
 	virtual void OnEnterState();
 	virtual void OnLeaveState();

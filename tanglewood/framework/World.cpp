@@ -30,10 +30,20 @@ World::World()
 	m_planeFg = NULL;
 	m_planeBg = NULL;
 	m_playerController = NULL;
+	m_levelIdx = -1;
+
+	m_physicsWorld = new PhysicsWorld();
 }
 
 World::~World()
 {
+	DeleteGameObjects();
+
+	if (m_physicsWorld)
+	{
+		delete m_physicsWorld;
+	}
+
 	if(m_stampSet)
 	{
 		delete m_stampSet;
@@ -93,8 +103,10 @@ bool World::LoadLevel(const std::string& name)
 	return true;
 }
 
-bool World::LoadAct(const std::string& levelMap, const std::string& bgMap)
+bool World::LoadAct(int levelIdx, const std::string& levelMap, const std::string& bgMap)
 {
+	m_levelIdx = levelIdx;
+
 	//Find foreground/game data map
 	m_currentMap = m_levelData->FindMap(levelMap);
 	if(!m_currentMap)
@@ -112,7 +124,7 @@ bool World::LoadAct(const std::string& levelMap, const std::string& bgMap)
 	}
 
 	//Load physics world
-	m_physicsWorld.LoadWorld(*m_levelData, levelMap);
+	m_physicsWorld->LoadWorld(*m_levelData, levelMap);
 
 	//Create fg plane from map
 	m_planeFg = new Plane(*m_currentMap, *m_stampSet);
@@ -180,6 +192,29 @@ bool World::CreateGameObjects()
 	return true;
 }
 
+void World::DeleteGameObjects()
+{
+	for (int i = 0; i < m_entities.size(); i++)
+	{
+		delete m_entities[i];
+	}
+
+	m_entitiesByType.clear();
+	m_entities.clear();
+}
+
+void World::Reset()
+{
+	//Delete all entities
+	DeleteGameObjects();
+
+	//Reset physics world
+	m_physicsWorld->RemoveAllObjects();
+
+	//Recreate game objects
+	CreateGameObjects();
+}
+
 void World::Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad, const ion::render::Window& window, const ion::Vector2i& screenSize)
 {
     //Update player controller
@@ -191,7 +226,7 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 	if (!m_playerController || !m_playerController->m_debugMove)
 	{
 		//Step physics world
-		m_physicsWorld.Step(deltaTime);
+		m_physicsWorld->Step(deltaTime);
 
 		//Update game objects
 		for (int i = 0; i < m_entities.size(); i++)

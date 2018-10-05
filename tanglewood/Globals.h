@@ -3,6 +3,7 @@
 #include <ion/io/Archive.h>
 #include <ion/renderer/Camera.h>
 
+class LevelDescriptor;
 class Level;
 class World;
 class Player;

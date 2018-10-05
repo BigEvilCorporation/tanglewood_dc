@@ -41,6 +41,9 @@ public:
 	//Load physics world
 	void LoadWorld(Project& project, const std::string& levelMap);
 
+	//Reset physics world
+	void RemoveAllObjects();
+
 	//Step physics world
 	void Step(float deltaTime);
 

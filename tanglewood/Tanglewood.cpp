@@ -10,7 +10,7 @@
 #include "Tanglewood.h"
 #include "Constants.h"
 #include "Globals.h"
-#include "levels/LevelList.h"
+#include "LevelSystem.h"
 
 #include <ion/core/debug/Debug.h>
 
@@ -52,8 +52,8 @@ bool Tanglewood::Initialise()
 	m_debugUI = new DebugUI(*m_gui, ion::Vector2i(), ion::Vector2i());
 	//m_gui->AddWindow(*m_debugUI);
 
-	//Begin level
-	BeginGameplay(Globals::Game::levelIdx);
+	//Begin gameplay
+	BeginGameplay();
 
 	return true;
 }
@@ -73,17 +73,6 @@ void Tanglewood::Shutdown()
 	if (m_gui)
 	{
 		delete m_gui;
-	}
-
-	//TODO: Move to gameplay game state
-	if (m_level)
-	{
-		delete m_level;
-	}
-
-	if(m_world)
-	{
-		delete m_world;
 	}
 
 	if(m_keyboard)
@@ -124,15 +113,10 @@ bool Tanglewood::Update(float deltaTime)
 	m_gamepad->Update();
 
 	//Update world
-	m_world->Update(deltaTime, *m_camera, *m_keyboard, *m_gamepad, *m_window, m_screenSize);
+	Globals::Game::world->Update(deltaTime, *m_camera, *m_keyboard, *m_gamepad, *m_window, m_screenSize);
 
 	//Update gamestate
-	if (!m_stateManager->Update(deltaTime, m_keyboard, nullptr, m_gamepad))
-	{
-		//Restart gameplay
-		EndGameplay();
-		BeginGameplay(Globals::Game::levelIdx);
-	}
+	m_stateManager->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
 
 	//Update UI
 	m_gui->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
@@ -160,7 +144,7 @@ void Tanglewood::Render()
 	ion::Matrix4 cameraInv = m_camera->GetTransform().GetInverse();
 
 	//Render world
-	m_world->Render(*m_renderer, *m_camera, *m_viewport, cameraInv);
+	Globals::Game::world->Render(*m_renderer, *m_camera, *m_viewport, cameraInv);
 
 	//Render gamestate
 	m_stateManager->Render(*m_renderer, *m_camera, *m_viewport);
@@ -172,41 +156,36 @@ void Tanglewood::Render()
 	m_renderer->EndFrame();
 }
 
-void Tanglewood::BeginGameplay(int levelIdx)
+void Tanglewood::BeginGameplay()
 {
-	//Create world
-	m_world = new World();
-
-	//Get level desc
-	const LevelDescriptor& levelDesc = Constants::levels[levelIdx];
-
-	//Create level
-	m_level = levelDesc.levelfactory();
-
-	//TODO: Replace all with this
-	Globals::Game::world = m_world;
-	Globals::Game::level = m_level;
+	//Advance level
+	LevelSystem::AdvanceLevel();
 	
 	//Set camera
 	Globals::Game::camera = m_camera;
 
 	//Create game states
-	m_stateGameplay = new StateGameplay(*m_world, *m_level, *m_stateManager, *m_resourceManager);
-	m_stateLoading = new StateLoading(*m_world, levelDesc, *m_stateGameplay, *m_stateManager, *m_resourceManager);
+	new StateFail(*m_stateManager, *m_resourceManager);
+	new StateEndAct(*m_stateManager, *m_resourceManager);
+	new StateEndChapter(*m_stateManager, *m_resourceManager);
+	new StateGameplay(*m_stateManager, *m_resourceManager);
+	new StateLoading(*m_stateManager, *m_resourceManager);
 
 	//Begin loading state
-	m_stateManager->PushState(*m_stateLoading);
+	m_stateManager->PushState("loading");
 }
 
 void Tanglewood::EndGameplay()
 {
+	//Delete gamestates
 	m_stateManager->PopState();
+	m_stateManager->DeleteStates();
 
-	delete m_stateLoading;
-	delete m_stateGameplay;
-	delete m_level;
-	delete m_world;
-
+	//Delete world
+	delete Globals::Game::world;
 	Globals::Game::world = nullptr;
+
+	//Delete level
+	delete Globals::Game::level;
 	Globals::Game::level = nullptr;
 }

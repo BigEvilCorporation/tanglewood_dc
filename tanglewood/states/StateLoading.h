@@ -9,17 +9,14 @@
 
 #pragma once
 
-#include "framework/World.h"
 #include "framework/Level.h"
 
 #include <ion/gamekit/StateManager.h>
 
-class StateGameplay;
-
 class StateLoading : public ion::gamekit::State
 {
 public:
-	StateLoading(World& world, const LevelDescriptor& levelDesc, StateGameplay& stateGameplay, ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager);
+	StateLoading(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager);
 	virtual ~StateLoading();
 
 	virtual void OnEnterState();
@@ -29,9 +26,4 @@ public:
 
 	virtual bool Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad);
 	virtual void Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport);
-
-private:
-	World& m_world;
-	const LevelDescriptor& m_levelDesc;
-	StateGameplay& m_stateGameplay;
 };

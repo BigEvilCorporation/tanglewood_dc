@@ -19,11 +19,11 @@
 #include <ion/gamekit/FPSCounter.h>
 #include <ion/gamekit/StateManager.h>
 
-#include "framework/World.h"
-#include "framework/Level.h"
-
 #include "states/StateLoading.h"
 #include "states/StateGameplay.h"
+#include "states/StateFail.h"
+#include "states/StateEndAct.h"
+#include "states/StateEndChapter.h"
 
 #include "Debug.h"
 
@@ -50,7 +50,7 @@ public:
 	virtual bool Update(float deltaTime);
 	virtual void Render();
 
-	void BeginGameplay(int levelIdx);
+	void BeginGameplay();
 	void EndGameplay();
 
 private:
@@ -64,13 +64,7 @@ private:
 	ion::gui::GUI* m_gui;
 	ion::gamekit::StateManager* m_stateManager;
 
-	StateLoading* m_stateLoading;
-	StateGameplay* m_stateGameplay;
-
 	ion::Vector2i m_screenSize;
-
-	World* m_world;
-	Level* m_level;
 
 	//Debugging
 	DebugUI* m_debugUI;

@@ -18,7 +18,7 @@
 class StateGameplay : public ion::gamekit::State
 {
 public:
-	StateGameplay(World& world, Level& level, ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager);
+	StateGameplay(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager);
 	virtual ~StateGameplay();
 
 	virtual void OnEnterState();
@@ -28,8 +28,4 @@ public:
 
 	virtual bool Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad);
 	virtual void Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport);
-
-private:
-	World& m_world;
-	Level& m_level;
 };

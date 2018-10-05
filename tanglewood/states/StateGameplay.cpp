@@ -12,10 +12,8 @@
 
 #include "Globals.h"
 
-StateGameplay::StateGameplay(World& world, Level& level, ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
-	: ion::gamekit::State(stateManager, resourceManager)
-	, m_world(world)
-	, m_level(level)
+StateGameplay::StateGameplay(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
+	: ion::gamekit::State("gameplay", stateManager, resourceManager)
 {
 
 }
@@ -28,7 +26,7 @@ StateGameplay::~StateGameplay()
 void StateGameplay::OnEnterState()
 {
 	//Begin level logic
-	m_level.Start();
+	Globals::Game::level->Start();
 }
 
 void StateGameplay::OnLeaveState()
@@ -49,13 +47,22 @@ void StateGameplay::OnResumeState()
 bool StateGameplay::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
 	//Update level logic
-	m_level.Update(deltaTime);
-	if (!m_level.IsRunning())
+	Globals::Game::level->Update(deltaTime);
+	if (!Globals::Game::level->IsRunning())
 	{
-		//TODO: End act/end level/failure state
-		Globals::Game::levelIdx++;
+		//End act/end level state
+		m_stateManager.SwapState("endact");
 		return false;
 	}
+
+	//If player dead, enter failure state
+	if (!Globals::Players::player1->m_alive)
+	{
+		m_stateManager.SwapState("fail");
+		return false;
+	}
+
+	return true;
 }
 
 void StateGameplay::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)

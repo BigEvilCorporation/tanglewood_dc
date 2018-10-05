@@ -64,6 +64,14 @@ void PhysicsWorld::LoadWorld(Project& project, const std::string& levelMap)
 	m_terrainTileset = &project.GetTerrainTileset();
 }
 
+void PhysicsWorld::RemoveAllObjects()
+{
+	m_physicsObjs.clear();
+	m_pushableObjs.clear();
+	m_platforms.clear();
+	m_barriers.clear();
+}
+
 void PhysicsWorld::Step(float deltaTime)
 {
 	for (int i = 0; i < m_physicsObjs.size(); i++)

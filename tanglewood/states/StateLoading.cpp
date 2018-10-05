@@ -8,12 +8,12 @@
 ///////////////////////////////////////////////////////////////
 
 #include "StateLoading.h"
+#include "Globals.h"
+#include "levels/LevelList.h"
+#include "framework/World.h"
 
-StateLoading::StateLoading(World& world, const LevelDescriptor& levelDesc, StateGameplay& stateGameplay, ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
-	: ion::gamekit::State(stateManager, resourceManager)
-	, m_world(world)
-	, m_levelDesc(levelDesc)
-	, m_stateGameplay(stateGameplay)
+StateLoading::StateLoading(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
+	: ion::gamekit::State("loading", stateManager, resourceManager)
 {
 
 }
@@ -25,19 +25,44 @@ StateLoading::~StateLoading()
 
 void StateLoading::OnEnterState()
 {
-	//TODO: Thread this
+	//Get level desc
+	const LevelDescriptor& levelDesc = Constants::levels[Globals::Game::levelIdx];
 
-	//Load sprite data from Beehive project file
-	m_world.LoadSprites(m_levelDesc.spriteDataFile);
+	//If world already exists, just reset it
+	if (Globals::Game::world)
+	{
+		//Delete all entities
+		Globals::Game::world->DeleteGameObjects();
 
-	//Load first level data file from Beehive project file
-	m_world.LoadLevel(m_levelDesc.levelDataFile);
+		//Reset physics world
+		Globals::Game::world->GetPhysicsWorld().RemoveAllObjects();
 
-	//Load first act
-	m_world.LoadAct(m_levelDesc.actName, m_levelDesc.bgName);
+		//If new act
+		if (Globals::Game::levelIdx != Globals::Game::world->GetLevelIdx())
+		{
+			//Load it
+			Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
+		}
+	}
+	else
+	{
+		//Create world
+		Globals::Game::world = new World();
+
+		//TODO: Thread this
+
+		//Load sprite data from Beehive project file
+		Globals::Game::world->LoadSprites(levelDesc.spriteDataFile);
+
+		//Load first level data file from Beehive project file
+		Globals::Game::world->LoadLevel(levelDesc.levelDataFile);
+
+		//Load first act
+		Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
+	}
 
 	//Create game objects
-	m_world.CreateGameObjects();
+	Globals::Game::world->CreateGameObjects();
 }
 
 void StateLoading::OnLeaveState()
@@ -58,7 +83,7 @@ void StateLoading::OnResumeState()
 bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
 	//Next state
-	m_stateManager.SwapState((ion::gamekit::State&)m_stateGameplay);
+	m_stateManager.SwapState("gameplay");
 
 	return true;
 }

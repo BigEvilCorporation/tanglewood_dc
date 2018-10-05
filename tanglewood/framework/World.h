@@ -37,8 +37,14 @@ public:
 	//Load/setup sprites/level/act
 	bool LoadSprites(const std::string& name);
 	bool LoadLevel(const std::string& name);
-	bool LoadAct(const std::string& levelMap, const std::string& bgMap);
+	bool LoadAct(int levelIdx, const std::string& levelMap, const std::string& bgMap);
 	bool CreateGameObjects();
+
+	//Reset world to default state
+	void Reset();
+	void DeleteGameObjects();
+
+	int GetLevelIdx() const { return m_levelIdx; }
 
 	//Update/render
 	void Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad, const ion::render::Window& window, const ion::Vector2i& screenSize);
@@ -56,13 +62,15 @@ public:
 	template <typename T> T* FindEntity(const std::string& name) const;
 
 	//Physics world
-	PhysicsWorld& GetPhysicsWorld() { return m_physicsWorld; }
+	PhysicsWorld& GetPhysicsWorld() { return *m_physicsWorld; }
 
 	//Player(s)
 	//TODO: Doesn't belong in framework
 	PlayerController* GetPlayerController() const { return m_playerController; }
 
 private:
+	int m_levelIdx;
+
 	ion::Vector2 m_mapSizeFg;
 	ion::Vector2 m_mapSizeBg;
 	ion::Vector2 m_cameraPos;
@@ -86,7 +94,7 @@ private:
 	ion::Colour m_bgColour;
 
 	//Physics world
-	PhysicsWorld m_physicsWorld;
+	PhysicsWorld* m_physicsWorld;
     
     //Entities
     std::vector<Entity*> m_entities;
