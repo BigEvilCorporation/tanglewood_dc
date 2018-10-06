@@ -17,6 +17,8 @@
 #include <ion/core/utils/STL.h>
 #include <ion/maths/Geometry.h>
 
+#include <sstream>
+
 std::vector<PhysicsObj*> Flue::s_potentialOccupants;
 
 Flue::Flue(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
@@ -24,10 +26,10 @@ Flue::Flue(World& world, const GameObject& gameObject, const GameObjectType& gam
 {
 	m_world.AddEntity<Flue>(*this);
 
-	ReadVars(gameObject.GetVariables());
-
 	m_ejectTime = Constants::Flue::defaultEjectTime;
 	m_ejectForce = Constants::Flue::defaultEjectForce;
+
+	ReadVars(gameObject.GetVariables());
 }
 
 Flue::~Flue()
@@ -70,6 +72,20 @@ void Flue::ReadVars(const std::vector<GameObjectVariable>& vars)
 		if (ion::string::CompareNoCase(vars[i].m_name, "Flue_Link"))
 		{
 			m_linkedFlue = vars[i].m_value;
+		}
+		else if (ion::string::CompareNoCase(vars[i].m_name, "Flue_EjectForceY"))
+		{
+			std::string value = vars[i].m_value;
+
+			value = ion::string::RemoveSubstring(value, "&NTSC(0x");
+			value = ion::string::RemoveSubstring(value, ")");
+
+			int force = 0;
+			std::stringstream stream;
+			stream << std::hex << value;
+			stream >> force;
+
+			m_ejectForce = SUBPIXELS_TO_PIXELS_PER_SEC(force);
 		}
 	}
 }
