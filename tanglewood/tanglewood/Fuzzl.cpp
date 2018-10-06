@@ -16,6 +16,16 @@
 
 #include "framework/World.h"
 
+
+std::string Fuzzl::s_spritePrefixes[(int)ColourAbility::Count] =
+{
+	"red_",
+	"yellow_",
+	"green_",
+	"blue_",
+	"white_"
+};
+
 Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Character(world, gameObject, gameObjType, actor)
 {
@@ -32,8 +42,28 @@ Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& g
 	//Character
 	m_allowRunning = false;
 
-	m_colour = ColourAbility::Yellow;
 	m_nest = nullptr;
+
+	//Default colour/sprite sheets
+	m_colour = ColourAbility::Yellow;
+	m_animIdle = Animations::Fuzzl::Yellow::idle;
+	m_animWatch = Animations::Fuzzl::Yellow::idle;
+	m_animRoll = Animations::Fuzzl::Yellow::idle;
+	m_animSleep = Animations::Fuzzl::Yellow::idle;
+
+	//Read game object variables
+	ReadVars(gameObject.GetVariables());
+
+	//Setup colour-specific sprite sheets
+	m_animIdle.sheetName = s_spritePrefixes[(int)m_colour] + "idle";
+	m_animWatch.sheetName = s_spritePrefixes[(int)m_colour] + "eyes";
+	m_animRoll.sheetName = s_spritePrefixes[(int)m_colour] + "roll";
+	m_animSleep.sheetName = s_spritePrefixes[(int)m_colour] + "sleep";
+
+	m_animIdle.animName = s_spritePrefixes[(int)m_colour] + "idle";
+	m_animWatch.animName = s_spritePrefixes[(int)m_colour] + "eyes";
+	m_animRoll.animName = s_spritePrefixes[(int)m_colour] + "roll";
+	m_animSleep.animName = s_spritePrefixes[(int)m_colour] + "sleep";
 
 	//Setup states
 	m_stateMachine.AddState(new StateIdle(*this), "idle");
@@ -67,6 +97,40 @@ void Fuzzl::Update(float deltaTime)
 	Character::Update(deltaTime);
 }
 
+void Fuzzl::ReadVars(const std::vector<GameObjectVariable>& vars)
+{
+	for (int i = 0; i < vars.size(); i++)
+	{
+		if (ion::string::CompareNoCase(vars[i].m_name, "Fuzzl_Colour"))
+		{
+			if (ion::string::CompareNoCase(vars[i].m_value, "ColourYellow"))
+			{
+				m_colour = ColourAbility::Yellow;
+			}
+			else if(ion::string::CompareNoCase(vars[i].m_value, "ColourGreen"))
+			{
+				m_colour = ColourAbility::Green;
+			}
+			else if (ion::string::CompareNoCase(vars[i].m_value, "ColourBlue"))
+			{
+				m_colour = ColourAbility::Blue;
+			}
+			else if (ion::string::CompareNoCase(vars[i].m_value, "ColourRed"))
+			{
+				m_colour = ColourAbility::Red;
+			}
+			else if (ion::string::CompareNoCase(vars[i].m_value, "ColourWhite"))
+			{
+				m_colour = ColourAbility::White;
+			}
+			else
+			{
+				ion::debug::error << "Fuzzl::ReadVars() - Invalid Fuzzl colour: " << vars[i].m_value << ion::debug::end;
+			}
+		}
+	}
+}
+
 bool Fuzzl::IsInNest() const
 {
 	return m_nest != nullptr;
@@ -90,7 +154,7 @@ Nest* Fuzzl::FindNest() const
 void Fuzzl::StateIdle::OnEnterState()
 {
 	//Set idle anim
-	m_fuzzl.PlayAnimation(Animations::Fuzzl::Yellow::idle);
+	m_fuzzl.PlayAnimation(m_fuzzl.m_animIdle);
 }
 
 void Fuzzl::StateIdle::OnUpdateState(float deltaTime)
@@ -108,7 +172,7 @@ void Fuzzl::StateIdle::OnUpdateState(float deltaTime)
 void Fuzzl::StateWatching::OnEnterState()
 {
 	//Set watch anim
-	m_fuzzl.PlayAnimation(Animations::Fuzzl::Yellow::watch);
+	m_fuzzl.PlayAnimation(m_fuzzl.m_animWatch);
 	m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(0.0f);
 	m_fuzzl.GetCurrentAnimation()->SetFrame(Constants::Fuzzl::eyeWatchCentreFrame);
 
@@ -149,7 +213,7 @@ void Fuzzl::StateWatching::OnUpdateState(float deltaTime)
 void Fuzzl::StateRolling::OnEnterState()
 {
 	//Set watch anim
-	m_fuzzl.PlayAnimation(Animations::Fuzzl::Yellow::roll);
+	m_fuzzl.PlayAnimation(m_fuzzl.m_animRoll);
 }
 
 void Fuzzl::StateRolling::OnUpdateState(float deltaTime)
@@ -193,7 +257,7 @@ void Fuzzl::StateNest::OnEnterState()
 	m_fuzzl.m_world.GetPhysicsWorld().RemovePushableObject(m_fuzzl);
 
 	//Set roll anim
-	m_fuzzl.PlayAnimation(Animations::Fuzzl::Yellow::roll);
+	m_fuzzl.PlayAnimation(m_fuzzl.m_animRoll);
 	m_fuzzl.GetCurrentAnimation()->SetStart();
 
 	//Init bounce timer

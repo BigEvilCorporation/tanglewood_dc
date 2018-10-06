@@ -49,6 +49,7 @@ namespace Animations
 			static const AnimType idle =		{ "yellow_idle",	"yellow_idle",	AnimFlags::Loop };
 			static const AnimType watch =		{ "yellow_eyes",	"yellow_eyes",	0 };
 			static const AnimType roll =		{ "yellow_roll",	"yellow_roll",	AnimFlags::Loop };
+			static const AnimType sleep =		{ "yellow_sleep",	"yellow_sleep",	AnimFlags::Loop };
 		}
 	}
 

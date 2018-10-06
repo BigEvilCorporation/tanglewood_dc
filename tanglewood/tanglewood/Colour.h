@@ -16,5 +16,7 @@ enum class ColourAbility
 	Yellow,
 	Green,
 	Blue,
-	White
+	White,
+
+	Count
 };

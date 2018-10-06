@@ -32,7 +32,6 @@ public:
 	Nest* m_nest;
 
 private:
-	
 	class StateIdle : public State
 	{
 	public:
@@ -83,7 +82,15 @@ private:
 		float m_bounceTimer;
 	};
 
+	static std::string s_spritePrefixes[(int)ColourAbility::Count];
+
+	void ReadVars(const std::vector<GameObjectVariable>& vars);
 	Nest* FindNest() const;
+
+	AnimType m_animIdle;
+	AnimType m_animWatch;
+	AnimType m_animRoll;
+	AnimType m_animSleep;
 
 	StateMachine m_stateMachine;
 };
