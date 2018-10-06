@@ -74,8 +74,11 @@ void PlayerController::Update(float deltaTime, const ion::input::Keyboard& keybo
 		bool ability = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_A)
 			|| keyboard.KeyDown(ion::input::Keycode::S);
 
-		bool jump = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_B)
-			|| keyboard.KeyDown(ion::input::Keycode::D);
+		bool jump = gamepad.ButtonPressedThisFrame(ion::input::GamepadButtons::BUTTON_B)
+			|| keyboard.KeyPressedThisFrame(ion::input::Keycode::D);
+
+		bool cancelJump = gamepad.ButtonReleasedThisFrame(ion::input::GamepadButtons::BUTTON_B)
+			|| keyboard.KeyReleasedThisFrame(ion::input::Keycode::D);
 
 		if (keyboard.KeyDown(ion::input::Keycode::LEFT))
 		{
@@ -91,6 +94,10 @@ void PlayerController::Update(float deltaTime, const ion::input::Keyboard& keybo
 		if (jump)
 		{
 			m_player.Jump();
+		}
+		else if(cancelJump)
+		{
+			m_player.CancelJump();
 		}
 
 		if (interact)

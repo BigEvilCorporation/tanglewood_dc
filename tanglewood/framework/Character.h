@@ -42,6 +42,7 @@ public:
 
 	void Move(float speed);
 	void Jump();
+	void CancelJump();
 
 	void Kill();
 

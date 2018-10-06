@@ -128,6 +128,18 @@ void Character::Jump()
 	}
 }
 
+void Character::CancelJump()
+{
+	if (m_jumping)
+	{
+		//If within jump cancellable velocity window, reset velocity
+		if (m_velocity.y > Constants::Character::jumpCancelVelMin && m_velocity.y < Constants::Character::jumpCancelVelMax)
+		{
+			m_velocity.y = Constants::Character::jumpCancelVelMin;
+		}
+	}
+}
+
 void Character::Kill()
 {
 	SetCharacterAnimation(CharacterAnimations::Dead, true);

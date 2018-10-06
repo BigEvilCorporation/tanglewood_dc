@@ -79,6 +79,9 @@ namespace Constants
 		static const float walkToRunVelocity = SUBPIXELS_TO_PIXELS_PER_SEC(0x020000);
 
 		static const float jumpImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x060000);
+		static const float jumpCancelVelMin = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
+		static const float jumpCancelVelMax = maxVelocityYUp;
+
 		static const float fallVelocity = SUBPIXELS_TO_PIXELS_PER_SEC(0x020000);
 
 		static const float stepHeight = 0x04;
