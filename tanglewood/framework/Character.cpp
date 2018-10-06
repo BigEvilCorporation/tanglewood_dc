@@ -17,6 +17,7 @@ Character::Character(World& world, const GameObject& gameObject, const GameObjec
 	//Setup default state
 	m_stepHeight = Constants::Character::stepHeight;
 	m_maxVelocityX = Constants::Character::maxVelocityXWalking;
+	m_maxVelocityXAir = Constants::Character::maxVelocityXInAir;
 	m_maxVelocityYUp = Constants::Character::maxVelocityYUp;
 	m_maxVelocityYDown = Constants::Character::maxVelocityYDown;
 	m_deceleration = Constants::Character::decelerationIdle;

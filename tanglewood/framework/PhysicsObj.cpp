@@ -20,6 +20,7 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 	m_floorProbeOffset = ion::Vector2(m_size.x / 2.0f, m_size.y - Constants::MegaDrive::tileHeight);
 
 	m_maxVelocityX = 100.0f;
+	m_maxVelocityXAir = 100.0f;
 	m_maxVelocityYUp = 800.0f;
 	m_maxVelocityYDown = 800.0f;
 	m_deceleration.x = 100.0f;
@@ -62,26 +63,29 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 		//Apply acceleration
 		m_velocity += m_acceleration * deltaTime;
 
-		//Apply deceleration
-		if (ion::maths::Abs(m_acceleration.x) <= ion::maths::FLOAT_EPSILON)
+		//Apply deceleration (if on floor and controls idle)
+		if (m_onFloor && ion::maths::IsZero(m_acceleration.x))
 		{
-			//Clamp
-			if (m_velocity.x > 0.0f)
+			if (ion::maths::Abs(m_acceleration.x) <= ion::maths::FLOAT_EPSILON)
 			{
-				m_velocity.x -= m_deceleration.x * deltaTime;
-
-				if (m_velocity.x < 0.0f)
-				{
-					m_velocity.x = 0.0f;
-				}
-			}
-			else if (m_velocity.x < 0.0f)
-			{
-				m_velocity.x += m_deceleration.x * deltaTime;
-
+				//Clamp
 				if (m_velocity.x > 0.0f)
 				{
-					m_velocity.x = 0.0f;
+					m_velocity.x -= m_deceleration.x * deltaTime;
+
+					if (m_velocity.x < 0.0f)
+					{
+						m_velocity.x = 0.0f;
+					}
+				}
+				else if (m_velocity.x < 0.0f)
+				{
+					m_velocity.x += m_deceleration.x * deltaTime;
+
+					if (m_velocity.x > 0.0f)
+					{
+						m_velocity.x = 0.0f;
+					}
 				}
 			}
 		}
@@ -99,7 +103,8 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 		m_impulse.y = 0.0f;
 
 		//Clamp to max velocity
-		m_velocity.x = ion::maths::Clamp(m_velocity.x, -m_maxVelocityX, m_maxVelocityX);
+		float maxVelocityX = m_closeToFloor ? m_maxVelocityX : m_maxVelocityXAir;
+		m_velocity.x = ion::maths::Clamp(m_velocity.x, -maxVelocityX, maxVelocityX);
 		m_velocity.y = ion::maths::Clamp(m_velocity.y, -m_maxVelocityYDown, m_maxVelocityYUp);
 
 		//If velocity > tile size, time slice it

@@ -31,6 +31,7 @@ public:
 	ion::Vector2 m_floorProbeOffset;
 
 	float m_maxVelocityX;
+	float m_maxVelocityXAir;
 	float m_maxVelocityYUp;
 	float m_maxVelocityYDown;
 
