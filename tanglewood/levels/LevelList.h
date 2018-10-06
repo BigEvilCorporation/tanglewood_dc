@@ -4,6 +4,7 @@
 
 #include "L1A1.h"
 #include "L1A2.h"
+#include "L1A3.h"
 
 namespace Constants
 {
@@ -11,5 +12,6 @@ namespace Constants
 	{
 		{ "cd/sprites.bee_sprites", "cd/l1.bee", "l1a1", "l1bg", []() { return new L1A1(); } },
 		{ "cd/sprites.bee_sprites", "cd/l1.bee", "l1a2", "l1bg", []() { return new L1A2(); } },
+		{ "cd/sprites.bee_sprites", "cd/l1.bee", "l1a3", "l1bg", []() { return new L1A3(); } },
 	};
 }

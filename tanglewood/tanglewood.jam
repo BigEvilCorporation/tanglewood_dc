@@ -101,6 +101,8 @@ local SRC =
 	levels/L1A1.h
 	levels/L1A2.cpp
 	levels/L1A2.h
+	levels/L1A3.cpp
+	levels/L1A3.h
 	;
 
 AutoSourceGroup tanglewood : $(SRC) ;

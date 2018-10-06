@@ -179,7 +179,7 @@ namespace Constants
 
 	namespace Mushroom
 	{
-		static const float defaultBounceVelX = SUBPIXELS_TO_PIXELS_PER_SEC(0x000000);
-		static const float defaultBounceVelY = SUBPIXELS_TO_PIXELS_PER_SEC(0x0A0000);
+		static const float impulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x0A0000);
+		static const float impulseDiag = SUBPIXELS_TO_PIXELS_PER_SEC(0x071100);
 	}
 }
