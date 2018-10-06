@@ -23,6 +23,8 @@ class PhysicsWorld
 public:
 	PhysicsWorld();
 
+	const std::vector<PhysicsObj*>& GetPhysicsObjs() const { return m_physicsObjs; }
+
 	void AddObject(PhysicsObj& physicsObj);
 	void RemoveObject(PhysicsObj& physicsObj);
 
@@ -47,11 +49,15 @@ public:
 	//Step physics world
 	void Step(float deltaTime);
 
-	//COllision queries
+	//Collision queries
 	int FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& tileFlags) const;
 	int FindPlatform(const ion::Vector2i& position, int maxSearchLength) const;
 	int FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const;
 	int FindBarrier(const ion::Vector2i& position, int direction, int maxSearchLength, int minBarrierHeight) const;
+
+	//Global speed scale
+	void SetGlobalSpeedScale(float scale) { m_speedScale = scale; }
+	float GetGlobalSpeedScale() const { return m_speedScale; }
 
 private:
 
@@ -61,6 +67,9 @@ private:
 
 	//Gravity
 	float m_gravity;
+
+	//Speed scale
+	float m_speedScale;
 
 	std::vector<PhysicsObj*> m_physicsObjs;
 	std::vector<PhysicsObj*> m_pushableObjs;

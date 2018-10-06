@@ -69,6 +69,27 @@ private:
 		bool m_active;
 	};
 
+	class AbilityTimeSlow : public Ability
+	{
+	public:
+		AbilityTimeSlow(Player& player)
+			: m_player(player)
+		{
+			m_active = false;
+		}
+
+		virtual void OnEnterState();
+		virtual void OnUpdateState(float deltaTime);
+		virtual void OnExitState(State* newState);
+
+		virtual void BeginUse();
+		virtual void EndUse();
+
+		Player& m_player;
+		bool m_active;
+		float m_speedScale;
+	};
+
 	bool TryInteractPushable();
 	bool TryInteractFuzzl();
 

@@ -10,6 +10,7 @@
 
 #include "Player.h"
 #include "Constants.h"
+#include "Globals.h"
 #include "Animations.h"
 #include "framework/World.h"
 
@@ -60,6 +61,7 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 
 	//Setup ability states
 	m_abilityState.AddState(new AbilityGlide(*this), "glide");
+	m_abilityState.AddState(new AbilityTimeSlow(*this), "timeslow");
 }
 
 Player::~Player()
@@ -170,6 +172,9 @@ void Player::SwitchColour(ColourAbility colour)
 	{
 	case ColourAbility::Yellow:
 		m_abilityState.SetState("glide");
+		break;
+	case ColourAbility::Green:
+		m_abilityState.SetState("timeslow");
 		break;
 	default:
 		m_abilityState.SetState(nullptr);
@@ -357,4 +362,48 @@ void Player::AbilityGlide::EndUse()
 	m_active = false;
 	m_player.m_maxVelocityYDown = Constants::Character::maxVelocityYDown;
 	m_player.m_manualAnimation = false;
+}
+
+void Player::AbilityTimeSlow::OnEnterState()
+{
+
+}
+
+void Player::AbilityTimeSlow::OnUpdateState(float deltaTime)
+{
+
+}
+
+void Player::AbilityTimeSlow::OnExitState(State* newState)
+{
+
+}
+
+void Player::AbilityTimeSlow::BeginUse()
+{
+	m_active = true;
+
+	//Apply speed scale to all physics objects (except player)
+	std::vector<PhysicsObj*> physicsObjs = Globals::Game::world->GetPhysicsWorld().GetPhysicsObjs();
+
+	for (int i = 0; i < physicsObjs.size(); i++)
+	{
+		if (physicsObjs[i] != &m_player)
+		{
+			physicsObjs[i]->m_speedScale = 0.1f;
+		}
+	}
+}
+
+void Player::AbilityTimeSlow::EndUse()
+{
+	m_active = false;
+
+	//Reset speed scale
+	std::vector<PhysicsObj*> physicsObjs = Globals::Game::world->GetPhysicsWorld().GetPhysicsObjs();
+
+	for (int i = 0; i < physicsObjs.size(); i++)
+	{
+		physicsObjs[i]->m_speedScale = 1.0f;
+	}
 }

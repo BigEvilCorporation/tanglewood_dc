@@ -23,6 +23,7 @@ PhysicsWorld::PhysicsWorld()
 	m_terrainTileset = NULL;
 	m_collisionMap = NULL;
 	m_gravity = Constants::World::defaultGravity;
+	m_speedScale = 1.0f;
 }
 
 void PhysicsWorld::AddObject(PhysicsObj& physicsObj)

@@ -27,6 +27,7 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 	m_stepHeight = 1.0f;
 	m_minWallHeight = 0.0f;
 	m_lastFloorVelocity = 0.0f;
+	m_speedScale = 1.0f;
 
 	m_snapToFloor = false;
 	m_ignoreHoles = false;
@@ -109,7 +110,7 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 
 		//If velocity > tile size, time slice it
 		int numTimeSteps = 1;
-		ion::Vector2 velocitySlice = m_velocity;
+		ion::Vector2 velocitySlice = m_velocity * m_speedScale;
 
 		float velocitySize = m_velocity.GetLength() * deltaTime;
 		if (velocitySize > Constants::MegaDrive::tileWidth)
