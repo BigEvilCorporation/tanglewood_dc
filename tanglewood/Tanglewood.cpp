@@ -12,7 +12,12 @@
 #include "Globals.h"
 #include "LevelSystem.h"
 
+#if defined ION_RENDERER_SHADER
+#include "Shaders.h"
+#endif
+
 #include <ion/core/debug/Debug.h>
+#include <ion/core/thread/Sleep.h>
 
 Tanglewood::Tanglewood()
 	: Application("Tanglewood")
@@ -29,6 +34,7 @@ bool Tanglewood::Initialise()
 {
 	//Create resource manager
 	m_resourceManager = new ion::io::ResourceManager();
+	m_resourceManager->SetResourceDirectory<ion::render::Shader>("cd/shaders", ".ion.shader");
 
 	Globals::Rendering::windowWidth = s_defaultWindowWidth;
 	Globals::Rendering::windowHeight = s_defaultWindowHeight;
@@ -38,6 +44,9 @@ bool Tanglewood::Initialise()
 	m_renderer = ion::render::Renderer::Create(m_window->GetDeviceContext());
 	m_camera = new ion::render::Camera();
 	m_viewport = new ion::render::Viewport(s_defaultWindowWidth, s_defaultWindowHeight, ion::render::Viewport::eOrtho2DAbsolute);
+
+	//Begin loading global resources
+	LoadGlobalResources();
 
 	//Clear screen
 	m_renderer->SetClearColour(ion::Colour(0.0f, 0.0f, 0.0f));
@@ -62,6 +71,14 @@ bool Tanglewood::Initialise()
 	m_gui = new ion::gui::GUI(ion::Vector2i(s_defaultWindowWidth, s_defaultWindowHeight));
 	m_debugUI = new DebugUI(*m_gui, ion::Vector2i(), ion::Vector2i());
 	//m_gui->AddWindow(*m_debugUI);
+
+	//Wait for resource loading
+	while (m_resourceManager->GetNumResourcesWaiting())
+	{
+		ion::thread::Sleep(5);
+	}
+
+	PostLoadGlobalResources();
 
 	//Begin gameplay
 	BeginGameplay();
@@ -165,6 +182,23 @@ void Tanglewood::Render()
 
 	m_renderer->SwapBuffers();
 	m_renderer->EndFrame();
+}
+
+void Tanglewood::LoadGlobalResources()
+{
+#if defined ION_RENDERER_SHADER
+	Assets::Shaders::Default::pixelShader = m_resourceManager->GetResource<ion::render::Shader>("flattextured_p");
+	Assets::Shaders::Default::vertexShader = m_resourceManager->GetResource<ion::render::Shader>("flattextured_v");
+#endif
+}
+
+void Tanglewood::PostLoadGlobalResources()
+{
+#if defined ION_RENDERER_SHADER
+	Assets::Shaders::Default::Params::worldViewProjMtx = Assets::Shaders::Default::vertexShader->CreateParamHndl<ion::Matrix4>("gWorldViewProjectionMatrix");
+	Assets::Shaders::Default::Params::diffuseColour = Assets::Shaders::Default::pixelShader->CreateParamHndl<ion::Colour>("gDiffuseColour");
+	Assets::Shaders::Default::Params::texture = Assets::Shaders::Default::pixelShader->CreateParamHndl<ion::render::Texture>("gDiffuseTexture");
+#endif
 }
 
 void Tanglewood::BeginGameplay()

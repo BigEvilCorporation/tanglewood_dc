@@ -10,7 +10,12 @@
 
 #include "SpriteObj.h"
 #include "Constants.h"
+#include "Globals.h"
 #include "World.h"
+
+#if defined ION_RENDERER_SHADER
+#include "Shaders.h"
+#endif
 
 #include <ion/core/debug/Debug.h>
 #include <ion/core/memory/Memory.h>
@@ -143,8 +148,8 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 		renderFrame.material->SetDiffuseColour(ion::Colour(1.0f, 1.0f, 1.0f, 1.0f));
 
 #if defined ION_RENDERER_SHADER
-		renderFrame.material->SetVertexShader(vertexShader);
-		renderFrame.material->SetPixelShader(pixelshader);
+		renderFrame.material->SetVertexShader(Assets::Shaders::Default::vertexShader.Get());
+		renderFrame.material->SetPixelShader(Assets::Shaders::Default::pixelShader.Get());
 #endif
 
 		//Insert frame

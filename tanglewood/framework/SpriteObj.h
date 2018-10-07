@@ -16,6 +16,10 @@
 #include <ion/beehive/SpriteSheet.h>
 #include <ion/beehive/SpriteAnimation.h>
 
+#if defined ION_RENDERER_SHADER
+#include <ion/renderer/Shader.h>
+#endif
+
 #include "Entity.h"
 #include "Animation.h"
 #include "PlanePriority.h"

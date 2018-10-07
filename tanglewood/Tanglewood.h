@@ -50,6 +50,9 @@ public:
 	virtual bool Update(float deltaTime);
 	virtual void Render();
 
+	void LoadGlobalResources();
+	void PostLoadGlobalResources();
+
 	void BeginGameplay();
 	void EndGameplay();
 

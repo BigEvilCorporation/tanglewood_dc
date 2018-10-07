@@ -12,6 +12,11 @@
 
 #include "Stamp.h"
 #include "Constants.h"
+#include "Globals.h"
+
+#if defined ION_RENDERER_SHADER
+#include "Shaders.h"
+#endif
 
 StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const Palette& palette)
 {
@@ -117,8 +122,8 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 	m_material->SetDiffuseColour(ion::Colour(1.0f, 1.0f, 1.0f));
 
 #if defined ION_RENDERER_SHADER
-	m_material->SetVertexShader(vertexShader);
-	m_material->SetPixelShader(pixelshader);
+	m_material->SetVertexShader(Assets::Shaders::Default::vertexShader.Get());
+	m_material->SetPixelShader(Assets::Shaders::Default::pixelShader.Get());
 #endif
 }
 

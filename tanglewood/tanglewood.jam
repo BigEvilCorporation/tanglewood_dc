@@ -1,6 +1,13 @@
 SubDir bigevilcorp tanglewood ;
  
-ion_renderer_opts = fixed ;
+if ( ( win32 in $(PLATFORM) ) | ( win64 in $(PLATFORM) ) )
+{
+	ion_renderer_opts = shader ;
+}
+else
+{
+	ion_renderer_opts = fixed ;
+}
 
 ApplyIonCompiler tanglewood ;
 ApplyIonDefines tanglewood ;
@@ -104,6 +111,14 @@ local SRC =
 	levels/L1A3.cpp
 	levels/L1A3.h
 	;
+
+if ( shader in $(ion_renderer_opts) )
+{
+	SRC +=
+		Shaders.cpp
+		Shaders.h
+	;
+}
 
 AutoSourceGroup tanglewood : $(SRC) ;
 C.RuntimeType tanglewood : static ;
