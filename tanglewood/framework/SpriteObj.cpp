@@ -32,6 +32,10 @@ SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjec
 	m_currentAnim = NULL;
 	m_currentAnimType = NULL;
 
+#if USE_PALETTE_TEXTURES
+	m_paletteTexture = NULL;
+#endif
+
 	m_flippedX = false;
 	m_flippedY = false;
 	m_visible = true;
@@ -66,6 +70,10 @@ SpriteObj::~SpriteObj()
 
 		delete it->second.m_primitive;
 	}
+
+#if USE_PALETTE_TEXTURES
+	delete m_paletteTexture;
+#endif
 }
 
 void SpriteObj::ReadVars(const std::vector<GameObjectVariable>& vars)
@@ -148,8 +156,13 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 		renderFrame.material->SetDiffuseColour(ion::Colour(1.0f, 1.0f, 1.0f, 1.0f));
 
 #if defined ION_RENDERER_SHADER
+#if USE_PALETTE_TEXTURES
+		renderFrame.material->SetVertexShader(Assets::Shaders::IndexTexture::vertexShader.Get());
+		renderFrame.material->SetPixelShader(Assets::Shaders::IndexTexture::pixelShader.Get());
+#else
 		renderFrame.material->SetVertexShader(Assets::Shaders::Default::vertexShader.Get());
 		renderFrame.material->SetPixelShader(Assets::Shaders::Default::pixelShader.Get());
+#endif
 #endif
 
 		//Insert frame
@@ -161,6 +174,26 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 			sheet.m_animations[it->second.GetName()] = &it->second;
 		}
 	}
+
+	//Create palette texture
+	u8 paletteData[Palette::coloursPerPalette * 4];
+	u8* paletteWritePtr = paletteData;
+	const Palette& sheetPalette = spriteSheet.GetPalette();
+	
+	for (int i = 0; i < Palette::coloursPerPalette; i++)
+	{
+		if (sheetPalette.IsColourUsed(i))
+		{
+			*paletteWritePtr++ = sheetPalette.GetColour(i).GetRed();
+			*paletteWritePtr++ = sheetPalette.GetColour(i).GetGreen();
+			*paletteWritePtr++ = sheetPalette.GetColour(i).GetBlue();
+			*paletteWritePtr++ = i > 0 ? 255 : 0;
+		}
+	}
+
+	m_paletteTexture = ion::render::Texture::Create(Palette::coloursPerPalette, 1, ion::render::Texture::eRGBA, ion::render::Texture::eRGBA, ion::render::Texture::eBPP24, false, false, paletteData);
+	m_paletteTexture->SetMinifyFilter(ion::render::Texture::eFilterNearest);
+	m_paletteTexture->SetMagnifyFilter(ion::render::Texture::eFilterNearest);
 
 	//Paint sprite sheet
 	PaintSheet(spriteSheet, spriteSheet.GetPalette());
@@ -211,17 +244,21 @@ void SpriteObj::PaintSheet(SpriteSheet& spriteSheet, const Palette& palette)
 
 						u8 colourIdx = tile.GetPixelColour(pixelX, pixelY_OGL);
 
-						const Colour& colour = palette.GetColour(colourIdx);
-
 						int destPixelX = (tileX * tileWidth) + pixelX;
 						int destPixelY = (tileY_inv * tileHeight) + pixelY;
 						u32 pixelIdx = (destPixelY * textureWidth) + destPixelX;
 						u32 dataOffset = pixelIdx * bytesPerPixel;
 						ion::debug::Assert(dataOffset + 2 < textureSize, "eOut of bounds");
+
+#if USE_PALETTE_TEXTURES
+						data[dataOffset] = colourIdx;
+#else
+						const Colour& colour = palette.GetColour(colourIdx);
 						data[dataOffset] = colour.GetRed();
 						data[dataOffset + 1] = colour.GetGreen();
 						data[dataOffset + 2] = colour.GetBlue();
 						data[dataOffset + 3] = colourIdx > 0 ? 255 : 0;
+#endif
 					}
 				}
 			}
@@ -353,6 +390,11 @@ void SpriteObj::Render(ion::render::Renderer& renderer, const ion::render::Camer
 
 			//Get current anim frame
 			int spriteFrame = m_currentAnim ? m_currentAnim->m_trackSpriteFrame.GetValue(m_currentAnim->GetFrame()) : 0;
+
+#if USE_PALETTE_TEXTURES
+			Assets::Shaders::IndexTexture::Params::indexedTexture.SetValue(*m_currentSheet->m_frames[spriteFrame].texture);
+			Assets::Shaders::IndexTexture::Params::paletteTexture.SetValue(*m_paletteTexture);
+#endif
 
 			//Bind material
 			m_currentSheet->m_frames[spriteFrame].material->Bind(transform, cameraInv, renderer.GetProjectionMatrix());

@@ -11,12 +11,17 @@ namespace Assets
 		{
 			extern ion::io::ResourceHandle<ion::render::Shader> vertexShader;
 			extern ion::io::ResourceHandle<ion::render::Shader> pixelShader;
+		}
+
+		namespace IndexTexture
+		{
+			extern ion::io::ResourceHandle<ion::render::Shader> vertexShader;
+			extern ion::io::ResourceHandle<ion::render::Shader> pixelShader;
 
 			namespace Params
 			{
-				extern ion::render::Shader::ParamHndl<ion::Matrix4> worldViewProjMtx;
-				extern ion::render::Shader::ParamHndl<ion::Colour> diffuseColour;
-				extern ion::render::Shader::ParamHndl<ion::render::Texture> texture;
+				extern ion::render::Shader::ParamHndl<ion::render::Texture> indexedTexture;
+				extern ion::render::Shader::ParamHndl<ion::render::Texture> paletteTexture;
 			}
 		}
 	}

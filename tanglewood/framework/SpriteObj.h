@@ -21,6 +21,7 @@
 #endif
 
 #include "Entity.h"
+#include "Constants.h"
 #include "Animation.h"
 #include "PlanePriority.h"
 
@@ -83,4 +84,8 @@ private:
 	SpriteAnimation* m_currentAnim;
 	const AnimType* m_currentAnimType;
 	std::vector<AnimType> m_animQueue;
+
+#if USE_PALETTE_TEXTURES
+	ion::render::Texture* m_paletteTexture;
+#endif
 };

@@ -189,15 +189,17 @@ void Tanglewood::LoadGlobalResources()
 #if defined ION_RENDERER_SHADER
 	Assets::Shaders::Default::pixelShader = m_resourceManager->GetResource<ion::render::Shader>("flattextured_p");
 	Assets::Shaders::Default::vertexShader = m_resourceManager->GetResource<ion::render::Shader>("flattextured_v");
+
+	Assets::Shaders::IndexTexture::pixelShader = m_resourceManager->GetResource<ion::render::Shader>("indextexture_p");
+	Assets::Shaders::IndexTexture::vertexShader = m_resourceManager->GetResource<ion::render::Shader>("indextexture_v");
 #endif
 }
 
 void Tanglewood::PostLoadGlobalResources()
 {
 #if defined ION_RENDERER_SHADER
-	Assets::Shaders::Default::Params::worldViewProjMtx = Assets::Shaders::Default::vertexShader->CreateParamHndl<ion::Matrix4>("gWorldViewProjectionMatrix");
-	Assets::Shaders::Default::Params::diffuseColour = Assets::Shaders::Default::pixelShader->CreateParamHndl<ion::Colour>("gDiffuseColour");
-	Assets::Shaders::Default::Params::texture = Assets::Shaders::Default::pixelShader->CreateParamHndl<ion::render::Texture>("gDiffuseTexture");
+	Assets::Shaders::IndexTexture::Params::indexedTexture = Assets::Shaders::IndexTexture::pixelShader->CreateParamHndl<ion::render::Texture>("gIndexedSampler");
+	Assets::Shaders::IndexTexture::Params::paletteTexture = Assets::Shaders::IndexTexture::pixelShader->CreateParamHndl<ion::render::Texture>("gPaletteSampler");
 #endif
 }
 
