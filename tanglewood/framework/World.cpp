@@ -133,7 +133,7 @@ bool World::LoadLevel(const std::string& name)
 	Assets::Palettes::World::night = m_levelData->GetPaletteSlot(2)[0];
 
 	//Set stamp palettes
-	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::World::dusk);
+	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::World::day);
 
 	for (std::map<StampId, StampRenderer>::iterator it = m_stampSet->m_stamps.begin(), end = m_stampSet->m_stamps.end(); it != end; ++it)
 	{
@@ -280,10 +280,10 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 	}
 
 	//Centre camera on player
-    if(m_playerController)
+	if(m_playerController)
 	{
-	ion::Vector2 playerPos = m_playerController->GetCentre();
-	SetCameraPosition(ion::Vector2(playerPos.x, m_mapSizeFg.y - playerPos.y), camera, window, screenSize);
+		ion::Vector2 playerPos = m_playerController->GetCentre();
+		SetCameraPosition(ion::Vector2(playerPos.x, m_mapSizeFg.y - playerPos.y), camera, window, screenSize);
 	}
 
 	//Update background scroll
@@ -292,6 +292,7 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 
 	//Update effects
 	UpdateFader(deltaTime);
+	UpdatePaletteLerp(deltaTime);
 }
 
 void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv)
@@ -377,6 +378,32 @@ bool World::BeginFade(float speed)
 bool World::IsFading() const
 {
 	return m_fadeSpeed != 0.0f;
+}
+
+void World::BeginPaletteLerp(const Palette& source, const Palette& dest, float speed)
+{
+	m_sourcePalette = source;
+	m_destPalette = dest;
+	m_paletteLerpSpeed = speed;
+	m_paletteLerpTimer = 0.0f;
+}
+
+void World::UpdatePaletteLerp(float deltaTime)
+{
+	if (m_paletteLerpSpeed > 0.0f)
+	{
+		m_paletteLerpTimer += m_paletteLerpSpeed * deltaTime;
+
+		if (m_paletteLerpTimer >= 1.0f)
+		{
+			m_paletteLerpTimer = 1.0f;
+			m_paletteLerpSpeed = 0.0f;
+		}
+
+		Palette palette;
+		PaletteTools::BlendPalettes(m_sourcePalette, m_destPalette, palette, m_paletteLerpTimer);
+		PaletteTools::WritePaletteTexture(palette, Assets::Palettes::World::shared);
+	}
 }
 
 void World::UpdateFader(float deltaTime)

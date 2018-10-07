@@ -15,7 +15,7 @@ namespace Globals
 
 	namespace Game
 	{
-		int levelIdx = 2;
+		int levelIdx = 1;
 		World* world = nullptr;
 		Level* level = nullptr;
 		ion::render::Camera* camera = nullptr;

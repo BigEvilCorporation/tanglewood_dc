@@ -62,6 +62,7 @@ namespace Constants
 		static const float defaultGravity = SUBPIXELS_TO_ACCELERATION(0x3000);
 		static const float floorSearchDist = MegaDrive::tileHeight * 2;
 		static const float wallSearchDist = MegaDrive::tileWidth * 2;
+		static const float paletteLerpSpeed = 0.5f;
 	}
 
 	namespace Boulder
@@ -130,7 +131,7 @@ namespace Constants
 
 		//Colour ability
 		static const float colourAbilityMaxTime = FRAMES_TO_SECONDS(0x0600);
-		static const float paletteLerpSpeed = 3.0f;
+		static const float paletteLerpSpeed = 1.0f;
 
 		//Gliding
 		static const float maxVelocityYDownGlide = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);

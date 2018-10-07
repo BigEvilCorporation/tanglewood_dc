@@ -75,8 +75,12 @@ public:
 	bool BeginFade(float speed);
 	bool IsFading() const;
 
+	//Palette lerp
+	void BeginPaletteLerp(const Palette& source, const Palette& dest, float speed);
+
 private:
 	void UpdateFader(float deltaTime);
+	void UpdatePaletteLerp(float deltaTime);
 
 	int m_levelIdx;
 
@@ -120,6 +124,12 @@ private:
 	float m_fadeSpeed;
 	ion::render::Quad* m_fadeQuad;
 	ion::render::Material* m_fadeMaterial;
+
+	//Palette lerp
+	Palette m_sourcePalette;
+	Palette m_destPalette;
+	float m_paletteLerpTimer;
+	float m_paletteLerpSpeed;
 };
 
 template <typename T> void World::AddEntity(T& entity)

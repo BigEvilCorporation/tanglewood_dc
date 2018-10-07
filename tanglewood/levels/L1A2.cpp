@@ -10,6 +10,7 @@
 
 #include "L1A2.h"
 #include "Globals.h"
+#include "Palettes.h"
 #include "framework/World.h"
 #include "tanglewood/Djakk.h"
 
@@ -17,6 +18,8 @@
 
 L1A2::L1A2()
 {
+	TriggerBox::RegisterTriggerFunc("L1A2_Trigger_Dusk", std::bind(&L1A2::OnTriggerDusk, this, std::placeholders::_1));
+	TriggerBox::RegisterTriggerFunc("L1A2_Trigger_Night", std::bind(&L1A2::OnTriggerNight, this, std::placeholders::_1));
 	TriggerBox::RegisterTriggerFunc("L1A2_Trigger_Djakk", std::bind(&L1A2::OnTriggerDjakk, this, std::placeholders::_1));
 	TriggerBox::RegisterTriggerFunc("L1A2_Trigger_End", std::bind(&L1A2::OnTriggerEndLevel, this, std::placeholders::_1));
 }
@@ -40,6 +43,16 @@ void L1A2::Update(float deltaTime)
 void L1A2::End()
 {
 
+}
+
+void L1A2::OnTriggerDusk(const TriggerBox& triggerBox)
+{
+	Globals::Game::world->BeginPaletteLerp(Assets::Palettes::World::day, Assets::Palettes::World::dusk, Constants::World::paletteLerpSpeed);
+}
+
+void L1A2::OnTriggerNight(const TriggerBox& triggerBox)
+{
+	Globals::Game::world->BeginPaletteLerp(Assets::Palettes::World::dusk, Assets::Palettes::World::night, Constants::World::paletteLerpSpeed);
 }
 
 void L1A2::OnTriggerDjakk(const TriggerBox& triggerBox)

@@ -23,6 +23,8 @@ public:
 	virtual void Update(float deltaTime);
 	virtual void End();
 
+	void OnTriggerDusk(const TriggerBox& triggerBox);
+	void OnTriggerNight(const TriggerBox& triggerBox);
 	void OnTriggerDjakk(const TriggerBox& triggerBox);
 	void OnTriggerEndLevel(const TriggerBox& triggerBox);
 };
