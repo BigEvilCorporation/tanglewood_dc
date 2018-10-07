@@ -38,6 +38,7 @@ Character::Character(World& world, const GameObject& gameObject, const GameObjec
 	m_closeToFloor = false;
 	m_snapToFloor = false;
 	m_manualAnimation = false;
+	m_controlEnabled = true;
 	m_pushingLight = false;
 	m_pushingHeavy = false;
 	m_walkToRunAnimTransition = false;

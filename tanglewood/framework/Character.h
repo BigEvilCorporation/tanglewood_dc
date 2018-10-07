@@ -54,6 +54,7 @@ public:
 
 	bool m_alive;
 
+	bool m_controlEnabled;
 	bool m_manualAnimation;
 
 	float m_walktoRunVelocity;

@@ -11,7 +11,7 @@
 #pragma once
 
 #include "framework/Entity.h"
-#include "framework/PhysicsObj.h"
+#include "framework/Character.h"
 
 class Flue : public Entity
 {
@@ -22,32 +22,32 @@ public:
 	//Update
 	virtual void Update(float deltaTime);
 
-	static void RegisterPotentialOccupant(PhysicsObj& occupant);
-	static void UnregisterPotentialOccupant(PhysicsObj& occupant);
+	static void RegisterPotentialOccupant(Character& occupant);
+	static void UnregisterPotentialOccupant(Character& occupant);
 
 private:
 	void ReadVars(const std::vector<GameObjectVariable>& vars);
 
-	bool CanHold(PhysicsObj& object) const;
-	void AddOccupant(PhysicsObj& object);
-	void EjectOccupant(PhysicsObj& object);
+	bool CanHold(Character& object) const;
+	void AddOccupant(Character& object);
+	void EjectOccupant(Character& object);
 
 	struct Occupant
 	{
 		Occupant() {}
-		Occupant(PhysicsObj& occupant)
+		Occupant(Character& occupant)
 		{
 			object = &occupant;
 			occupiedTime = 0.0f;
 		}
 
-		PhysicsObj* object;
+		Character* object;
 		float occupiedTime;
 
 		bool operator == (const Occupant& rhs) const { return object == rhs.object; }
 	};
 
-	static std::vector<PhysicsObj*> s_potentialOccupants;
+	static std::vector<Character*> s_potentialOccupants;
 	std::vector<Occupant> m_occupants;
 
 	float m_ejectTime;

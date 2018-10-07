@@ -19,7 +19,7 @@
 
 #include <sstream>
 
-std::vector<PhysicsObj*> Flue::s_potentialOccupants;
+std::vector<Character*> Flue::s_potentialOccupants;
 
 Flue::Flue(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Entity(world, gameObject, gameObjType, actor)
@@ -90,10 +90,10 @@ void Flue::ReadVars(const std::vector<GameObjectVariable>& vars)
 	}
 }
 
-bool Flue::CanHold(PhysicsObj& object) const
+bool Flue::CanHold(Character& object) const
 {
 	//If heading downwards
-	if (object.m_velocity.y < 0.0f)
+	if (object.m_velocity.y < 0.0f && object.m_impulse.y == 0.0f)
 	{
 		//If contained by flue
 		if (Contains(object))
@@ -109,7 +109,7 @@ bool Flue::CanHold(PhysicsObj& object) const
 	return false;
 }
 
-void Flue::AddOccupant(PhysicsObj& object)
+void Flue::AddOccupant(Character& object)
 {
 	//Add to occupant list
 	m_occupants.push_back(Occupant(object));
@@ -124,6 +124,12 @@ void Flue::AddOccupant(PhysicsObj& object)
 	object.m_acceleration.x = 0.0f;
 	object.m_acceleration.y = 0.0f;
 
+	//Clear jump flag
+	object.m_jumping = false;
+
+	//Disallow controls
+	object.m_controlEnabled = false;
+
 	//Find output flue
 	m_outputFlue = this;
 	if (!m_linkedFlue.empty())
@@ -137,7 +143,7 @@ void Flue::AddOccupant(PhysicsObj& object)
 	object.m_worldPos.y = (m_outputFlue->m_worldPos.y + (m_outputFlue->m_size.y / 2.0f)) - (object.m_size.y / 2.0f);
 }
 
-void Flue::EjectOccupant(PhysicsObj& object)
+void Flue::EjectOccupant(Character& object)
 {
 	//Remove from occupant list
 	ion::utils::stl::FindAndRemove(m_occupants, Occupant(object));
@@ -146,16 +152,19 @@ void Flue::EjectOccupant(PhysicsObj& object)
 	object.m_active = true;
 	object.m_visible = true;
 
+	//Allow controls
+	object.m_controlEnabled = true;
+
 	//Fling
 	object.AddImpulse(ion::Vector2(0.0f, m_ejectForce));
 }
 
-void Flue::RegisterPotentialOccupant(PhysicsObj& occupant)
+void Flue::RegisterPotentialOccupant(Character& occupant)
 {
 	s_potentialOccupants.push_back(&occupant);
 }
 
-void Flue::UnregisterPotentialOccupant(PhysicsObj& occupant)
+void Flue::UnregisterPotentialOccupant(Character& occupant)
 {
 	ion::utils::stl::FindAndRemove(s_potentialOccupants, &occupant);
 }

@@ -65,50 +65,53 @@ void PlayerController::Update(float deltaTime, const ion::input::Keyboard& keybo
 	else
 #endif
 	{
-		//Update input
-		float moveSpeed = gamepad.GetLeftStick().x;
-
-		bool interact = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_X)
-			|| keyboard.KeyDown(ion::input::Keycode::A);
-
-		bool ability = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_A)
-			|| keyboard.KeyDown(ion::input::Keycode::S);
-
-		bool jump = gamepad.ButtonPressedThisFrame(ion::input::GamepadButtons::BUTTON_B)
-			|| keyboard.KeyPressedThisFrame(ion::input::Keycode::D);
-
-		bool cancelJump = gamepad.ButtonReleasedThisFrame(ion::input::GamepadButtons::BUTTON_B)
-			|| keyboard.KeyReleasedThisFrame(ion::input::Keycode::D);
-
-		if (keyboard.KeyDown(ion::input::Keycode::LEFT))
+		if (m_player.m_controlEnabled)
 		{
-			moveSpeed = -1.0f;
-		}
-		else if (keyboard.KeyDown(ion::input::Keycode::RIGHT))
-		{
-			moveSpeed = 1.0f;
-		}
+			//Update input
+			float moveSpeed = gamepad.GetLeftStick().x;
 
-		m_player.Move(moveSpeed);
+			bool interact = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_X)
+				|| keyboard.KeyDown(ion::input::Keycode::A);
 
-		if (jump)
-		{
-			m_player.Jump();
+			bool ability = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_A)
+				|| keyboard.KeyDown(ion::input::Keycode::S);
+
+			bool jump = gamepad.ButtonPressedThisFrame(ion::input::GamepadButtons::BUTTON_B)
+				|| keyboard.KeyPressedThisFrame(ion::input::Keycode::D);
+
+			bool cancelJump = gamepad.ButtonReleasedThisFrame(ion::input::GamepadButtons::BUTTON_B)
+				|| keyboard.KeyReleasedThisFrame(ion::input::Keycode::D);
+
+			if (keyboard.KeyDown(ion::input::Keycode::LEFT))
+			{
+				moveSpeed = -1.0f;
+			}
+			else if (keyboard.KeyDown(ion::input::Keycode::RIGHT))
+			{
+				moveSpeed = 1.0f;
+			}
+
+			m_player.Move(moveSpeed);
+
+			if (jump)
+			{
+				m_player.Jump();
+			}
+			else if (cancelJump)
+			{
+				m_player.CancelJump();
+			}
+
+			if (interact)
+				m_player.BeginInteract();
+			else
+				m_player.EndInteract();
+
+			if (ability)
+				m_player.BeginAbility();
+			else
+				m_player.EndAbility();
 		}
-		else if(cancelJump)
-		{
-			m_player.CancelJump();
-		}
-
-		if (interact)
-			m_player.BeginInteract();
-		else
-			m_player.EndInteract();
-
-		if (ability)
-			m_player.BeginAbility();
-		else
-			m_player.EndAbility();
 	}
 }
 

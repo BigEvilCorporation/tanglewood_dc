@@ -76,8 +76,6 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	//Setup ability states
 	m_abilityState.AddState(new AbilityGlide(*this), "glide");
 	m_abilityState.AddState(new AbilityTimeSlow(*this), "timeslow");
-
-	SwitchColour(ColourAbility::Green);
 }
 
 Player::~Player()
