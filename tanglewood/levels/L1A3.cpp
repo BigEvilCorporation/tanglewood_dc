@@ -10,6 +10,7 @@
 
 #include "L1A3.h"
 #include "Globals.h"
+#include "Palettes.h"
 #include "framework/World.h"
 #include "tanglewood/Djakk.h"
 
@@ -29,7 +30,8 @@ L1A3::~L1A3()
 
 void L1A3::Start()
 {
-
+	//Start at night time
+	PaletteTools::WritePaletteTexture(Assets::Palettes::World::night, Assets::Palettes::World::shared);
 }
 
 void L1A3::Update(float deltaTime)
