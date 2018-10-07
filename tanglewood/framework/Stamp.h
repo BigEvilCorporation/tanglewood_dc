@@ -17,6 +17,7 @@
 #include <ion/beehive/Project.h>
 #include <ion/beehive/Stamp.h>
 
+#include "Constants.h"
 #include "PlanePriority.h"
 
 #include <map>
@@ -38,10 +39,18 @@ public:
 	//Plane
 	PlanePriority m_planePriority;
 
+#if USE_PALETTE_TEXTURES
+	void SetPaletteTexture(ion::render::Texture* texture) { m_paletteTexture = texture; }
+#endif
+
 private:
 	ion::render::Texture* m_texture;
 	ion::render::Material* m_material;
 	ion::render::Quad* m_primitive;
+
+#if USE_PALETTE_TEXTURES
+	ion::render::Texture* m_paletteTexture;
+#endif
 };
 
 class StampSet

@@ -181,9 +181,11 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 		}
 	}
 
+#if USE_PALETTE_TEXTURES
 	//Create palette texture
 	m_paletteTextureDefault = PaletteTools::CreatePaletteTexture(spriteSheet.GetPalette());
 	m_paletteTexture = m_paletteTextureDefault;
+#endif
 
 	//Paint sprite sheet
 	PaintSheet(spriteSheet, spriteSheet.GetPalette());

@@ -20,6 +20,10 @@
 
 StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const Palette& palette)
 {
+#if USE_PALETTE_TEXTURES
+	m_paletteTexture = nullptr;
+#endif
+
 	const int tileWidth = 8;
 	const int tileHeight = 8;
 
@@ -95,17 +99,21 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 
 					u8 colourIdx = tile->GetPixelColour(sourceX, pixelY_OGL);
 
-					const Colour& colour = palette.GetColour(colourIdx);
-
 					int destPixelX = (tileX * tileWidth) + pixelX;
 					int destPixelY = (tileY_inv * tileHeight) + pixelY;
 					u32 pixelIdx = (destPixelY * textureWidth) + destPixelX;
 					u32 dataOffset = pixelIdx * bytesPerPixel;
 					ion::debug::Assert(dataOffset + 2 < textureSize, "eOut of bounds");
+
+#if USE_PALETTE_TEXTURES
+					data[dataOffset] = colourIdx;
+#else
+					const Colour& colour = palette.GetColour(colourIdx);
 					data[dataOffset] = colour.GetRed();
 					data[dataOffset + 1] = colour.GetGreen();
 					data[dataOffset + 2] = colour.GetBlue();
 					data[dataOffset + 3] = colourIdx > 0 ? 255 : 0;
+#endif
 				}
 			}
 		}
@@ -122,8 +130,13 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 	m_material->SetDiffuseColour(ion::Colour(1.0f, 1.0f, 1.0f));
 
 #if defined ION_RENDERER_SHADER
+#if USE_PALETTE_TEXTURES
+	m_material->SetVertexShader(Assets::Shaders::IndexTexture::vertexShader.Get());
+	m_material->SetPixelShader(Assets::Shaders::IndexTexture::pixelShader.Get());
+#else
 	m_material->SetVertexShader(Assets::Shaders::Default::vertexShader.Get());
 	m_material->SetPixelShader(Assets::Shaders::Default::pixelShader.Get());
+#endif
 #endif
 }
 
@@ -140,6 +153,11 @@ void StampRenderer::Render(ion::render::Renderer& renderer, const ion::Vector2& 
 
 		//Translate
 		transform.SetTranslation(ion::Vector3(position.x, position.y, Constants::Rendering::planePriorities[(int)m_planePriority]));
+
+#if USE_PALETTE_TEXTURES
+		Assets::Shaders::IndexTexture::Params::indexedTexture.SetValue(*m_texture);
+		Assets::Shaders::IndexTexture::Params::paletteTexture.SetValue(*m_paletteTexture);
+#endif
 
 		//Bind material
 		m_material->Bind(transform, cameraInv, renderer.GetProjectionMatrix());

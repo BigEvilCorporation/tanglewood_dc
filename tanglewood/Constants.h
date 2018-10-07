@@ -15,7 +15,11 @@
 
 #include "framework/PlanePriority.h"
 
+#if defined ION_PLATFORM_WINDOWS
 #define USE_PALETTE_TEXTURES 1
+#else
+#define USE_PALETTE_TEXTURES 0
+#endif
 
 #define SUBPIXELS_TO_PIXELS(val) (float)((float)(val>>16)+((float)(val&0xFFFF)/Constants::MegaDrive::subPixelsPerPixel))
 #define SUBPIXELS_TO_PIXELS_PER_SEC(val) SUBPIXELS_TO_PIXELS(val) * Constants::MegaDrive::frameRate

@@ -11,6 +11,7 @@
 #include "Physics.h"
 #include "Constants.h"
 #include "Globals.h"
+#include "Palettes.h"
 #include "ObjectFactory.h"
 
 #include <ion/core/debug/Debug.h>
@@ -48,6 +49,14 @@ World::~World()
 
 	delete m_fadeQuad;
 	delete m_fadeMaterial;
+
+#if USE_PALETTE_TEXTURES
+	if (Assets::Palettes::World::shared)
+	{
+		delete Assets::Palettes::World::shared;
+		Assets::Palettes::World::shared = nullptr;
+	}
+#endif
 
 	if (m_physicsWorld)
 	{
@@ -97,6 +106,13 @@ bool World::LoadLevel(const std::string& name)
 	if(m_levelData)
 	{
 		delete m_levelData;
+
+#if USE_PALETTE_TEXTURES
+		if (Assets::Palettes::World::shared)
+		{
+			delete Assets::Palettes::World::shared;
+		}
+#endif
 	}
 
 	//Load level data from Beehive project file
@@ -109,6 +125,21 @@ bool World::LoadLevel(const std::string& name)
 
 	//Load stamp set
 	m_stampSet = new StampSet(*m_levelData);
+
+#if USE_PALETTE_TEXTURES
+	//Get time of day palettes
+	Assets::Palettes::World::day = m_levelData->GetPaletteSlot(0)[0];
+	Assets::Palettes::World::dusk = m_levelData->GetPaletteSlot(1)[0];
+	Assets::Palettes::World::night = m_levelData->GetPaletteSlot(2)[0];
+
+	//Set stamp palettes
+	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::World::dusk);
+
+	for (std::map<StampId, StampRenderer>::iterator it = m_stampSet->m_stamps.begin(), end = m_stampSet->m_stamps.end(); it != end; ++it)
+	{
+		it->second.SetPaletteTexture(Assets::Palettes::World::shared);
+	}
+#endif
 
 	return true;
 }

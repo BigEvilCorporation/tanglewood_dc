@@ -6,7 +6,11 @@ namespace Assets
 	{
 		namespace World
 		{
+			ion::render::Texture* shared = nullptr;
 
+			Palette day;
+			Palette dusk;
+			Palette night;
 		}
 
 		namespace Player
