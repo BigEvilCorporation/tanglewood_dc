@@ -133,7 +133,8 @@ bool World::LoadLevel(const std::string& name)
 	Assets::Palettes::World::night = m_levelData->GetPaletteSlot(2)[0];
 
 	//Set stamp palettes
-	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::World::day);
+	m_currentPalette = Assets::Palettes::World::day;
+	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(m_currentPalette);
 
 	for (std::map<StampId, StampRenderer>::iterator it = m_stampSet->m_stamps.begin(), end = m_stampSet->m_stamps.end(); it != end; ++it)
 	{
@@ -380,10 +381,21 @@ bool World::IsFading() const
 	return m_fadeSpeed != 0.0f;
 }
 
-void World::BeginPaletteLerp(const Palette& source, const Palette& dest, float speed)
+void World::SetPalette(const Palette& palette)
 {
-	m_sourcePalette = source;
-	m_destPalette = dest;
+	m_currentPalette = palette;
+	PaletteTools::WritePaletteTexture(palette, Assets::Palettes::World::shared);
+}
+
+const Palette& World::GetPalette() const
+{
+	return m_currentPalette;
+}
+
+void World::BeginPaletteLerp(const Palette& dest, float speed)
+{
+	m_sourcePalette = m_currentPalette;
+	m_currentPalette = dest;
 	m_paletteLerpSpeed = speed;
 	m_paletteLerpTimer = 0.0f;
 }
@@ -401,7 +413,7 @@ void World::UpdatePaletteLerp(float deltaTime)
 		}
 
 		Palette palette;
-		PaletteTools::BlendPalettes(m_sourcePalette, m_destPalette, palette, m_paletteLerpTimer);
+		PaletteTools::BlendPalettes(m_sourcePalette, m_currentPalette, palette, m_paletteLerpTimer);
 		PaletteTools::WritePaletteTexture(palette, Assets::Palettes::World::shared);
 	}
 }

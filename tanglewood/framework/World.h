@@ -76,7 +76,9 @@ public:
 	bool IsFading() const;
 
 	//Palette lerp
-	void BeginPaletteLerp(const Palette& source, const Palette& dest, float speed);
+	void SetPalette(const Palette& palette);
+	const Palette& GetPalette() const;
+	void BeginPaletteLerp(const Palette& dest, float speed);
 
 private:
 	void UpdateFader(float deltaTime);
@@ -127,7 +129,7 @@ private:
 
 	//Palette lerp
 	Palette m_sourcePalette;
-	Palette m_destPalette;
+	Palette m_currentPalette;
 	float m_paletteLerpTimer;
 	float m_paletteLerpSpeed;
 };

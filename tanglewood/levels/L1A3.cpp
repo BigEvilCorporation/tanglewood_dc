@@ -31,7 +31,7 @@ L1A3::~L1A3()
 void L1A3::Start()
 {
 	//Start at night time
-	PaletteTools::WritePaletteTexture(Assets::Palettes::World::night, Assets::Palettes::World::shared);
+	Globals::Game::world->SetPalette(Assets::Palettes::World::night);
 }
 
 void L1A3::Update(float deltaTime)
@@ -60,7 +60,7 @@ void L1A3::OnTriggerDjakk(const TriggerBox& triggerBox)
 
 	ion::debug::Assert(djakk, "L1A3::OnTriggerDjakk() - Djakk not found");
 
-	djakk->BeginChase(true);
+	djakk->BeginChase(false);
 }
 
 void L1A3::OnTriggerEndLevel(const TriggerBox& triggerBox)

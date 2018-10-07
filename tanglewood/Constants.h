@@ -132,6 +132,7 @@ namespace Constants
 		//Colour ability
 		static const float colourAbilityMaxTime = FRAMES_TO_SECONDS(0x0600);
 		static const float paletteLerpSpeed = 1.0f;
+		static const float timeSlowLerpSpeed = 3.0f;
 
 		//Gliding
 		static const float maxVelocityYDownGlide = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);

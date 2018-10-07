@@ -147,10 +147,14 @@ void Djakk::StateChase::OnUpdateState(float deltaTime)
 		m_djakk.Move(0.0f);
 	}
 
-	//If touching player, attack
-	if (m_djakk.Intersects(*Globals::Players::player1))
+	//Don't attack in time slow mode
+	if (m_djakk.m_speedScale == 1.0f)
 	{
-		m_stateMachine->SetState("bite");
+		//If touching player, attack
+		if (m_djakk.Intersects(*Globals::Players::player1))
+		{
+			m_stateMachine->SetState("bite");
+		}
 	}
 }
 
@@ -162,19 +166,23 @@ void Djakk::StateBite::OnEnterState()
 
 void Djakk::StateBite::OnUpdateState(float deltaTime)
 {
-	//Wait for anim to reach attack frame
-	if (ion::maths::Floor(m_djakk.GetCurrentAnimation()->GetFrame()) == Constants::Djakk::biteAttackFrame)
+	//Don't attack in time slow mode
+	if (m_djakk.m_speedScale == 1.0f)
 	{
-		//If still intersecting player, kill and enter search state
-		if (m_djakk.Intersects(*Globals::Players::player1))
+		//Wait for anim to reach attack frame
+		if (ion::maths::Floor(m_djakk.GetCurrentAnimation()->GetFrame()) == Constants::Djakk::biteAttackFrame)
 		{
-			Globals::Players::player1->Kill();
-			m_stateMachine->SetState("search");
-		}
-		else
-		{
-			//else back to chase state
-			m_stateMachine->SetState("chase");
+			//If still intersecting player, kill and enter search state
+			if (m_djakk.Intersects(*Globals::Players::player1))
+			{
+				Globals::Players::player1->Kill();
+				m_stateMachine->SetState("search");
+			}
+			else
+			{
+				//else back to chase state
+				m_stateMachine->SetState("chase");
+			}
 		}
 	}
 }

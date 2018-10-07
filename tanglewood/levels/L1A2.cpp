@@ -47,12 +47,12 @@ void L1A2::End()
 
 void L1A2::OnTriggerDusk(const TriggerBox& triggerBox)
 {
-	Globals::Game::world->BeginPaletteLerp(Assets::Palettes::World::day, Assets::Palettes::World::dusk, Constants::World::paletteLerpSpeed);
+	Globals::Game::world->BeginPaletteLerp(Assets::Palettes::World::dusk, Constants::World::paletteLerpSpeed);
 }
 
 void L1A2::OnTriggerNight(const TriggerBox& triggerBox)
 {
-	Globals::Game::world->BeginPaletteLerp(Assets::Palettes::World::dusk, Assets::Palettes::World::night, Constants::World::paletteLerpSpeed);
+	Globals::Game::world->BeginPaletteLerp(Assets::Palettes::World::night, Constants::World::paletteLerpSpeed);
 }
 
 void L1A2::OnTriggerDjakk(const TriggerBox& triggerBox)

@@ -90,6 +90,7 @@ private:
 		Player& m_player;
 		bool m_active;
 		float m_speedScale;
+		Palette m_originalPalette;
 	};
 
 	static const Palette* s_colourPalettes[(int)ColourAbility::Count];

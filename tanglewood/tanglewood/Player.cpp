@@ -76,6 +76,8 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	//Setup ability states
 	m_abilityState.AddState(new AbilityGlide(*this), "glide");
 	m_abilityState.AddState(new AbilityTimeSlow(*this), "timeslow");
+
+	SwitchColour(ColourAbility::Green);
 }
 
 Player::~Player()
@@ -360,10 +362,13 @@ void Player::AbilityGlide::BeginUse()
 
 void Player::AbilityGlide::EndUse()
 {
-	//Reset animation and physics properties
-	m_active = false;
-	m_player.m_maxVelocityYDown = Constants::Character::maxVelocityYDown;
-	m_player.m_manualAnimation = false;
+	if (m_active)
+	{
+		//Reset animation and physics properties
+		m_active = false;
+		m_player.m_maxVelocityYDown = Constants::Character::maxVelocityYDown;
+		m_player.m_manualAnimation = false;
+	}
 }
 
 void Player::AbilityTimeSlow::OnEnterState()
@@ -383,29 +388,44 @@ void Player::AbilityTimeSlow::OnExitState(State* newState)
 
 void Player::AbilityTimeSlow::BeginUse()
 {
-	m_active = true;
-
-	//Apply speed scale to all physics objects (except player)
-	std::vector<PhysicsObj*> physicsObjs = Globals::Game::world->GetPhysicsWorld().GetPhysicsObjs();
-
-	for (int i = 0; i < physicsObjs.size(); i++)
+	if (!m_active)
 	{
-		if (physicsObjs[i] != &m_player)
+		m_active = true;
+
+		//Begin palette lerp
+		m_originalPalette = Globals::Game::world->GetPalette();
+		Palette grayscale;
+		PaletteTools::GrayScalePalette(m_originalPalette, grayscale);
+		Globals::Game::world->BeginPaletteLerp(grayscale, Constants::Player::timeSlowLerpSpeed);
+
+		//Apply speed scale to all physics objects (except player)
+		std::vector<PhysicsObj*> physicsObjs = Globals::Game::world->GetPhysicsWorld().GetPhysicsObjs();
+
+		for (int i = 0; i < physicsObjs.size(); i++)
 		{
-			physicsObjs[i]->m_speedScale = 0.1f;
+			if (physicsObjs[i] != &m_player)
+			{
+				physicsObjs[i]->m_speedScale = 0.1f;
+			}
 		}
 	}
 }
 
 void Player::AbilityTimeSlow::EndUse()
 {
-	m_active = false;
-
-	//Reset speed scale
-	std::vector<PhysicsObj*> physicsObjs = Globals::Game::world->GetPhysicsWorld().GetPhysicsObjs();
-
-	for (int i = 0; i < physicsObjs.size(); i++)
+	if (m_active)
 	{
-		physicsObjs[i]->m_speedScale = 1.0f;
+		m_active = false;
+
+		//Restore palette
+		Globals::Game::world->BeginPaletteLerp(m_originalPalette, Constants::Player::timeSlowLerpSpeed);
+
+		//Reset speed scale
+		std::vector<PhysicsObj*> physicsObjs = Globals::Game::world->GetPhysicsWorld().GetPhysicsObjs();
+
+		for (int i = 0; i < physicsObjs.size(); i++)
+		{
+			physicsObjs[i]->m_speedScale = 1.0f;
+		}
 	}
 }
