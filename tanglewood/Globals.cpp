@@ -1,4 +1,5 @@
 #include "Globals.h"
+#include "levels/LevelList.h"
 
 namespace Globals
 {
@@ -15,7 +16,7 @@ namespace Globals
 
 	namespace Game
 	{
-		int levelIdx = 2;
+		int levelIdx = (int)Constants::Levels::l1a1_Harlequin_Act4;
 		World* world = nullptr;
 		Level* level = nullptr;
 		ion::render::Camera* camera = nullptr;

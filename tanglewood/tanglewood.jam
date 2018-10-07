@@ -114,6 +114,8 @@ local SRC =
 	levels/L1A2.h
 	levels/L1A3.cpp
 	levels/L1A3.h
+	levels/L1A4.cpp
+	levels/L1A4.h
 	;
 
 if ( shader in $(ion_renderer_opts) )

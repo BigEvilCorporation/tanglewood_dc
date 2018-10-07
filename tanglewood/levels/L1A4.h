@@ -1,10 +1,10 @@
 ///////////////////////////////////////////////////////////////
 // (c) 2018 Matt Phillips, Big Evil Corporation
 //
-// File:		L1A3.h
-// Date:		1st October 2018
+// File:		L1A4.h
+// Date:		7th October 2018
 // Authors:		Matt Phillips
-// Description:	Chapter 1 Harlequin Forest Act 3
+// Description:	Chapter 1 Harlequin Forest Act 4
 //				(loosely mirrors Mega Drive framework)
 ///////////////////////////////////////////////////////////////
 
@@ -13,11 +13,11 @@
 #include "framework/Level.h"
 #include "tanglewood/TriggerBox.h"
 
-class L1A3 : public Level
+class L1A4 : public Level
 {
 public:
-	L1A3();
-	virtual ~L1A3();
+	L1A4();
+	virtual ~L1A4();
 
 	virtual void Start();
 	virtual void Update(float deltaTime);
