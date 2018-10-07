@@ -62,7 +62,7 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 		}
 
 		//Apply acceleration
-		m_velocity += m_acceleration * deltaTime;
+		m_velocity += m_acceleration * deltaTime * m_speedScale;
 
 		//Apply deceleration (if on floor and controls idle)
 		if (m_onFloor && ion::maths::IsZero(m_acceleration.x))
@@ -72,7 +72,7 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 				//Clamp
 				if (m_velocity.x > 0.0f)
 				{
-					m_velocity.x -= m_deceleration.x * deltaTime;
+					m_velocity.x -= m_deceleration.x * deltaTime * m_speedScale;
 
 					if (m_velocity.x < 0.0f)
 					{
@@ -81,7 +81,7 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 				}
 				else if (m_velocity.x < 0.0f)
 				{
-					m_velocity.x += m_deceleration.x * deltaTime;
+					m_velocity.x += m_deceleration.x * deltaTime * m_speedScale;
 
 					if (m_velocity.x > 0.0f)
 					{
@@ -96,7 +96,7 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 		m_lastWallVelocity = 0.0f;
 
 		//Apply gravity
-		m_velocity.y -= physicsWorld.GetGravity() * deltaTime;
+		m_velocity.y -= physicsWorld.GetGravity() * deltaTime * m_speedScale;
 
 		//Apply impulse
 		m_velocity += m_impulse;
@@ -116,7 +116,7 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 		if (velocitySize > Constants::MegaDrive::tileWidth)
 		{
 			numTimeSteps = ion::maths::Ceil(velocitySize / Constants::MegaDrive::tileWidth);
-			velocitySlice = m_velocity / (float)numTimeSteps;
+			velocitySlice = velocitySlice / (float)numTimeSteps;
 		}
 
 		//Clear floor/wall flags
