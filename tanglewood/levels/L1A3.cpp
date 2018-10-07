@@ -18,13 +18,13 @@
 
 L1A3::L1A3()
 {
-	TriggerBox::RegisterTriggerFunc("L1A3_Trigger_Djakk", std::bind(&L1A3::OnTriggerDjakk, this, std::placeholders::_1));
+	TriggerBox::RegisterTriggerFunc("L1A3_Trigger_WakeDjakk", std::bind(&L1A3::OnTriggerDjakk, this, std::placeholders::_1));
 	TriggerBox::RegisterTriggerFunc("L1A3_Trigger_End", std::bind(&L1A3::OnTriggerEndLevel, this, std::placeholders::_1));
 }
 
 L1A3::~L1A3()
 {
-	TriggerBox::UnregisterTriggerFunc("L1A3_Trigger_Djakk");
+	TriggerBox::UnregisterTriggerFunc("L1A3_Trigger_WakeDjakk");
 	TriggerBox::UnregisterTriggerFunc("L1A3_Trigger_End");
 }
 

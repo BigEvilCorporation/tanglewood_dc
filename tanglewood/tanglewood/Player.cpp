@@ -403,7 +403,7 @@ void Player::AbilityTimeSlow::BeginUse()
 		{
 			if (physicsObjs[i] != &m_player)
 			{
-				physicsObjs[i]->m_speedScale = 0.1f;
+				physicsObjs[i]->m_speedScale = Constants::Player::timeSlowPhysicsScale;
 			}
 		}
 	}

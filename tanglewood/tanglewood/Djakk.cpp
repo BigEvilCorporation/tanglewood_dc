@@ -167,7 +167,11 @@ void Djakk::StateBite::OnEnterState()
 void Djakk::StateBite::OnUpdateState(float deltaTime)
 {
 	//Don't attack in time slow mode
-	if (m_djakk.m_speedScale == 1.0f)
+	if (m_djakk.m_speedScale < 1.0f)
+	{
+		m_stateMachine->SetState("chase");
+	}
+	else
 	{
 		//Wait for anim to reach attack frame
 		if (ion::maths::Floor(m_djakk.GetCurrentAnimation()->GetFrame()) == Constants::Djakk::biteAttackFrame)
