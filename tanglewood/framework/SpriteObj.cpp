@@ -17,6 +17,8 @@
 #include "Shaders.h"
 #endif
 
+#include "framework/PaletteTools.h"
+
 #include <ion/core/debug/Debug.h>
 #include <ion/core/memory/Memory.h>
 #include <ion/core/utils/STL.h>
@@ -34,6 +36,7 @@ SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjec
 
 #if USE_PALETTE_TEXTURES
 	m_paletteTexture = NULL;
+	m_paletteTextureDefault = NULL;
 #endif
 
 	m_flippedX = false;
@@ -72,7 +75,10 @@ SpriteObj::~SpriteObj()
 	}
 
 #if USE_PALETTE_TEXTURES
-	delete m_paletteTexture;
+	if (m_paletteTextureDefault)
+	{
+		delete m_paletteTextureDefault;
+	}
 #endif
 }
 
@@ -176,24 +182,8 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 	}
 
 	//Create palette texture
-	u8 paletteData[Palette::coloursPerPalette * 4];
-	u8* paletteWritePtr = paletteData;
-	const Palette& sheetPalette = spriteSheet.GetPalette();
-	
-	for (int i = 0; i < Palette::coloursPerPalette; i++)
-	{
-		if (sheetPalette.IsColourUsed(i))
-		{
-			*paletteWritePtr++ = sheetPalette.GetColour(i).GetRed();
-			*paletteWritePtr++ = sheetPalette.GetColour(i).GetGreen();
-			*paletteWritePtr++ = sheetPalette.GetColour(i).GetBlue();
-			*paletteWritePtr++ = i > 0 ? 255 : 0;
-		}
-	}
-
-	m_paletteTexture = ion::render::Texture::Create(Palette::coloursPerPalette, 1, ion::render::Texture::eRGBA, ion::render::Texture::eRGBA, ion::render::Texture::eBPP24, false, false, paletteData);
-	m_paletteTexture->SetMinifyFilter(ion::render::Texture::eFilterNearest);
-	m_paletteTexture->SetMagnifyFilter(ion::render::Texture::eFilterNearest);
+	m_paletteTextureDefault = PaletteTools::CreatePaletteTexture(spriteSheet.GetPalette());
+	m_paletteTexture = m_paletteTextureDefault;
 
 	//Paint sprite sheet
 	PaintSheet(spriteSheet, spriteSheet.GetPalette());

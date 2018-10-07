@@ -324,6 +324,19 @@ void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera&
 	m_cameraPos = position;
 }
 
+const Actor* World::FindActor(const std::string& name) const
+{
+	for (std::map<ActorId, Actor>::const_iterator it = m_actors.begin(), end = m_actors.end(); it != end; ++it)
+	{
+		if (ion::string::CompareNoCase(it->second.GetName(), name))
+		{
+			return &it->second;
+		}
+	}
+
+	return nullptr;
+}
+
 bool World::BeginFade(float speed)
 {
 	m_fadeSpeed = speed;

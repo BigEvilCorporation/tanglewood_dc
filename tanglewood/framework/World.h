@@ -61,6 +61,9 @@ public:
 	//Find entities
 	template <typename T> T* FindEntity(const std::string& name) const;
 
+	//Find sprite actor
+	const Actor* FindActor(const std::string& name) const;
+
 	//Physics world
 	PhysicsWorld& GetPhysicsWorld() { return *m_physicsWorld; }
 
@@ -83,6 +86,8 @@ private:
 
 	//Beehive project files
 	Project* m_levelData;
+
+	//TODO: Move to global assets
 	std::map<ActorId, Actor> m_actors;
 
 	//Beehive maps

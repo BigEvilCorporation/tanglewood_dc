@@ -48,6 +48,11 @@ public:
 	//Draw sprite sheet to texture with specified palette
 	void PaintSheet(SpriteSheet& spriteSheet, const Palette& palette);
 
+#if USE_PALETTE_TEXTURES
+	//Palette swap
+	void SetPaletteTexture(ion::render::Texture* texture) { m_paletteTexture = texture; }
+#endif
+
 	ion::Vector2 m_drawOffset;	//Sprite draw offset
 	bool m_flippedX;			//Sprite flip X
 	bool m_flippedY;			//Sprite flip Y
@@ -87,5 +92,6 @@ private:
 
 #if USE_PALETTE_TEXTURES
 	ion::render::Texture* m_paletteTexture;
+	ion::render::Texture* m_paletteTextureDefault;
 #endif
 };

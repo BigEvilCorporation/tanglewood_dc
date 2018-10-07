@@ -37,6 +37,8 @@ local SRC =
 	LevelSystem.cpp
 	LevelSystem.h
 	ObjectRegistry.cpp
+	Palettes.cpp
+	Palettes.h
 	Tanglewood.cpp
 	Tanglewood.h
 
@@ -49,6 +51,8 @@ local SRC =
 	framework/Level.h
 	framework/ObjectFactory.cpp
 	framework/ObjectFactory.h
+	framework/PaletteTools.cpp
+	framework/PaletteTools.h
 	framework/Platform.h
 	framework/Physics.cpp
 	framework/Physics.h

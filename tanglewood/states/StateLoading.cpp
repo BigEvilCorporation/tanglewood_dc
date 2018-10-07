@@ -9,7 +9,11 @@
 
 #include "StateLoading.h"
 #include "Globals.h"
+#include "Palettes.h"
+
 #include "levels/LevelList.h"
+
+#include "framework/PaletteTools.h"
 #include "framework/World.h"
 
 StateLoading::StateLoading(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
@@ -52,6 +56,7 @@ void StateLoading::OnEnterState()
 		//TODO: Thread this
 
 		//Load sprite data from Beehive project file
+		//TODO: Move to global assets
 		Globals::Game::world->LoadSprites(levelDesc.spriteDataFile);
 
 		//Load first level data file from Beehive project file
@@ -60,6 +65,9 @@ void StateLoading::OnEnterState()
 		//Load first act
 		Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
 	}
+
+	//TODO: Move to global assets
+	LoadGlobalPalettes();
 
 	//Create game objects
 	Globals::Game::world->CreateGameObjects();
@@ -91,4 +99,35 @@ bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::
 void StateLoading::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
 
+}
+
+void StateLoading::LoadGlobalPalettes()
+{
+	if (!Assets::Palettes::Player::red)
+	{
+		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_red"))
+		{
+			Assets::Palettes::Player::red = PaletteTools::CreatePaletteTexture(*actor->GetMasterPalette());
+		}
+
+		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_green"))
+		{
+			Assets::Palettes::Player::green = PaletteTools::CreatePaletteTexture(*actor->GetMasterPalette());
+		}
+
+		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_blue"))
+		{
+			Assets::Palettes::Player::blue = PaletteTools::CreatePaletteTexture(*actor->GetMasterPalette());
+		}
+
+		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_yellow"))
+		{
+			Assets::Palettes::Player::yellow = PaletteTools::CreatePaletteTexture(*actor->GetMasterPalette());
+		}
+
+		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_white"))
+		{
+			Assets::Palettes::Player::white = PaletteTools::CreatePaletteTexture(*actor->GetMasterPalette());
+		}
+	}
 }

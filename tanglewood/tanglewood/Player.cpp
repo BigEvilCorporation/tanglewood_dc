@@ -12,6 +12,7 @@
 #include "Constants.h"
 #include "Globals.h"
 #include "Animations.h"
+#include "Palettes.h"
 #include "framework/World.h"
 
 #include "Flue.h"
@@ -194,48 +195,23 @@ void Player::SwitchColour(ColourAbility colour)
 	}
 
 	//TODO: Palette lerping
-	Colour testColour;
-	bool overwritePalette = true;
-
 	switch (colour)
 	{
 	case ColourAbility::Red:
-		overwritePalette = false;
+		SetPaletteTexture(Assets::Palettes::Player::red);
 		break;
 	case ColourAbility::Yellow:
-		testColour = Colour(255, 255, 0);
+		SetPaletteTexture(Assets::Palettes::Player::yellow);
 		break;
 	case ColourAbility::Green:
-		testColour = Colour(0, 255, 0);
+		SetPaletteTexture(Assets::Palettes::Player::green);
 		break;
 	case ColourAbility::Blue:
-		testColour = Colour(0, 0, 255);
+		SetPaletteTexture(Assets::Palettes::Player::blue);
 		break;
 	case ColourAbility::White:
-		testColour = Colour(255, 255, 255);
+		SetPaletteTexture(Assets::Palettes::Player::white);
 		break;
-	}
-
-	Palette testPalette;
-
-	if (overwritePalette)
-	{
-		for (int i = 0; i < 16; i++)
-		{
-			testPalette.SetColour(i, testColour);
-		}
-	}
-
-	for (TSpriteSheetMap::iterator it = m_actor->SpriteSheetsBegin(), end = m_actor->SpriteSheetsEnd(); it != end; ++it)
-	{
-		if (overwritePalette)
-		{
-			PaintSheet(it->second, testPalette);
-		}
-		else
-		{
-			PaintSheet(it->second, it->second.GetPalette());
-		}
 	}
 }
 
