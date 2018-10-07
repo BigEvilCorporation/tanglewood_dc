@@ -13,11 +13,13 @@ namespace Assets
 
 		namespace Player
 		{
-			extern ion::render::Texture* red;
-			extern ion::render::Texture* green;
-			extern ion::render::Texture* blue;
-			extern ion::render::Texture* yellow;
-			extern ion::render::Texture* white;
+			extern ion::render::Texture* shared;
+
+			extern Palette red;
+			extern Palette green;
+			extern Palette blue;
+			extern Palette yellow;
+			extern Palette white;
 		}
 	}
 }

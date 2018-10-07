@@ -11,11 +11,13 @@ namespace Assets
 
 		namespace Player
 		{
-			ion::render::Texture* red = nullptr;
-			ion::render::Texture* green = nullptr;
-			ion::render::Texture* blue = nullptr;
-			ion::render::Texture* yellow = nullptr;
-			ion::render::Texture* white = nullptr;
+			ion::render::Texture* shared = nullptr;
+
+			Palette red;
+			Palette green;
+			Palette blue;
+			Palette yellow;
+			Palette white;
 		}
 	}
 }

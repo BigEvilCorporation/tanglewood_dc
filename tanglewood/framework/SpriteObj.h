@@ -51,6 +51,7 @@ public:
 #if USE_PALETTE_TEXTURES
 	//Palette swap
 	void SetPaletteTexture(ion::render::Texture* texture) { m_paletteTexture = texture; }
+	ion::render::Texture* GetPaletteTexture() { return m_paletteTexture; }
 #endif
 
 	ion::Vector2 m_drawOffset;	//Sprite draw offset

@@ -103,31 +103,33 @@ void StateLoading::Render(ion::render::Renderer& renderer, ion::render::Camera& 
 
 void StateLoading::LoadGlobalPalettes()
 {
-	if (!Assets::Palettes::Player::red)
+	if (!Assets::Palettes::Player::shared)
 	{
 		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_red"))
 		{
-			Assets::Palettes::Player::red = PaletteTools::CreatePaletteTexture(*actor->GetMasterPalette());
+			Assets::Palettes::Player::red = *actor->GetMasterPalette();
 		}
 
 		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_green"))
 		{
-			Assets::Palettes::Player::green = PaletteTools::CreatePaletteTexture(*actor->GetMasterPalette());
+			Assets::Palettes::Player::green = *actor->GetMasterPalette();
 		}
 
 		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_blue"))
 		{
-			Assets::Palettes::Player::blue = PaletteTools::CreatePaletteTexture(*actor->GetMasterPalette());
+			Assets::Palettes::Player::blue = *actor->GetMasterPalette();
 		}
 
 		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_yellow"))
 		{
-			Assets::Palettes::Player::yellow = PaletteTools::CreatePaletteTexture(*actor->GetMasterPalette());
+			Assets::Palettes::Player::yellow = *actor->GetMasterPalette();
 		}
 
 		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_white"))
 		{
-			Assets::Palettes::Player::white = PaletteTools::CreatePaletteTexture(*actor->GetMasterPalette());
+			Assets::Palettes::Player::white = *actor->GetMasterPalette();
 		}
+
+		Assets::Palettes::Player::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::Player::red);
 	}
 }

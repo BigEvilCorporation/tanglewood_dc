@@ -20,6 +20,15 @@
 #include "Fuzzl.h"
 #include "TriggerBox.h"
 
+const Palette* Player::s_colourPalettes[(int)ColourAbility::Count] =
+{
+	&Assets::Palettes::Player::red,
+	&Assets::Palettes::Player::yellow,
+	&Assets::Palettes::Player::green,
+	&Assets::Palettes::Player::blue,
+	&Assets::Palettes::Player::white
+};
+
 Player::Player(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Character(world, gameObject, gameObjType, actor)
 {
@@ -37,9 +46,13 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	//Initial colour
 	m_colour = ColourAbility::Red;
 
+	//Use shared player palette
+	SetPaletteTexture(Assets::Palettes::Player::shared);
+
 	m_activeInteraction = InteractionType::None;
 	m_activeAbility = nullptr;
 	m_abilityTimer = 0.0f;
+	m_paletteLerpSpeed = 0.0f;
 
 	m_currentPushable = nullptr;
 
@@ -102,6 +115,35 @@ void Player::Update(float deltaTime)
 			m_abilityState.Update(deltaTime);
 		}
 	}
+
+	//Update palette lerp
+	UpdatePaletteLerp(deltaTime);
+}
+
+void Player::StartPaletteLerp(const Palette& source, const Palette& dest, float speed)
+{
+	m_sourcePalette = source;
+	m_destPalette = dest;
+	m_paletteLerpSpeed = speed;
+	m_paletteLerpTimer = 0.0f;
+}
+
+void Player::UpdatePaletteLerp(float deltaTime)
+{
+	if (m_paletteLerpSpeed > 0.0f)
+	{
+		m_paletteLerpTimer += m_paletteLerpSpeed * deltaTime;
+
+		if (m_paletteLerpTimer >= 1.0f)
+		{
+			m_paletteLerpTimer = 1.0f;
+			m_paletteLerpSpeed = 0.0f;
+		}
+
+		Palette palette;
+		PaletteTools::BlendPalettes(m_sourcePalette, m_destPalette, palette, m_paletteLerpTimer);
+		PaletteTools::WritePaletteTexture(palette, Assets::Palettes::Player::shared);
+	}
 }
 
 void Player::BeginInteract()
@@ -160,6 +202,7 @@ void Player::EndAbility()
 void Player::SwitchColour(ColourAbility colour)
 {
 	//set new colour
+	ColourAbility originalColour = m_colour;
 	m_colour = colour;
 
 	//End existing ability
@@ -194,25 +237,8 @@ void Player::SwitchColour(ColourAbility colour)
 		m_abilityTimer = Constants::Player::colourAbilityMaxTime;
 	}
 
-	//TODO: Palette lerping
-	switch (colour)
-	{
-	case ColourAbility::Red:
-		SetPaletteTexture(Assets::Palettes::Player::red);
-		break;
-	case ColourAbility::Yellow:
-		SetPaletteTexture(Assets::Palettes::Player::yellow);
-		break;
-	case ColourAbility::Green:
-		SetPaletteTexture(Assets::Palettes::Player::green);
-		break;
-	case ColourAbility::Blue:
-		SetPaletteTexture(Assets::Palettes::Player::blue);
-		break;
-	case ColourAbility::White:
-		SetPaletteTexture(Assets::Palettes::Player::white);
-		break;
-	}
+	//Lerp palette
+	StartPaletteLerp(*s_colourPalettes[(int)originalColour], *s_colourPalettes[(int)colour], Constants::Player::paletteLerpSpeed);
 }
 
 bool Player::TryInteractPushable()

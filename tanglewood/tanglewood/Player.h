@@ -41,6 +41,8 @@ public:
 	ColourAbility m_colour;
 
 private:
+	void StartPaletteLerp(const Palette& source, const Palette& dest, float speed);
+	void UpdatePaletteLerp(float deltaTime);
 
 	class Ability : public State
 	{
@@ -90,6 +92,8 @@ private:
 		float m_speedScale;
 	};
 
+	static const Palette* s_colourPalettes[(int)ColourAbility::Count];
+
 	bool TryInteractPushable();
 	bool TryInteractFuzzl();
 
@@ -102,4 +106,9 @@ private:
 	float m_abilityTimer;
 
 	PhysicsObj* m_currentPushable;
+
+	Palette m_sourcePalette;
+	Palette m_destPalette;
+	float m_paletteLerpTimer;
+	float m_paletteLerpSpeed;
 };
