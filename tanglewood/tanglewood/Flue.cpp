@@ -93,7 +93,7 @@ void Flue::ReadVars(const std::vector<GameObjectVariable>& vars)
 bool Flue::CanHold(Character& object) const
 {
 	//If heading downwards
-	if (object.m_velocity.y < 0.0f && object.m_impulse.y == 0.0f)
+	if (object.m_active && object.m_velocity.y < 0.0f && object.m_impulse.y == 0.0f)
 	{
 		//If contained by flue
 		if (Contains(object))
@@ -111,36 +111,40 @@ bool Flue::CanHold(Character& object) const
 
 void Flue::AddOccupant(Character& object)
 {
-	//Add to occupant list
-	m_occupants.push_back(Occupant(object));
-
-	//Stop updating/rendering
-	object.m_active = false;
-	object.m_visible = false;
-
-	//Clear velocity/acceleration
-	object.m_velocity.x = 0.0f;
-	object.m_velocity.y = 0.0f;
-	object.m_acceleration.x = 0.0f;
-	object.m_acceleration.y = 0.0f;
-
-	//Clear jump flag
-	object.m_jumping = false;
-
-	//Disallow controls
-	object.m_controlEnabled = false;
-
-	//Find output flue
-	m_outputFlue = this;
-	if (!m_linkedFlue.empty())
+	if (m_linkedFlue.empty())
 	{
-		m_outputFlue = m_world.FindEntity<Flue>(m_linkedFlue);
-		ion::debug::Assert(m_outputFlue, "Flue::AddOccupant() - Could not find output flue");
-	}
+		//Add to occupant list
+		m_occupants.push_back(Occupant(object));
 
-	//Centre object in output flue
-	object.m_worldPos.x = (m_outputFlue->m_worldPos.x + (m_outputFlue->m_size.x / 2.0f)) - (object.m_size.x / 2.0f);
-	object.m_worldPos.y = (m_outputFlue->m_worldPos.y + (m_outputFlue->m_size.y / 2.0f)) - (object.m_size.y / 2.0f);
+		//Stop updating/rendering
+		object.m_active = false;
+		object.m_visible = false;
+
+		//Clear velocity/acceleration
+		object.m_velocity.x = 0.0f;
+		object.m_velocity.y = 0.0f;
+		object.m_acceleration.x = 0.0f;
+		object.m_acceleration.y = 0.0f;
+
+		//Clear jump flag
+		object.m_jumping = false;
+
+		//Disallow controls
+		object.m_controlEnabled = false;
+
+		//Centre object in output flue
+		object.m_worldPos.x = (m_worldPos.x + (m_size.x / 2.0f)) - (object.m_size.x / 2.0f);
+		object.m_worldPos.y = (m_worldPos.y + (m_size.y / 2.0f)) - (object.m_size.y / 2.0f);
+	}
+	else
+	{
+		//Find output flue
+		Flue* outputFlue = m_world.FindEntity<Flue>(m_linkedFlue);
+		ion::debug::Assert(outputFlue, "Flue::AddOccupant() - Could not find output flue");
+
+		//Pass to linked flue
+		outputFlue->TakeOccupant(object, *this);
+	}
 }
 
 void Flue::EjectOccupant(Character& object)
@@ -157,6 +161,12 @@ void Flue::EjectOccupant(Character& object)
 
 	//Fling
 	object.AddImpulse(ion::Vector2(0.0f, m_ejectForce));
+}
+
+void Flue::TakeOccupant(Character& object, const Flue& originalFlue)
+{
+	//TODO: Camera lerp if player
+	AddOccupant(object);
 }
 
 void Flue::RegisterPotentialOccupant(Character& occupant)

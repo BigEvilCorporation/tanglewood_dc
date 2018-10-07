@@ -117,7 +117,7 @@ void Character::Move(float speed)
 
 void Character::Jump()
 {
-	if(m_closeToFloor)
+	if(m_closeToFloor && m_velocity.y <= 0.0f)
 	{
 		//TODO: Store as member
 		m_velocity.y = Constants::Character::jumpImpulse;

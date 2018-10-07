@@ -25,13 +25,11 @@ public:
 	static void RegisterPotentialOccupant(Character& occupant);
 	static void UnregisterPotentialOccupant(Character& occupant);
 
+protected:
+	//Take occupant from linked flue
+	void TakeOccupant(Character& object, const Flue& originalFlue);
+
 private:
-	void ReadVars(const std::vector<GameObjectVariable>& vars);
-
-	bool CanHold(Character& object) const;
-	void AddOccupant(Character& object);
-	void EjectOccupant(Character& object);
-
 	struct Occupant
 	{
 		Occupant() {}
@@ -47,11 +45,16 @@ private:
 		bool operator == (const Occupant& rhs) const { return object == rhs.object; }
 	};
 
+	void ReadVars(const std::vector<GameObjectVariable>& vars);
+
+	bool CanHold(Character& object) const;
+	void AddOccupant(Character& object);
+	void EjectOccupant(Character& object);
+
 	static std::vector<Character*> s_potentialOccupants;
 	std::vector<Occupant> m_occupants;
 
 	float m_ejectTime;
 	float m_ejectForce;
 	std::string m_linkedFlue;
-	Flue* m_outputFlue;
 };
