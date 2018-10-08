@@ -25,6 +25,12 @@ public:
 
 	void BeginChase(bool roar);
 
+	void BeginTame();
+	void EndTame();
+
+	void BeginRide(Character& jockey);
+	void EndRide();
+
 private:
 	class StateIdle : public State
 	{
@@ -69,6 +75,18 @@ private:
 	{
 	public:
 		StateBite(Djakk& djakk)
+			: m_djakk(djakk) {}
+
+		virtual void OnEnterState();
+		virtual void OnUpdateState(float deltaTime);
+
+		Djakk& m_djakk;
+	};
+
+	class StateTamed : public State
+	{
+	public:
+		StateTamed(Djakk& djakk)
 			: m_djakk(djakk) {}
 
 		virtual void OnEnterState();

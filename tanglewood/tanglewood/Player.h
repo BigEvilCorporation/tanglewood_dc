@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Colour.h"
+#include "Djakk.h"
 
 #include "framework/Character.h"
 #include "framework/State.h"
@@ -30,10 +31,14 @@ public:
     //Update
     virtual void Update(float deltaTime);
 
-	void BeginInteract();
+	virtual void Move(float speed);
+	virtual void Jump();
+	virtual void CancelJump();
+
+	void BeginInteract(bool debounce);
 	void EndInteract();
 
-	void BeginAbility();
+	void BeginAbility(bool debounce);
 	void EndAbility();
 
 	void SwitchColour(ColourAbility colour);
@@ -47,7 +52,7 @@ private:
 	class Ability : public State
 	{
 	public:
-		virtual void BeginUse() = 0;
+		virtual void BeginUse(bool debounce) = 0;
 		virtual void EndUse() = 0;
 	};
 
@@ -64,7 +69,7 @@ private:
 		virtual void OnUpdateState(float deltaTime);
 		virtual void OnExitState(State* newState);
 
-		virtual void BeginUse();
+		virtual void BeginUse(bool debounce);
 		virtual void EndUse();
 
 		Player& m_player;
@@ -84,13 +89,36 @@ private:
 		virtual void OnUpdateState(float deltaTime);
 		virtual void OnExitState(State* newState);
 
-		virtual void BeginUse();
+		virtual void BeginUse(bool debounce);
 		virtual void EndUse();
 
 		Player& m_player;
 		bool m_active;
 		float m_speedScale;
 		Palette m_originalPalette;
+	};
+
+	class AbilityBeastTame : public Ability
+	{
+	public:
+		AbilityBeastTame(Player& player)
+			: m_player(player)
+		{
+			m_active = false;
+			m_beast = nullptr;
+		}
+
+		virtual void OnEnterState();
+		virtual void OnUpdateState(float deltaTime);
+		virtual void OnExitState(State* newState);
+
+		virtual void BeginUse(bool debounce);
+		virtual void EndUse();
+
+		Player& m_player;
+		bool m_active;
+		bool m_mounting;
+		Djakk* m_beast;
 	};
 
 	static const Palette* s_colourPalettes[(int)ColourAbility::Count];
@@ -107,6 +135,8 @@ private:
 	float m_abilityTimer;
 
 	PhysicsObj* m_currentPushable;
+	Character* m_currentMount;
+	ion::Vector2 m_mountSaddlePos;
 
 	Palette m_sourcePalette;
 	Palette m_destPalette;

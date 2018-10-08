@@ -31,6 +31,9 @@ Djakk::Djakk(World& world, const GameObject& gameObject, const GameObjectType& g
 	m_decelerationIdle = Constants::Djakk::decelerationIdle;
 	m_decelerationForced = Constants::Djakk::decelerationForced;
 
+	m_jumpVelY = Constants::Djakk::jumpImpulse;
+	m_jumpVelScaleX = Constants::Djakk::jumpScaleX;
+
 	//Setup animations
 	m_characterAnimations[(int)CharacterAnimations::Idle] = std::make_pair("idle", Animations::Djakk::idle);
 	m_characterAnimations[(int)CharacterAnimations::Dead] = std::make_pair("dead", Animations::Djakk::dead);
@@ -43,6 +46,7 @@ Djakk::Djakk(World& world, const GameObject& gameObject, const GameObjectType& g
 	m_stateMachine.AddState(new StateSearch(*this), "search");
 	m_stateMachine.AddState(new StateChase(*this), "chase");
 	m_stateMachine.AddState(new StateBite(*this), "bite");
+	m_stateMachine.AddState(new StateTamed(*this), "tamed");
 
 	//Set initial state
 	m_stateMachine.SetState("idle");
@@ -71,6 +75,26 @@ void Djakk::BeginChase(bool roar)
 	}
 
 	m_stateMachine.SetState("chase");
+}
+
+void Djakk::BeginTame()
+{
+	m_stateMachine.SetState("tamed");
+}
+
+void Djakk::EndTame()
+{
+	BeginChase(true);
+}
+
+void Djakk::BeginRide(Character& jockey)
+{
+
+}
+
+void Djakk::EndRide()
+{
+
 }
 
 void Djakk::StateIdle::OnEnterState()
@@ -151,7 +175,9 @@ void Djakk::StateChase::OnUpdateState(float deltaTime)
 	if (m_djakk.m_speedScale == 1.0f)
 	{
 		//If touching player, attack
-		if (m_djakk.Intersects(*Globals::Players::player1))
+		const ion::Vector2 attackBoundsMin = Constants::Djakk::attackBoundsMin + m_djakk.m_worldPos;
+		const ion::Vector2 attackBoundsMax = Constants::Djakk::attackBoundsMax + m_djakk.m_worldPos;
+		if (Globals::Players::player1->Intersects(attackBoundsMin, attackBoundsMax))
 		{
 			m_stateMachine->SetState("bite");
 		}
@@ -177,7 +203,9 @@ void Djakk::StateBite::OnUpdateState(float deltaTime)
 		if (ion::maths::Floor(m_djakk.GetCurrentAnimation()->GetFrame()) == Constants::Djakk::biteAttackFrame)
 		{
 			//If still intersecting player, kill and enter search state
-			if (m_djakk.Intersects(*Globals::Players::player1))
+			const ion::Vector2 attackBoundsMin = Constants::Djakk::attackBoundsMin + m_djakk.m_worldPos;
+			const ion::Vector2 attackBoundsMax = Constants::Djakk::attackBoundsMax + m_djakk.m_worldPos;
+			if (Globals::Players::player1->Intersects(attackBoundsMin, attackBoundsMax))
 			{
 				Globals::Players::player1->Kill();
 				m_stateMachine->SetState("search");
@@ -189,4 +217,20 @@ void Djakk::StateBite::OnUpdateState(float deltaTime)
 			}
 		}
 	}
+}
+
+void Djakk::StateTamed::OnEnterState()
+{
+	//Stop moving
+	m_djakk.m_acceleration.x = 0.0f;
+
+	//Roar
+	m_djakk.PlayAnimation(Animations::Djakk::roar);
+
+	//Turn blue
+}
+
+void Djakk::StateTamed::OnUpdateState(float deltaTime)
+{
+
 }

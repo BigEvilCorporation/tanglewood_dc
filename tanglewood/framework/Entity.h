@@ -32,6 +32,7 @@ public:
 	void GetWorldBounds(ion::Vector2& topLeft, ion::Vector2& bottomRight) const;
 
 	bool Intersects(const Entity& objectB) const;
+	bool Intersects(const ion::Vector2& boundsMin, const ion::Vector2& boundsMax) const;
 	bool Contains(const Entity& objectB) const;
 
 	std::string m_name;				//Name

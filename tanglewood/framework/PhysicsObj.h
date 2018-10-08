@@ -39,6 +39,8 @@ public:
 	float m_minWallHeight;
 	bool m_snapToFloor;
 
+	bool m_physicsEnabled;
+
 	bool m_ignoreHoles;
 
 	bool m_onFloor;

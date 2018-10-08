@@ -29,6 +29,7 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 	m_lastFloorVelocity = 0.0f;
 	m_speedScale = 1.0f;
 
+	m_physicsEnabled = true;
 	m_snapToFloor = false;
 	m_ignoreHoles = false;
 	m_onFloor = false;
@@ -43,7 +44,7 @@ PhysicsObj::~PhysicsObj()
 
 void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 {
-	if (m_active)
+	if (m_active && m_physicsEnabled)
 	{
 		//Check if velocity is to be cancelled by animation
 		if (const AnimType* animType = GetCurrentAnimType())

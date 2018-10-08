@@ -18,6 +18,7 @@ namespace Animations
 		static const AnimType walktorun =		{ "walktorun",		"walktorun",	0 };
 		static const AnimType waterWade =		{ "waterWade",		"waterWade",	AnimFlags::Loop };
 		static const AnimType colourSwitch =	{ "colourswitch",	"colourswitch",	AnimFlags::FreezeMovementX };
+		static const AnimType mount =			{ "mountdjakk",		"mountdjakk",	AnimFlags::FreezeMovementX };
 	}
 
 	namespace Boulder

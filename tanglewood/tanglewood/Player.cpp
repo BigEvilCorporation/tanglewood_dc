@@ -18,6 +18,7 @@
 #include "Flue.h"
 #include "Mushroom.h"
 #include "Fuzzl.h"
+#include "Djakk.h"
 #include "TriggerBox.h"
 
 const Palette* Player::s_colourPalettes[(int)ColourAbility::Count] =
@@ -54,6 +55,7 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	m_abilityTimer = 0.0f;
 	m_paletteLerpSpeed = 0.0f;
 
+	m_currentMount = nullptr;
 	m_currentPushable = nullptr;
 
 	TriggerBox::RegisterPotentialOccupant(*this);
@@ -76,6 +78,7 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	//Setup ability states
 	m_abilityState.AddState(new AbilityGlide(*this), "glide");
 	m_abilityState.AddState(new AbilityTimeSlow(*this), "timeslow");
+	m_abilityState.AddState(new AbilityBeastTame(*this), "beasttame");
 }
 
 Player::~Player()
@@ -118,6 +121,49 @@ void Player::Update(float deltaTime)
 
 	//Update palette lerp
 	UpdatePaletteLerp(deltaTime);
+
+	//Update saddle pos
+	if (m_currentMount)
+	{
+		m_worldPos = m_currentMount->m_worldPos + m_mountSaddlePos;
+		m_flippedX = m_currentMount->m_flippedX;
+	}
+}
+
+void Player::Move(float speed)
+{
+	if (m_currentMount)
+	{
+		m_currentMount->Move(speed);
+	}
+	else
+	{
+		Character::Move(speed);
+	}
+}
+
+void Player::Jump()
+{
+	if (m_currentMount)
+	{
+		m_currentMount->Jump();
+	}
+	else
+	{
+		Character::Jump();
+	}
+}
+
+void Player::CancelJump()
+{
+	if (m_currentMount)
+	{
+		m_currentMount->CancelJump();
+	}
+	else
+	{
+		Character::CancelJump();
+	}
 }
 
 void Player::StartPaletteLerp(const Palette& source, const Palette& dest, float speed)
@@ -146,7 +192,7 @@ void Player::UpdatePaletteLerp(float deltaTime)
 	}
 }
 
-void Player::BeginInteract()
+void Player::BeginInteract(bool debounce)
 {
 	if (m_activeInteraction == InteractionType::None)
 	{
@@ -183,11 +229,11 @@ void Player::EndInteract()
 	m_pushingHeavy = false;
 }
 
-void Player::BeginAbility()
+void Player::BeginAbility(bool debounce)
 {
 	if (m_activeAbility)
 	{
-		m_activeAbility->BeginUse();
+		m_activeAbility->BeginUse(debounce);
 	}
 }
 
@@ -219,6 +265,9 @@ void Player::SwitchColour(ColourAbility colour)
 		break;
 	case ColourAbility::Green:
 		m_abilityState.SetState("timeslow");
+		break;
+	case ColourAbility::Blue:
+		m_abilityState.SetState("beasttame");
 		break;
 	default:
 		m_abilityState.SetState(nullptr);
@@ -345,7 +394,7 @@ void Player::AbilityGlide::OnExitState(State* newState)
 
 }
 
-void Player::AbilityGlide::BeginUse()
+void Player::AbilityGlide::BeginUse(bool debounce)
 {
 	//In not active, player in air, and heading downwards
 	if (!m_active && !m_player.m_closeToFloor && m_player.m_velocity.y < 0.0f)
@@ -384,7 +433,7 @@ void Player::AbilityTimeSlow::OnExitState(State* newState)
 
 }
 
-void Player::AbilityTimeSlow::BeginUse()
+void Player::AbilityTimeSlow::BeginUse(bool debounce)
 {
 	if (!m_active)
 	{
@@ -426,4 +475,101 @@ void Player::AbilityTimeSlow::EndUse()
 			physicsObjs[i]->m_speedScale = 1.0f;
 		}
 	}
+}
+
+void Player::AbilityBeastTame::OnEnterState()
+{
+	//Tame all Djakks
+	const std::vector<Djakk*>& djakks = m_player.m_world.GetEntities<Djakk>();
+
+	for (int i = 0; i < djakks.size(); i++)
+	{
+		djakks[i]->BeginTame();
+	}
+}
+
+void Player::AbilityBeastTame::OnUpdateState(float deltaTime)
+{
+	if (m_mounting)
+	{
+		//Waiting for mount anim to finish
+		if (!m_player.GetCurrentAnimation() || m_player.GetCurrentAnimation()->GetState() == ion::render::Animation::eStopped)
+		{
+			//Forward all controls to pet
+			m_player.m_currentMount = m_beast;
+			m_player.m_mountSaddlePos = Constants::Djakk::saddleOffset;
+
+			m_mounting = false;
+		}
+	}
+}
+
+void Player::AbilityBeastTame::OnExitState(State* newState)
+{
+	//Un-tame all Djakks
+	const std::vector<Djakk*>& djakks = m_player.m_world.GetEntities<Djakk>();
+
+	for (int i = 0; i < djakks.size(); i++)
+	{
+		djakks[i]->EndTame();
+	}
+}
+
+void Player::AbilityBeastTame::BeginUse(bool debounce)
+{
+	//Toggle
+	if (debounce && !m_mounting)
+	{
+		if (m_active)
+		{
+			m_active = false;
+
+			//Restore state
+			m_player.m_currentMount = nullptr;
+			m_player.m_physicsEnabled = true;
+			m_player.m_manualAnimation = false;
+
+			//End ride
+			m_beast->EndRide();
+
+			//Jump off
+			m_player.Jump();
+		}
+		else
+		{
+			//Find a Djakk
+			const std::vector<Djakk*>& djakks = m_player.m_world.GetEntities<Djakk>();
+
+			for (int i = 0; i < djakks.size() && !m_active; i++)
+			{
+				if (m_player.Intersects(*djakks[i]))
+				{
+					//Found one
+					m_beast = djakks[i];
+					m_beast->BeginRide(m_player);
+
+					//Snap to mount position
+					m_player.m_velocity = ion::Vector2();
+					m_player.m_acceleration = ion::Vector2();
+					m_player.m_worldPos.x = m_beast->m_worldPos.x + Constants::Djakk::saddleOffset.x;
+					m_player.m_flippedX = m_beast->m_flippedX;
+
+					//Mount up
+					m_player.PlayAnimation(Animations::Player::mount);
+					m_mounting = true;
+
+					//Disable local physics and animation processing
+					m_player.m_physicsEnabled = false;
+					m_player.m_manualAnimation = true;
+
+					m_active = true;
+				}
+			}
+		}
+	}
+}
+
+void Player::AbilityBeastTame::EndUse()
+{
+
 }

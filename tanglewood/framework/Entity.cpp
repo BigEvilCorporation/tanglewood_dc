@@ -58,6 +58,16 @@ bool Entity::Intersects(const Entity& objectB) const
 	return ion::maths::BoxIntersectsBox(topLeftA, bottomRightA, topLeftB, bottomRightB);
 }
 
+bool Entity::Intersects(const ion::Vector2& boundsMin, const ion::Vector2& boundsMax) const
+{
+	ion::Vector2 topLeft;
+	ion::Vector2 bottomRight;
+
+	GetWorldBounds(topLeft, bottomRight);
+
+	return ion::maths::BoxIntersectsBox(topLeft, bottomRight, boundsMin, boundsMax);
+}
+
 bool Entity::Contains(const Entity& objectB) const
 {
 	ion::Vector2 topLeftA;

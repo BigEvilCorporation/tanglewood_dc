@@ -40,9 +40,9 @@ public:
 	//Update
 	virtual void Update(float deltaTime);
 
-	void Move(float speed);
-	void Jump();
-	void CancelJump();
+	virtual void Move(float speed);
+	virtual void Jump();
+	virtual void CancelJump();
 
 	void Kill();
 
@@ -64,6 +64,9 @@ public:
 	ion::Vector2 m_accelerationRunning;
 	ion::Vector2 m_decelerationIdle;
 	ion::Vector2 m_decelerationForced;
+
+	float m_jumpVelY;
+	float m_jumpVelScaleX;
 
 protected:
 	std::pair<std::string, AnimType> m_characterAnimations[(int)CharacterAnimations::Count];

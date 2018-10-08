@@ -108,6 +108,7 @@ namespace Constants
 
 		static const float walkToRunVelocity = SUBPIXELS_TO_PIXELS_PER_SEC(0x030000);
 		static const float jumpImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x038000);
+		static const float jumpScaleX = SUBPIXELS_TO_PIXELS(0x026000);
 
 		static const float minChaseDistance = 0x0090/2;
 		static const float searchRandDistMax = 0x00FF;
@@ -115,6 +116,16 @@ namespace Constants
 		static const float searchRandDelayMax = FRAMES_TO_SECONDS(0x0080);
 		static const float searchNearTargetDist = 0x4;
 		static const int biteAttackFrame = 0x2;
+
+		static const float attackBoundsWidth = 0x0090;
+		static const float attackBoundsHeight = (0x0058 - 0x40);
+		static const float attackBoundsOffsetX = (0x0090 / 2) - (attackBoundsWidth / 2);
+		static const float attackBoundsOffsetY = (0x0058 / 2) - (attackBoundsHeight / 2);
+
+		static const ion::Vector2 attackBoundsMin(attackBoundsOffsetX, attackBoundsOffsetY);
+		static const ion::Vector2 attackBoundsMax(attackBoundsOffsetX + attackBoundsWidth, attackBoundsOffsetY + attackBoundsHeight);
+
+		static const ion::Vector2 saddleOffset(0x0028, -0x0008);
 	}
 
 	namespace Player

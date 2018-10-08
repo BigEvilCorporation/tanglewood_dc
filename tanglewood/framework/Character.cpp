@@ -30,6 +30,9 @@ Character::Character(World& world, const GameObject& gameObject, const GameObjec
 	m_decelerationIdle = Constants::Character::decelerationIdle;
 	m_decelerationForced = Constants::Character::decelerationForced;
 
+	m_jumpVelY = Constants::Character::jumpImpulse;
+	m_jumpVelScaleX = 1.0f;
+
 	m_alive = true;
 	m_allowRunning = true;
 	m_running = false;
@@ -119,8 +122,8 @@ void Character::Jump()
 {
 	if(m_closeToFloor && m_velocity.y <= 0.0f)
 	{
-		//TODO: Store as member
-		m_velocity.y = Constants::Character::jumpImpulse;
+		m_velocity.y = m_jumpVelY;
+		m_velocity.x *= m_jumpVelScaleX;
 
 		m_jumping = true;
 		m_onFloor = false;
@@ -145,6 +148,7 @@ void Character::Kill()
 {
 	SetCharacterAnimation(CharacterAnimations::Dead, true);
 	m_alive = false;
+	m_controlEnabled = false;
 	m_acceleration.x = 0.0f;
 	m_velocity.x = 0.0f;
 }
