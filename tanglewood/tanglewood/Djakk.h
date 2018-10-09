@@ -90,6 +90,7 @@ private:
 			: m_djakk(djakk) {}
 
 		virtual void OnEnterState();
+		virtual void OnExitState();
 		virtual void OnUpdateState(float deltaTime);
 
 		Djakk& m_djakk;

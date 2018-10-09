@@ -26,6 +26,7 @@ Djakk::Djakk(World& world, const GameObject& gameObject, const GameObjectType& g
 	m_walktoRunVelocity = Constants::Djakk::walkToRunVelocity;
 	m_maxVelocityXWalking = Constants::Djakk::maxVelocityXWalking;
 	m_maxVelocityXRunning = Constants::Djakk::maxVelocityXRunning;
+	m_maxVelocityXAir = Constants::Djakk::maxVelocityXInAir;
 	m_accelerationWalking = Constants::Djakk::accelerationWalking;
 	m_accelerationRunning = Constants::Djakk::accelerationRunning;
 	m_decelerationIdle = Constants::Djakk::decelerationIdle;
@@ -228,6 +229,16 @@ void Djakk::StateTamed::OnEnterState()
 	m_djakk.PlayAnimation(Animations::Djakk::roar);
 
 	//Turn blue
+
+	//Override run / jump speed
+	m_djakk.m_maxVelocityXRunning = Constants::Djakk::maxVelocityXRunningTamed;
+	m_djakk.m_maxVelocityXAir = Constants::Djakk::maxVelocityXInAirTamed;
+}
+
+void Djakk::StateTamed::OnExitState()
+{
+	m_djakk.m_maxVelocityXRunning = Constants::Djakk::maxVelocityXRunning;
+	m_djakk.m_maxVelocityXAir = Constants::Djakk::maxVelocityXInAir;
 }
 
 void Djakk::StateTamed::OnUpdateState(float deltaTime)

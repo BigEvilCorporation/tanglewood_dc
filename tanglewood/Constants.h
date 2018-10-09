@@ -105,6 +105,10 @@ namespace Constants
 
 		static const float maxVelocityXWalking = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
 		static const float maxVelocityXRunning = SUBPIXELS_TO_PIXELS_PER_SEC(0x042000);
+		static const float maxVelocityXInAir = SUBPIXELS_TO_PIXELS_PER_SEC(0x042000);
+
+		static const float maxVelocityXRunningTamed = SUBPIXELS_TO_PIXELS_PER_SEC(0x04E000);
+		static const float maxVelocityXInAirTamed = SUBPIXELS_TO_PIXELS_PER_SEC(0x0A0000);
 
 		static const float walkToRunVelocity = SUBPIXELS_TO_PIXELS_PER_SEC(0x030000);
 		static const float jumpImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x038000);
