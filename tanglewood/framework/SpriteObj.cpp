@@ -283,44 +283,47 @@ void SpriteObj::SetSpriteSheet(const std::string& sheetName)
 
 void SpriteObj::PlayAnimation(const AnimType& animation)
 {
-	std::map<std::string, Sheet>::iterator sheetIt = m_sheets.find(animation.sheetName);
-	if(sheetIt != m_sheets.end())
+	if (!m_currentAnimType || *m_currentAnimType != animation)
 	{
-		std::map<std::string, SpriteAnimation*>::iterator animIt = sheetIt->second.m_animations.find(animation.animName);
-		if(animIt != sheetIt->second.m_animations.end())
+		std::map<std::string, Sheet>::iterator sheetIt = m_sheets.find(animation.sheetName);
+		if (sheetIt != m_sheets.end())
 		{
-			if(m_currentAnim != animIt->second)
+			std::map<std::string, SpriteAnimation*>::iterator animIt = sheetIt->second.m_animations.find(animation.animName);
+			if (animIt != sheetIt->second.m_animations.end())
 			{
-				m_currentSheet = &sheetIt->second;
-
-				if (!m_currentAnim || m_currentAnim->GetName() != animIt->second->GetName())
+				if (m_currentAnim != animIt->second)
 				{
-					if (m_currentAnim)
+					m_currentSheet = &sheetIt->second;
+
+					if (!m_currentAnim || m_currentAnim->GetName() != animIt->second->GetName())
 					{
-						delete m_currentAnim;
+						if (m_currentAnim)
+						{
+							delete m_currentAnim;
+						}
+
+						m_currentAnimType = &animation;
+						m_currentAnim = new SpriteAnimation(*animIt->second);
+						m_currentAnim->SetStart();
+						m_currentAnim->SetPlaybackBehaviour((animation.flags & AnimFlags::Loop) ? ion::render::Animation::eLoop : ion::render::Animation::ePlayOnce);
 					}
 
-					m_currentAnimType = &animation;
-					m_currentAnim = new SpriteAnimation(*animIt->second);
-					m_currentAnim->SetStart();
-					m_currentAnim->SetPlaybackBehaviour((animation.flags & AnimFlags::Loop) ? ion::render::Animation::eLoop : ion::render::Animation::ePlayOnce);
+					//Set speed
+					m_currentAnim->SetPlaybackSpeed(m_currentAnim->GetPlaybackSpeed());
+
+					//Begin playback
+					m_currentAnim->SetState(ion::render::Animation::ePlaying);
 				}
-
-				//Set speed
-				m_currentAnim->SetPlaybackSpeed(m_currentAnim->GetPlaybackSpeed());
-
-				//Begin playback
-				m_currentAnim->SetState(ion::render::Animation::ePlaying);
+			}
+			else
+			{
+				ion::debug::error << "Could not find animation " << animation.animName << " in sprite sheet " << animation.sheetName << ion::debug::end;
 			}
 		}
 		else
 		{
-			ion::debug::error << "Could not find animation " << animation.animName << " in sprite sheet " << animation.sheetName << ion::debug::end;
+			ion::debug::error << "Could not find sprite sheet " << animation.sheetName << ion::debug::end;
 		}
-	}
-	else
-	{
-		ion::debug::error << "Could not find sprite sheet " << animation.sheetName << ion::debug::end;
 	}
 }
 
@@ -372,16 +375,21 @@ void SpriteObj::Render(ion::render::Renderer& renderer, const ion::render::Camer
 
 		if(m_drawnLastFrame)
 		{
+			//Get current anim frame
+			int spriteFrame = m_currentAnim ? m_currentAnim->m_trackSpriteFrame.GetValue(m_currentAnim->GetFrame()) : 0;
+
+			//Get curren anim pos offset
+			ion::Vector2i animOffset = m_currentAnim ? m_currentAnim->m_trackPosition.GetValue(m_currentAnim->GetFrame()) : ion::Vector2i();
+
 			//Draw offset (centred quad to top-left + draw offset, inverted for OpenGL)
 			ion::Matrix4 transform;
-			transform.SetTranslation(ion::Vector3(m_worldPos.x + m_drawOffset.x + (m_size.x / 2.0f), mapSize.y - m_worldPos.y + m_drawOffset.y - (m_size.y / 2.0f), Constants::Rendering::planePriorities[(int)m_planePriority]));
+			transform.SetTranslation(ion::Vector3(	m_worldPos.x + m_drawOffset.x + animOffset.x + (m_size.x / 2.0f),
+													mapSize.y - m_worldPos.y + m_drawOffset.y + animOffset.y - (m_size.y / 2.0f),
+													Constants::Rendering::planePriorities[(int)m_planePriority]));
 
 			//Flip
 			ion::Vector3 scale(m_flippedX ? -1.0f : 1.0f, m_flippedY ? -1.0f : 1.0f, 1.0f);
 			transform.SetScale(scale);
-
-			//Get current anim frame
-			int spriteFrame = m_currentAnim ? m_currentAnim->m_trackSpriteFrame.GetValue(m_currentAnim->GetFrame()) : 0;
 
 #if USE_PALETTE_TEXTURES
 			Assets::Shaders::IndexTexture::Params::indexedTexture.SetValue(*m_currentSheet->m_frames[spriteFrame].texture);

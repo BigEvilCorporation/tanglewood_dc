@@ -19,6 +19,9 @@ namespace Animations
 		static const AnimType waterWade =		{ "waterWade",		"waterWade",	AnimFlags::Loop };
 		static const AnimType colourSwitch =	{ "colourswitch",	"colourswitch",	AnimFlags::FreezeMovementX };
 		static const AnimType mount =			{ "mountdjakk",		"mountdjakk",	AnimFlags::FreezeMovementX };
+		static const AnimType rideTrot =		{ "ridedjakk",		"ridedjakk",	AnimFlags::Loop };
+		static const AnimType rideGallop =		{ "ridedjakkrun",	"ridedjakkrun",	AnimFlags::Loop };
+		static const AnimType rideJump =		{ "ridedjakkjump",	"ridedjakkjump",AnimFlags::Loop };
 	}
 
 	namespace Boulder
@@ -36,6 +39,7 @@ namespace Animations
 		static const AnimType run =				{ "run",			"run",			AnimFlags::Loop };
 		static const AnimType walk =			{ "walk",			"walk",			AnimFlags::Loop };
 		static const AnimType jump =			{ "jump",			"jump",			AnimFlags::Loop };
+		static const AnimType buck =			{ "throw",			"throw",		AnimFlags::FreezeMovementX };
 	}
 
 	namespace Firefly

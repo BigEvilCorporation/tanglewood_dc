@@ -15,4 +15,16 @@ struct AnimType
 	std::string sheetName;
 	std::string animName;
 	int flags;
+
+	bool operator == (const AnimType& rhs) const
+	{
+		return sheetName == rhs.sheetName
+			&& animName == rhs.animName
+			&& flags == rhs.flags;
+	}
+
+	bool operator != (const AnimType& rhs) const
+	{
+		return !(*this == rhs);
+	}
 };

@@ -130,6 +130,7 @@ namespace Constants
 		static const ion::Vector2 attackBoundsMax(attackBoundsOffsetX + attackBoundsWidth, attackBoundsOffsetY + attackBoundsHeight);
 
 		static const ion::Vector2 saddleOffset(0x0028, -0x0008);
+		static const float buckTime = 2.0f;
 	}
 
 	namespace Player
@@ -152,6 +153,10 @@ namespace Constants
 
 		//Gliding
 		static const float maxVelocityYDownGlide = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
+
+		//Beast taming
+		static const float beastTameTimeoutBuckVelocityX = SUBPIXELS_TO_PIXELS_PER_SEC(0x040000);
+		static const float beastTameTimeoutBuckVelocityY = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
 	}
 
 	namespace Flue

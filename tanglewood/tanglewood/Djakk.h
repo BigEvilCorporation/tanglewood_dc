@@ -29,7 +29,7 @@ public:
 	void EndTame();
 
 	void BeginRide(Character& jockey);
-	void EndRide();
+	void EndRide(bool buck);
 
 private:
 	class StateIdle : public State
@@ -96,5 +96,19 @@ private:
 		Djakk& m_djakk;
 	};
 
+	class StateBucking : public State
+	{
+	public:
+		StateBucking(Djakk& djakk)
+			: m_djakk(djakk) {}
+
+		virtual void OnEnterState();
+		virtual void OnUpdateState(float deltaTime);
+
+		Djakk& m_djakk;
+		float m_chaseStartTimer;
+	};
+
 	StateMachine m_stateMachine;
+	Character* m_jockey;
 };

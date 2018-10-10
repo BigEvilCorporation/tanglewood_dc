@@ -116,7 +116,7 @@ void PlayerController::Update(float deltaTime, const ion::input::Keyboard& keybo
 			if (ability)
 				m_player.BeginAbility(abilityThisFrame);
 			else
-				m_player.EndAbility();
+				m_player.EndAbility(false);
 		}
 	}
 }

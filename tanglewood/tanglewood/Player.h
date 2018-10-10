@@ -39,7 +39,7 @@ public:
 	void EndInteract();
 
 	void BeginAbility(bool debounce);
-	void EndAbility();
+	void EndAbility(bool timedOut);
 
 	void SwitchColour(ColourAbility colour);
 
@@ -53,7 +53,7 @@ private:
 	{
 	public:
 		virtual void BeginUse(bool debounce) = 0;
-		virtual void EndUse() = 0;
+		virtual void EndUse(bool timedOut) = 0;
 	};
 
 	class AbilityGlide : public Ability
@@ -70,7 +70,7 @@ private:
 		virtual void OnExitState(State* newState);
 
 		virtual void BeginUse(bool debounce);
-		virtual void EndUse();
+		virtual void EndUse(bool timedOut);
 
 		Player& m_player;
 		bool m_active;
@@ -90,7 +90,7 @@ private:
 		virtual void OnExitState(State* newState);
 
 		virtual void BeginUse(bool debounce);
-		virtual void EndUse();
+		virtual void EndUse(bool timedOut);
 
 		Player& m_player;
 		bool m_active;
@@ -113,7 +113,9 @@ private:
 		virtual void OnExitState(State* newState);
 
 		virtual void BeginUse(bool debounce);
-		virtual void EndUse();
+		virtual void EndUse(bool timedOut);
+
+		void StopRiding(bool buck);
 
 		Player& m_player;
 		bool m_active;

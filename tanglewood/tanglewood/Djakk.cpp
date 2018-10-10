@@ -35,6 +35,8 @@ Djakk::Djakk(World& world, const GameObject& gameObject, const GameObjectType& g
 	m_jumpVelY = Constants::Djakk::jumpImpulse;
 	m_jumpVelScaleX = Constants::Djakk::jumpScaleX;
 
+	m_jockey = nullptr;
+
 	//Setup animations
 	m_characterAnimations[(int)CharacterAnimations::Idle] = std::make_pair("idle", Animations::Djakk::idle);
 	m_characterAnimations[(int)CharacterAnimations::Dead] = std::make_pair("dead", Animations::Djakk::dead);
@@ -48,6 +50,7 @@ Djakk::Djakk(World& world, const GameObject& gameObject, const GameObjectType& g
 	m_stateMachine.AddState(new StateChase(*this), "chase");
 	m_stateMachine.AddState(new StateBite(*this), "bite");
 	m_stateMachine.AddState(new StateTamed(*this), "tamed");
+	m_stateMachine.AddState(new StateBucking(*this), "buck");
 
 	//Set initial state
 	m_stateMachine.SetState("idle");
@@ -85,17 +88,28 @@ void Djakk::BeginTame()
 
 void Djakk::EndTame()
 {
-	BeginChase(true);
+	if (!m_jockey)
+	{
+		BeginChase(true);
+	}
 }
 
 void Djakk::BeginRide(Character& jockey)
 {
-
+	m_jockey = &jockey;
 }
 
-void Djakk::EndRide()
+void Djakk::EndRide(bool buck)
 {
-
+	if (buck)
+	{
+		//Kick jockey off
+		m_stateMachine.SetState("buck");
+	}
+	else
+	{
+		m_jockey = nullptr;
+	}
 }
 
 void Djakk::StateIdle::OnEnterState()
@@ -244,4 +258,29 @@ void Djakk::StateTamed::OnExitState()
 void Djakk::StateTamed::OnUpdateState(float deltaTime)
 {
 
+}
+
+void Djakk::StateBucking::OnEnterState()
+{
+	//Kick jockey off
+	m_djakk.PlayAnimation(Animations::Djakk::buck);
+
+	//Start timer
+	m_chaseStartTimer = Constants::Djakk::buckTime;
+}
+
+void Djakk::StateBucking::OnUpdateState(float deltaTime)
+{
+	////Wait until buck anim finished
+	if (*m_djakk.GetCurrentAnimType() != Animations::Djakk::buck)
+	{
+		//Wait until timer depleted
+		m_chaseStartTimer -= deltaTime;
+		//if (m_chaseStartTimer <= 0.0f)
+		{
+			//Back to chase
+			m_djakk.m_jockey = nullptr;
+			m_djakk.BeginChase(true);
+		}
+	}
 }

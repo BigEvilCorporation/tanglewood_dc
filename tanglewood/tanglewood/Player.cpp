@@ -237,11 +237,11 @@ void Player::BeginAbility(bool debounce)
 	}
 }
 
-void Player::EndAbility()
+void Player::EndAbility(bool timedOut)
 {
 	if (m_activeAbility)
 	{
-		m_activeAbility->EndUse();
+		m_activeAbility->EndUse(timedOut);
 	}
 }
 
@@ -251,10 +251,10 @@ void Player::SwitchColour(ColourAbility colour)
 	ColourAbility originalColour = m_colour;
 	m_colour = colour;
 
-	//End existing ability
+	//End existing ability (timed out)
 	if (m_activeAbility)
 	{
-		EndAbility();
+		EndAbility(true);
 	}
 
 	//Set new ability
@@ -385,7 +385,7 @@ void Player::AbilityGlide::OnUpdateState(float deltaTime)
 	//Disable if on floor or heading upwards
 	if (m_active && (m_player.m_closeToFloor || m_player.m_velocity.y >= 0.0f))
 	{
-		EndUse();
+		EndUse(false);
 	}
 }
 
@@ -407,7 +407,7 @@ void Player::AbilityGlide::BeginUse(bool debounce)
 	}
 }
 
-void Player::AbilityGlide::EndUse()
+void Player::AbilityGlide::EndUse(bool timedOut)
 {
 	if (m_active)
 	{
@@ -458,7 +458,7 @@ void Player::AbilityTimeSlow::BeginUse(bool debounce)
 	}
 }
 
-void Player::AbilityTimeSlow::EndUse()
+void Player::AbilityTimeSlow::EndUse(bool timedOut)
 {
 	if (m_active)
 	{
@@ -502,6 +502,26 @@ void Player::AbilityBeastTame::OnUpdateState(float deltaTime)
 			m_mounting = false;
 		}
 	}
+	else if(m_active)
+	{
+		//Override anim
+		if (m_beast->m_jumping)
+		{
+			m_player.PlayAnimation(Animations::Player::rideJump);
+		}
+		else if (m_beast->m_running)
+		{
+			m_player.PlayAnimation(Animations::Player::rideGallop);
+		}
+		else
+		{
+			m_player.PlayAnimation(Animations::Player::rideTrot);
+		}
+		
+
+		//Match Djakk anim frame
+		m_player.GetCurrentAnimation()->SetFrame(m_beast->GetCurrentAnimation()->GetFrame());
+	}
 }
 
 void Player::AbilityBeastTame::OnExitState(State* newState)
@@ -522,18 +542,8 @@ void Player::AbilityBeastTame::BeginUse(bool debounce)
 	{
 		if (m_active)
 		{
-			m_active = false;
-
-			//Restore state
-			m_player.m_currentMount = nullptr;
-			m_player.m_physicsEnabled = true;
-			m_player.m_manualAnimation = false;
-
 			//End ride
-			m_beast->EndRide();
-
-			//Jump off
-			m_player.Jump();
+			StopRiding(false);
 		}
 		else
 		{
@@ -569,7 +579,32 @@ void Player::AbilityBeastTame::BeginUse(bool debounce)
 	}
 }
 
-void Player::AbilityBeastTame::EndUse()
+void Player::AbilityBeastTame::EndUse(bool timedOut)
 {
+	if (m_active && timedOut)
+	{
+		//End ride
+		StopRiding(timedOut);
 
+		//Player's getting kicked off
+		m_player.m_velocity.x = m_player.m_flippedX ? -Constants::Player::beastTameTimeoutBuckVelocityX : Constants::Player::beastTameTimeoutBuckVelocityX;
+		m_player.m_velocity.y = Constants::Player::beastTameTimeoutBuckVelocityY;
+	}
+}
+
+void Player::AbilityBeastTame::StopRiding(bool buck)
+{
+	m_active = false;
+
+	//Restore state
+	m_player.m_currentMount = nullptr;
+	m_player.m_physicsEnabled = true;
+	m_player.m_manualAnimation = false;
+
+	//End ride
+	m_beast->EndRide(buck);
+
+	//Jump off
+	m_player.PlayAnimation(Animations::Player::jump);
+	m_player.m_velocity.y = Constants::Character::jumpImpulse;
 }
