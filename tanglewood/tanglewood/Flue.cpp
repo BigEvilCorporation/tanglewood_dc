@@ -161,6 +161,9 @@ void Flue::EjectOccupant(Character& object)
 
 	//Fling
 	object.AddImpulse(ion::Vector2(0.0f, m_ejectForce));
+
+	//Set jumping
+	object.m_jumping = true;
 }
 
 void Flue::TakeOccupant(Character& object, const Flue& originalFlue)
