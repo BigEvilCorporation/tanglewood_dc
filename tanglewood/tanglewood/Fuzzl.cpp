@@ -167,6 +167,12 @@ void Fuzzl::StateIdle::OnUpdateState(float deltaTime)
 		//Player nearby, set watching state
 		m_stateMachine->SetState("watching");
 	}
+
+	if (m_fuzzl.m_velocity.GetLength() > 0.0f)
+	{
+		//Moving, go straight to rolling state
+		m_stateMachine->SetState("rolling");
+	}
 }
 
 void Fuzzl::StateWatching::OnEnterState()
@@ -222,15 +228,18 @@ void Fuzzl::StateRolling::OnUpdateState(float deltaTime)
 	float animSpeed = m_fuzzl.m_velocity.x * Constants::Fuzzl::animSpeedVelocityMul;
 	m_fuzzl.GetCurrentAnimation()->SetPlaybackSpeed(animSpeed);
 
-	//Check if touching nest
-	if (Nest* nest = m_fuzzl.FindNest())
+	//Check if touching nest (if not being flung upwards)
+	if (!ion::maths::IsZero(m_fuzzl.m_velocity.x) || m_fuzzl.m_velocity.y <= 0.0f)
 	{
-		m_fuzzl.m_nest = nest;
-		m_stateMachine->SetState("nest");
+		if (Nest* nest = m_fuzzl.FindNest())
+		{
+			m_fuzzl.m_nest = nest;
+			m_stateMachine->SetState("nest");
+		}
 	}
 
-	//Check if player goes out of view distance
-	if (ion::maths::IsZero(m_fuzzl.m_velocity.x))
+	//If stopped, and player out of view distance
+	if (ion::maths::IsZero(m_fuzzl.m_velocity.GetLength()))
 	{
 		ion::Vector2 playerCentre = m_fuzzl.m_world.GetPlayerController()->GetCentre();
 
