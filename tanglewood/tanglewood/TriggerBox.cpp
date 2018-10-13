@@ -21,6 +21,7 @@ TriggerBox::TriggerBox(World& world, const GameObject& gameObject, const GameObj
 {
 	m_triggerCount = 0;
 	m_triggerOnce = false;
+	m_triggerType = TriggerType::Contains;
 
 	ReadVars(gameObject.GetVariables());
 }
@@ -38,7 +39,7 @@ void TriggerBox::Update(float deltaTime)
 		{
 			for (int i = 0; i < s_triggerEntities.size(); i++)
 			{
-				if (Intersects(*s_triggerEntities[i]))
+				if (CheckTrigger(*s_triggerEntities[i]))
 				{
 					m_onTriggered(*this);
 					m_triggerCount++;
@@ -46,6 +47,22 @@ void TriggerBox::Update(float deltaTime)
 			}
 		}
 	}
+}
+
+bool TriggerBox::CheckTrigger(const Entity& entity)
+{
+	switch (m_triggerType)
+	{
+	case TriggerType::Contains:
+		return ContainsOuterBounds(entity);
+		break;
+
+	case TriggerType::Intersects:
+		return IntersectsOuterBounds(entity);
+		break;
+	}
+
+	return false;
 }
 
 void TriggerBox::ReadVars(const std::vector<GameObjectVariable>& vars)
@@ -70,6 +87,17 @@ void TriggerBox::ReadVars(const std::vector<GameObjectVariable>& vars)
 			if (vars[i].m_value == "0x1")
 			{
 				m_triggerOnce = true;
+			}
+		}
+		else if (ion::string::CompareNoCase(vars[i].m_name, "TriggerBox_TriggerType"))
+		{
+			if (ion::string::CompareNoCase(vars[i].m_value, "TriggerType_Intersect"))
+			{
+				m_triggerType = TriggerType::Intersects;
+			}
+			else if (ion::string::CompareNoCase(vars[i].m_value, "TriggerType_Contained"))
+			{
+				m_triggerType = TriggerType::Contains;
 			}
 		}
 	}

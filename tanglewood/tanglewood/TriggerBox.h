@@ -33,7 +33,15 @@ public:
 	static void UnregisterTriggerFunc(const std::string& name);
 
 private:
+	enum class TriggerType
+	{
+		Intersects,
+		Contains
+	};
+
 	void ReadVars(const std::vector<GameObjectVariable>& vars);
+
+	bool CheckTrigger(const Entity& entity);
 
 	static std::vector<const Entity*> s_triggerEntities;
 	static std::map<std::string, std::function<void(const TriggerBox&)>> s_triggerFuncMap;
@@ -41,4 +49,5 @@ private:
 
 	int m_triggerCount;
 	bool m_triggerOnce;
+	TriggerType m_triggerType;
 };

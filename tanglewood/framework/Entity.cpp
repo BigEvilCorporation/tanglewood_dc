@@ -85,6 +85,16 @@ bool Entity::Contains(const Entity& objectB) const
 	return ion::maths::BoxInsideBox(topLeftA, bottomRightA, topLeftB, bottomRightB);
 }
 
+bool Entity::IntersectsOuterBounds(const Entity& objectB) const
+{
+	return ion::maths::BoxIntersectsBox(m_worldPos, m_worldPos + m_size, objectB.m_worldPos, objectB.m_worldPos + objectB.m_size);
+}
+
+bool Entity::ContainsOuterBounds(const Entity& objectB) const
+{
+	return ion::maths::BoxInsideBox(m_worldPos, m_worldPos + m_size, objectB.m_worldPos, objectB.m_worldPos + objectB.m_size);
+}
+
 #if defined DEBUG
 void Entity::DebugDrawBounds(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
 {
@@ -93,10 +103,8 @@ void Entity::DebugDrawBounds(ion::render::Renderer& renderer, const ion::render:
 	ion::Vector2 bottomRight = m_worldPos + m_size;
 
 	//To OpenGL coords
-	topLeft.y = mapSize.y - topLeft.y - (m_size.y / 2.0f);
-	bottomRight.y = mapSize.y - bottomRight.y - (m_size.y / 2.0f);
-	topLeft.x += (m_size.x / 2.0f);
-	bottomRight.x += (m_size.x / 2.0f);
+	topLeft.y = mapSize.y - topLeft.y;
+	bottomRight.y = mapSize.y - bottomRight.y;
 
 	Debug::Draw::DrawLineQuad(topLeft, bottomRight, ion::Colour(0.0f, 0.0f, 1.0f, 1.0f), renderer, cameraInv);
 
@@ -104,10 +112,8 @@ void Entity::DebugDrawBounds(ion::render::Renderer& renderer, const ion::render:
 	GetWorldBounds(topLeft, bottomRight);
 
 	//To OpenGL coords
-	topLeft.y = mapSize.y - topLeft.y - (m_size.y / 2.0f);
-	bottomRight.y = mapSize.y - bottomRight.y - (m_size.y / 2.0f);
-	topLeft.x += (m_size.x / 2.0f);
-	bottomRight.x += (m_size.x / 2.0f);
+	topLeft.y = mapSize.y - topLeft.y;
+	bottomRight.y = mapSize.y - bottomRight.y;
 
 	Debug::Draw::DrawLineQuad(topLeft, bottomRight, ion::Colour(0.0f, 1.0f, 0.0f, 1.0f), renderer, cameraInv);
 }

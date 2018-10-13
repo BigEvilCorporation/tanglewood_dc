@@ -31,9 +31,14 @@ public:
 	ion::Vector2 GetWorldCentre() const;
 	void GetWorldBounds(ion::Vector2& topLeft, ion::Vector2& bottomRight) const;
 
+	//Object collision checks (bounding boxes)
 	bool Intersects(const Entity& objectB) const;
 	bool Intersects(const ion::Vector2& boundsMin, const ion::Vector2& boundsMax) const;
 	bool Contains(const Entity& objectB) const;
+
+	//Object collision checks (whole object)
+	bool IntersectsOuterBounds(const Entity& objectB) const;
+	bool ContainsOuterBounds(const Entity& objectB) const;
 
 #if defined DEBUG
 	void DebugDrawBounds(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
