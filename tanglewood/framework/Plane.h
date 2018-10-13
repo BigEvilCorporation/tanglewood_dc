@@ -24,7 +24,7 @@ class Plane
 public:
 	Plane(const Map& map, StampSet& stampSet);
 
-	void Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize, PlanePriority priority);
+	void Render(ion::render::Renderer& renderer, const Bounds& cameraBounds, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize, PlanePriority priority);
 
 	ion::Vector2 m_scroll;
 	ion::Vector2 m_drawOffset;

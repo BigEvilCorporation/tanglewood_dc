@@ -17,6 +17,8 @@
 #include <ion/beehive/Project.h>
 #include <ion/beehive/Stamp.h>
 
+#include "framework/Types.h"
+
 #include "Constants.h"
 #include "PlanePriority.h"
 
@@ -31,10 +33,13 @@ public:
 	StampRenderer(const Stamp& stamp, const Tileset& tileset, const Palette& palette);
 
 	//Render
-	void Render(ion::render::Renderer& renderer, const ion::Vector2& position, const ion::Matrix4& cameraInv, bool flippedX, bool flippedY);
+	void Render(ion::render::Renderer& renderer, const ion::Vector2& position, const Bounds& cameraBounds, const ion::Matrix4& cameraInv, bool flippedX, bool flippedY);
 
 	//Size (pixels)
 	ion::Vector2 m_size;
+
+	//Size (draw plane)
+	ion::Vector2 m_planeSize;
 
 	//Plane
 	PlanePriority m_planePriority;

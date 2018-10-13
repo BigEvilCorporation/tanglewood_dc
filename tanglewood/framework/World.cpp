@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "World.h"
+#include "Types.h"
 #include "Physics.h"
 #include "Constants.h"
 #include "Globals.h"
@@ -298,12 +299,19 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 
 void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv)
 {
+	//Get camera bounds
+	Bounds cameraBounds;
+	cameraBounds.topLeft.x = camera.GetPosition().x;
+	cameraBounds.topLeft.y = m_mapSizeFg.y - camera.GetPosition().y - Constants::MegaDrive::screenHeight;
+	cameraBounds.bottomRight.x = camera.GetPosition().x + Constants::MegaDrive::screenWidth;
+	cameraBounds.bottomRight.y = m_mapSizeFg.y - camera.GetPosition().y;
+
 	//TODO: One plane per draw priority (store sprites on plane)
 	const std::vector<SpriteObj*>& sprites = GetEntities<SpriteObj>();
 
 	//Draw planes
-	m_planeBg->Render(renderer, cameraInv, m_mapSizeBg, PlanePriority::PlaneALow);
-	m_planeFg->Render(renderer, cameraInv, m_mapSizeFg, PlanePriority::PlaneALow);
+	m_planeBg->Render(renderer, cameraBounds, cameraInv, m_mapSizeBg, PlanePriority::PlaneBLow);
+	m_planeFg->Render(renderer, cameraBounds, cameraInv, m_mapSizeFg, PlanePriority::PlaneALow);
 
 	//Draw sprites
 	for (int i = 0; i < sprites.size(); i++)
@@ -315,8 +323,8 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	}
 
 	//Draw planes
-	m_planeBg->Render(renderer, cameraInv, m_mapSizeBg, PlanePriority::PlaneAHigh);
-	m_planeFg->Render(renderer, cameraInv, m_mapSizeFg, PlanePriority::PlaneAHigh);
+	m_planeBg->Render(renderer, cameraBounds, cameraInv, m_mapSizeBg, PlanePriority::PlaneBHigh);
+	m_planeFg->Render(renderer, cameraBounds, cameraInv, m_mapSizeFg, PlanePriority::PlaneAHigh);
 
 	//Draw sprites
 	for (int i = 0; i < sprites.size(); i++)

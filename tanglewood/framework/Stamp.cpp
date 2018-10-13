@@ -9,6 +9,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include <ion/core/memory/Memory.h>
+#include <ion/maths/Geometry.h>
 
 #include "Stamp.h"
 #include "Constants.h"
@@ -38,10 +39,13 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 
 	m_size.x = widthTiles * tileWidth;
 	m_size.y = heightTiles * tileHeight;
+	m_planeSize.x = (float)widthTiles * (tileWidth / 2.0f);
+	m_planeSize.y = (float)heightTiles * (tileHeight / 2.0f);
 	m_planePriority = (stamp.GetTileFlags(0, 0) & Map::eHighPlane) ? PlanePriority::PlaneAHigh : PlanePriority::PlaneALow;
 
 	//Create primitive
-	m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2((float)widthTiles * (tileWidth / 2.0f), (float)heightTiles * (tileHeight / 2.0f)));
+	//m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2((float)widthTiles * (tileWidth / 2.0f), (float)heightTiles * (tileHeight / 2.0f)));
+	m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2(1.0f, 1.0f));
 
 	//Set UV coords
 	ion::render::TexCoord coords[4];
@@ -140,15 +144,15 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 #endif
 }
 
-void StampRenderer::Render(ion::render::Renderer& renderer, const ion::Vector2& position, const ion::Matrix4& cameraInv, bool flippedX, bool flippedY)
+void StampRenderer::Render(ion::render::Renderer& renderer, const ion::Vector2& position, const Bounds& cameraBounds, const ion::Matrix4& cameraInv, bool flippedX, bool flippedY)
 {
-	//TODO: Visibility test
-	if(true)
+	//Visibility test
+	//if(ion::maths::BoxIntersectsBox(cameraBounds.topLeft, cameraBounds.bottomRight, position, position + m_size))
 	{
 		ion::Matrix4 transform;
 
 		//Flip
-		ion::Vector3 scale(flippedX ? -1.0f : 1.0f, flippedY ? -1.0f : 1.0f, 1.0f);
+		ion::Vector3 scale(flippedX ? -m_planeSize.x : m_planeSize.x, flippedY ? -m_planeSize.y : m_planeSize.y, 1.0f);
 		transform.SetScale(scale);
 
 		//Translate

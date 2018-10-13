@@ -10,6 +10,8 @@
 
 #include "Plane.h"
 
+#include <ion/maths/Geometry.h>
+
 Plane::Plane(const Map& map, StampSet& stampSet)
 {
 	//Place all stamp instances
@@ -36,18 +38,28 @@ Plane::Plane(const Map& map, StampSet& stampSet)
 	}
 }
 
-void Plane::Render(ion::render::Renderer& renderer, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize, PlanePriority priority)
+void Plane::Render(ion::render::Renderer& renderer, const Bounds& cameraBounds, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize, PlanePriority priority)
 {
+	//Visibility test on plane A only
+	const bool noVisibilityTest = (priority == PlanePriority::PlaneBLow || priority == PlanePriority::PlaneBHigh);
+
 	for(int i = 0; i < m_stampInstances.size(); i++)
 	{
+		//TODO: Store in priority lists
 		if (m_stampInstances[i].stamp->m_planePriority == priority)
 		{
-			//Centred quad to top-left + draw offset + scroll, inverted for OpenGL
-			ion::Vector2 position;
-			position.x = m_stampInstances[i].position.x + (m_stampInstances[i].stamp->m_size.x / 2.0f) + m_scroll.x + m_drawOffset.x;
-			position.y = mapSize.y - m_stampInstances[i].position.y - (m_stampInstances[i].stamp->m_size.y / 2.0f) + m_scroll.y + m_drawOffset.y;
+			const ion::Vector2 topLeft = m_stampInstances[i].position;
+			const ion::Vector2 bottomRight = topLeft + m_stampInstances[i].stamp->m_size;
 
-			m_stampInstances[i].stamp->Render(renderer, position, cameraInv, m_stampInstances[i].flippedX, m_stampInstances[i].flippedY);
+			if (noVisibilityTest || ion::maths::BoxIntersectsBox(cameraBounds.topLeft, cameraBounds.bottomRight, topLeft, bottomRight))
+			{
+				//Centred quad to top-left + draw offset + scroll, inverted for OpenGL
+				ion::Vector2 position;
+				position.x = m_stampInstances[i].position.x + (m_stampInstances[i].stamp->m_size.x / 2.0f) + m_scroll.x + m_drawOffset.x;
+				position.y = mapSize.y - m_stampInstances[i].position.y - (m_stampInstances[i].stamp->m_size.y / 2.0f) + m_scroll.y + m_drawOffset.y;
+
+				m_stampInstances[i].stamp->Render(renderer, position, cameraBounds, cameraInv, m_stampInstances[i].flippedX, m_stampInstances[i].flippedY);
+			}
 		}
 	}
 }
