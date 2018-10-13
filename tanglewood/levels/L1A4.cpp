@@ -19,6 +19,7 @@
 L1A4::L1A4()
 {
 	TriggerBox::RegisterTriggerFunc("L1A4_Trigger_WakeDjakk", std::bind(&L1A4::OnTriggerDjakk, this, std::placeholders::_1));
+	TriggerBox::RegisterTriggerFunc("L1A4_Trigger_DismountDjakk", std::bind(&L1A4::OnTriggerDismountDjakk, this, std::placeholders::_1));
 	TriggerBox::RegisterTriggerFunc("L1A4_Trigger_End", std::bind(&L1A4::OnTriggerEndLevel, this, std::placeholders::_1));
 }
 
@@ -61,6 +62,11 @@ void L1A4::OnTriggerDjakk(const TriggerBox& triggerBox)
 	ion::debug::Assert(djakk, "L1A4::OnTriggerDjakk() - Djakk not found");
 
 	djakk->BeginChase(false);
+}
+
+void L1A4::OnTriggerDismountDjakk(const TriggerBox& triggerBox)
+{
+	Globals::Players::player1->EndAbility(true);
 }
 
 void L1A4::OnTriggerEndLevel(const TriggerBox& triggerBox)

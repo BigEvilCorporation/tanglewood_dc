@@ -24,5 +24,6 @@ public:
 	virtual void End();
 
 	void OnTriggerDjakk(const TriggerBox& triggerBox);
+	void OnTriggerDismountDjakk(const TriggerBox& triggerBox);
 	void OnTriggerEndLevel(const TriggerBox& triggerBox);
 };
