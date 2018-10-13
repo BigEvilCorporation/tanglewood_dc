@@ -106,7 +106,6 @@ private:
 		virtual void OnUpdateState(float deltaTime);
 
 		Djakk& m_djakk;
-		float m_chaseStartTimer;
 	};
 
 	StateMachine m_stateMachine;

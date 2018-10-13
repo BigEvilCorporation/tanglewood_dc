@@ -264,9 +264,6 @@ void Djakk::StateBucking::OnEnterState()
 {
 	//Kick jockey off
 	m_djakk.PlayAnimation(Animations::Djakk::buck);
-
-	//Start timer
-	m_chaseStartTimer = Constants::Djakk::buckTime;
 }
 
 void Djakk::StateBucking::OnUpdateState(float deltaTime)
@@ -274,13 +271,8 @@ void Djakk::StateBucking::OnUpdateState(float deltaTime)
 	////Wait until buck anim finished
 	if (*m_djakk.GetCurrentAnimType() != Animations::Djakk::buck)
 	{
-		//Wait until timer depleted
-		m_chaseStartTimer -= deltaTime;
-		//if (m_chaseStartTimer <= 0.0f)
-		{
-			//Back to chase
-			m_djakk.m_jockey = nullptr;
-			m_djakk.BeginChase(true);
-		}
+		//Back to chase
+		m_djakk.m_jockey = nullptr;
+		m_djakk.BeginChase(true);
 	}
 }
