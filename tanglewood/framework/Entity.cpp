@@ -20,8 +20,8 @@ Entity::Entity(World& world, const GameObject& gameObject, const GameObjectType&
 	m_active = true;
 
 	m_name = gameObject.GetName();
-	m_size.x = (float)gameObjType.GetDimensions().x;
-	m_size.y = (float)gameObjType.GetDimensions().y;
+	m_size.x = (float)(gameObject.GetDimensions().x > 0 ? gameObject.GetDimensions().x : gameObjType.GetDimensions().x);
+	m_size.y = (float)(gameObject.GetDimensions().y > 0 ? gameObject.GetDimensions().y : gameObjType.GetDimensions().y);
 	m_worldPos.x = (float)gameObject.GetPosition().x;
 	m_worldPos.y = (float)gameObject.GetPosition().y;
 
