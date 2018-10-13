@@ -12,10 +12,5 @@
 
 Level::Level()
 {
-	m_levelRunning = true;
-}
-
-void Level::EndLevel()
-{
-	m_levelRunning = false;
+	m_state = State::Running;
 }

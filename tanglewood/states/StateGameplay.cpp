@@ -29,7 +29,7 @@ void StateGameplay::OnEnterState()
 	Globals::Game::level->Start();
 
 	//Begin fade up
-	Globals::Game::world->BeginFade(1.0f);
+	Globals::Game::world->BeginFade(Constants::Flow::defaultFadeSpeed);
 }
 
 void StateGameplay::OnLeaveState()
@@ -51,10 +51,22 @@ bool StateGameplay::Update(float deltaTime, ion::input::Keyboard* keyboard, ion:
 {
 	//Update level logic
 	Globals::Game::level->Update(deltaTime);
+
+	//Check level ended
 	if (!Globals::Game::level->IsRunning())
 	{
 		//End act/end level state
-		m_stateManager.SwapState("endact");
+		Level::State levelState = Globals::Game::level->GetState();
+
+		if(levelState == Level::State::ActEnded)
+		{
+			m_stateManager.SwapState("endact");
+		}
+		else if (levelState == Level::State::ChapterEnded)
+		{
+			m_stateManager.SwapState("endchapter");
+		}
+		
 		return false;
 	}
 

@@ -65,5 +65,5 @@ void L1A3::OnTriggerDjakk(const TriggerBox& triggerBox)
 
 void L1A3::OnTriggerEndLevel(const TriggerBox& triggerBox)
 {
-	EndLevel();
+	m_state = Level::State::ActEnded;
 }

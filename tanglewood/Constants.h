@@ -65,6 +65,12 @@ namespace Constants
 		static const float paletteLerpSpeed = 0.5f;
 	}
 
+	namespace Flow
+	{
+		static const float defaultFadeSpeed = 1.0f;
+		static const float endChapterFadeTimer = 6.0f;
+	}
+
 	namespace Boulder
 	{
 		static const float platformYOffset = 0x0008;

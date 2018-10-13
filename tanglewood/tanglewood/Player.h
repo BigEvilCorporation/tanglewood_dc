@@ -43,6 +43,8 @@ public:
 
 	void SwitchColour(ColourAbility colour);
 
+	void GoToSleep();
+
 	ColourAbility m_colour;
 
 private:

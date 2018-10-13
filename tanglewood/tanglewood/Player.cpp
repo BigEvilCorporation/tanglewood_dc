@@ -293,6 +293,13 @@ void Player::SwitchColour(ColourAbility colour)
 	StartPaletteLerp(*s_colourPalettes[(int)originalColour], *s_colourPalettes[(int)colour], Constants::Player::paletteLerpSpeed);
 }
 
+void Player::GoToSleep()
+{
+	m_manualAnimation = true;
+	PlayAnimation(Animations::Player::laydown);
+	QueueAnimation(Animations::Player::sleep);
+}
+
 bool Player::TryInteractPushable()
 {
 	const std::vector<PhysicsObj*>& pushableObjs = m_world.GetPhysicsWorld().GetPushableObjects();

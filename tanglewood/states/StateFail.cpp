@@ -49,7 +49,7 @@ bool StateFail::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::inp
 	if (!Globals::Players::player1->GetCurrentAnimation() || Globals::Players::player1->GetCurrentAnimation()->GetState() == ion::render::Animation::eStopped)
 	{
 		//Fade down
-		if (!Globals::Game::world->BeginFade(-1.0f))
+		if (!Globals::Game::world->BeginFade(-Constants::Flow::defaultFadeSpeed))
 		{
 			//Re-enter loading state
 			m_stateManager.SwapState("loading");

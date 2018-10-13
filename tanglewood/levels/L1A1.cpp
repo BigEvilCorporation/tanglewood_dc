@@ -37,5 +37,5 @@ void L1A1::End()
 
 void L1A1::OnTriggerEndLevel(const TriggerBox& triggerBox)
 {
-	EndLevel();
+	m_state = Level::State::ActEnded;
 }

@@ -138,8 +138,8 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 	m_material->SetVertexShader(Assets::Shaders::IndexTexture::vertexShader.Get());
 	m_material->SetPixelShader(Assets::Shaders::IndexTexture::pixelShader.Get());
 #else
-	m_material->SetVertexShader(Assets::Shaders::Default::vertexShader.Get());
-	m_material->SetPixelShader(Assets::Shaders::Default::pixelShader.Get());
+	m_material->SetVertexShader(Assets::Shaders::FlatTextured::vertexShader.Get());
+	m_material->SetPixelShader(Assets::Shaders::FlatTextured::pixelShader.Get());
 #endif
 #endif
 }

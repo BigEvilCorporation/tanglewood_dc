@@ -28,4 +28,8 @@ public:
 
 	virtual bool Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad);
 	virtual void Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport);
+
+private:
+	float m_fadeOutTimer;
+	bool m_fadingOut;
 };

@@ -166,8 +166,8 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 		renderFrame.material->SetVertexShader(Assets::Shaders::IndexTexture::vertexShader.Get());
 		renderFrame.material->SetPixelShader(Assets::Shaders::IndexTexture::pixelShader.Get());
 #else
-		renderFrame.material->SetVertexShader(Assets::Shaders::Default::vertexShader.Get());
-		renderFrame.material->SetPixelShader(Assets::Shaders::Default::pixelShader.Get());
+		renderFrame.material->SetVertexShader(Assets::Shaders::FlatTextured::vertexShader.Get());
+		renderFrame.material->SetPixelShader(Assets::Shaders::FlatTextured::pixelShader.Get());
 #endif
 #endif
 

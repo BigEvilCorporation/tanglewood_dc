@@ -29,16 +29,22 @@ struct LevelDescriptor
 class Level
 {
 public:
+	enum class State
+	{
+		Running,
+		ActEnded,
+		ChapterEnded
+	};
+
 	Level();
 
 	virtual void Start() = 0;
 	virtual void Update(float deltaTime) = 0;
 	virtual void End() = 0;
 
-	void EndLevel();
+	State GetState() const { return m_state; }
+	bool IsRunning() const { return m_state == State::Running; }
 
-	bool IsRunning() const { return m_levelRunning; }
-
-private:
-	bool m_levelRunning;
+protected:
+	State m_state;
 };

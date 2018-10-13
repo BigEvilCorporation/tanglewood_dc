@@ -71,5 +71,6 @@ void L1A4::OnTriggerDismountDjakk(const TriggerBox& triggerBox)
 
 void L1A4::OnTriggerEndLevel(const TriggerBox& triggerBox)
 {
-	EndLevel();
+	Globals::Players::player1->GoToSleep();
+	m_state = Level::State::ChapterEnded;
 }
