@@ -49,8 +49,10 @@ void Flue::Update(float deltaTime)
 		occupant.occupiedTime += deltaTime;
 		if (occupant.occupiedTime >= m_ejectTime)
 		{
+			//Removes from vector...
 			EjectOccupant(*occupant.object);
-			ion::utils::stl::FindAndRemove(m_occupants, occupant);
+
+			//...so increment
 			i++;
 		}
 	}
