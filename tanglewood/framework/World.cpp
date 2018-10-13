@@ -13,6 +13,7 @@
 #include "Constants.h"
 #include "Globals.h"
 #include "Palettes.h"
+#include "Shaders.h"
 #include "ObjectFactory.h"
 
 #include <ion/core/debug/Debug.h>
@@ -40,8 +41,13 @@ World::World()
 	m_fader = 0.0f;
 	m_fadeSpeed = 0.0f;
 	m_fadeQuad = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2(Globals::Rendering::windowWidth / 2, Globals::Rendering::windowHeight / 2));
-	m_fadeQuad->SetColour(ion::Colour(0.0f, 0.0f, 0.0f, 1.0f));
 	m_fadeMaterial = new ion::render::Material();
+	m_fadeMaterial->SetDiffuseColour(ion::Colour(0.0f, 0.0f, 0.0f, 1.0f));
+
+#if defined ION_RENDERER_SHADER
+	m_fadeMaterial->SetVertexShader(Assets::Shaders::FlatColoured::vertexShader.Get());
+	m_fadeMaterial->SetPixelShader(Assets::Shaders::FlatColoured::pixelShader.Get());
+#endif
 }
 
 World::~World()
@@ -340,6 +346,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	quadMatrix.SetTranslation(ion::Vector3(Globals::Rendering::windowWidth / 2, Globals::Rendering::windowHeight / 2, 0.0f));
 	m_fadeMaterial->Bind(quadMatrix, ion::Matrix4(), renderer.GetProjectionMatrix());
 	renderer.DrawVertexBuffer(m_fadeQuad->GetVertexBuffer(), m_fadeQuad->GetIndexBuffer());
+	m_fadeMaterial->Unbind();
 }
 
 void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize)
@@ -443,6 +450,6 @@ void World::UpdateFader(float deltaTime)
 			m_fadeSpeed = 0.0f;
 		}
 
-		m_fadeQuad->SetColour(ion::Colour(0.0f, 0.0f, 0.0f, 1.0f - m_fader));
+		m_fadeMaterial->SetDiffuseColour(ion::Colour(0.0f, 0.0f, 0.0f, 1.0f - m_fader));
 	}
 }

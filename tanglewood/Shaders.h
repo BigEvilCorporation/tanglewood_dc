@@ -7,7 +7,13 @@ namespace Assets
 {
 	namespace Shaders
 	{
-		namespace Default
+		namespace FlatColoured
+		{
+			extern ion::io::ResourceHandle<ion::render::Shader> vertexShader;
+			extern ion::io::ResourceHandle<ion::render::Shader> pixelShader;
+		}
+
+		namespace FlatTextured
 		{
 			extern ion::io::ResourceHandle<ion::render::Shader> vertexShader;
 			extern ion::io::ResourceHandle<ion::render::Shader> pixelShader;

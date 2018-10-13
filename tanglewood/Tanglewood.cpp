@@ -187,8 +187,11 @@ void Tanglewood::Render()
 void Tanglewood::LoadGlobalResources()
 {
 #if defined ION_RENDERER_SHADER
-	Assets::Shaders::Default::pixelShader = m_resourceManager->GetResource<ion::render::Shader>("flattextured_p");
-	Assets::Shaders::Default::vertexShader = m_resourceManager->GetResource<ion::render::Shader>("flattextured_v");
+	Assets::Shaders::FlatColoured::pixelShader = m_resourceManager->GetResource<ion::render::Shader>("flatcoloured_p");
+	Assets::Shaders::FlatColoured::vertexShader = m_resourceManager->GetResource<ion::render::Shader>("flatcoloured_v");
+
+	Assets::Shaders::FlatTextured::pixelShader = m_resourceManager->GetResource<ion::render::Shader>("flattextured_p");
+	Assets::Shaders::FlatTextured::vertexShader = m_resourceManager->GetResource<ion::render::Shader>("flattextured_v");
 
 	Assets::Shaders::IndexTexture::pixelShader = m_resourceManager->GetResource<ion::render::Shader>("indextexture_p");
 	Assets::Shaders::IndexTexture::vertexShader = m_resourceManager->GetResource<ion::render::Shader>("indextexture_v");
