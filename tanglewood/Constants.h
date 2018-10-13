@@ -47,13 +47,14 @@ namespace Constants
 	{
 		static const float planePriorities[(int)PlanePriority::Count] =
 		{
-			-0.7,
-			-0.6,
-			-0.5,
-			-0.4,
-			-0.3,
-			-0.2,
-			-0.1
+			-0.7f, // Background
+			-0.6f, // PlaneBLow
+			-0.5f, // PlaneALow
+			-0.4f, // SpriteLow
+			-0.3f, // PlaneBHigh
+			-0.2f, // PlaneAHigh
+			-0.1f, // SpriteHigh
+			 0.0f  // Debug
 		};
 	}
 

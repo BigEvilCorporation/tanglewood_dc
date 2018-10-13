@@ -196,6 +196,10 @@ void Tanglewood::LoadGlobalResources()
 	Assets::Shaders::IndexTexture::pixelShader = m_resourceManager->GetResource<ion::render::Shader>("indextexture_p");
 	Assets::Shaders::IndexTexture::vertexShader = m_resourceManager->GetResource<ion::render::Shader>("indextexture_v");
 #endif
+
+#if defined DEBUG
+	Debug::Assets::LoadAll(*m_resourceManager);
+#endif
 }
 
 void Tanglewood::PostLoadGlobalResources()
@@ -203,6 +207,10 @@ void Tanglewood::PostLoadGlobalResources()
 #if defined ION_RENDERER_SHADER
 	Assets::Shaders::IndexTexture::Params::indexedTexture = Assets::Shaders::IndexTexture::pixelShader->CreateParamHndl<ion::render::Texture>("gIndexedSampler");
 	Assets::Shaders::IndexTexture::Params::paletteTexture = Assets::Shaders::IndexTexture::pixelShader->CreateParamHndl<ion::render::Texture>("gPaletteSampler");
+#endif
+
+#if defined DEBUG
+	Debug::Assets::Init();
 #endif
 }
 

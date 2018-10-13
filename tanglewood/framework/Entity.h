@@ -35,6 +35,10 @@ public:
 	bool Intersects(const ion::Vector2& boundsMin, const ion::Vector2& boundsMax) const;
 	bool Contains(const Entity& objectB) const;
 
+#if defined DEBUG
+	void DebugDrawBounds(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
+#endif
+
 	std::string m_name;				//Name
 	ion::Vector2 m_worldPos;		//World position
 	ion::Vector2 m_size;			//Game object size

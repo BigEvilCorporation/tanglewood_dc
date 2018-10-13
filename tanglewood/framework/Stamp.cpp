@@ -44,7 +44,6 @@ StampRenderer::StampRenderer(const Stamp& stamp, const Tileset& tileset, const P
 	m_planePriority = (stamp.GetTileFlags(0, 0) & Map::eHighPlane) ? PlanePriority::PlaneAHigh : PlanePriority::PlaneALow;
 
 	//Create primitive
-	//m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2((float)widthTiles * (tileWidth / 2.0f), (float)heightTiles * (tileHeight / 2.0f)));
 	m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2(1.0f, 1.0f));
 
 	//Set UV coords

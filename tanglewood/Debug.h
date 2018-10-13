@@ -7,10 +7,52 @@
 #include <ion/gui/ComboBox.h>
 #include <ion/gui/TextBox.h>
 
+#include <ion/renderer/Colour.h>
+#include <ion/renderer/Primitive.h>
+#include <ion/renderer/Material.h>
+#include <ion/renderer/Shader.h>
+#include <ion/renderer/Camera.h>
+#include <ion/io/ResourceManager.h>
+
 #include <vector>
 #include <tuple>
 
 #include "framework/SpriteObj.h"
+
+namespace Debug
+{
+	namespace Draw
+	{
+		//Draws a line quad, OpenGL coordinate system
+		void DrawLineQuad(const ion::Vector2& topLeft, ion::Vector2& bottomRight, const ion::Colour& colour, ion::render::Renderer& renderer, const ion::Matrix4& viewMtx);
+	}
+
+	namespace Assets
+	{
+		void LoadAll(ion::io::ResourceManager& resourceManager);
+		void Init();
+		void Shutdown();
+
+		namespace Primitives
+		{
+			extern ion::render::Quad* quad;
+			extern ion::render::LineQuad* lineQuad;
+		}
+
+		namespace Materials
+		{
+			extern ion::render::Material* lineDraw;
+		}
+
+		namespace Shaders
+		{
+#if defined ION_RENDERER_SHADER
+			extern ion::io::ResourceHandle<ion::render::Shader> vertexShaderLineDraw;
+			extern ion::io::ResourceHandle<ion::render::Shader> pixelShaderLineDraw;
+#endif
+		}
+	}
+}
 
 class DebugUI : public ion::gui::Window
 {

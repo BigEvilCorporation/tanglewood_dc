@@ -347,6 +347,13 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	m_fadeMaterial->Bind(quadMatrix, ion::Matrix4(), renderer.GetProjectionMatrix());
 	renderer.DrawVertexBuffer(m_fadeQuad->GetVertexBuffer(), m_fadeQuad->GetIndexBuffer());
 	m_fadeMaterial->Unbind();
+
+#if defined DEBUG
+	for (int i = 0; i < m_entities.size(); i++)
+	{
+		m_entities[i]->DebugDrawBounds(renderer, camera, viewport, cameraInv, m_mapSizeFg);
+	}
+#endif
 }
 
 void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize)

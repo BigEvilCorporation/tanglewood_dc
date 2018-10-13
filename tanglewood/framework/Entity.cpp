@@ -12,6 +12,10 @@
 
 #include <ion/maths/Geometry.h>
 
+#if defined DEBUG
+#include "Debug.h"
+#endif
+
 Entity::Entity(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: m_world(world)
 	, m_gameObjType(gameObjType)
@@ -80,3 +84,31 @@ bool Entity::Contains(const Entity& objectB) const
 
 	return ion::maths::BoxInsideBox(topLeftA, bottomRightA, topLeftB, bottomRightB);
 }
+
+#if defined DEBUG
+void Entity::DebugDrawBounds(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize)
+{
+	//Draw outline
+	ion::Vector2 topLeft = m_worldPos;
+	ion::Vector2 bottomRight = m_worldPos + m_size;
+
+	//To OpenGL coords
+	topLeft.y = mapSize.y - topLeft.y - (m_size.y / 2.0f);
+	bottomRight.y = mapSize.y - bottomRight.y - (m_size.y / 2.0f);
+	topLeft.x += (m_size.x / 2.0f);
+	bottomRight.x += (m_size.x / 2.0f);
+
+	Debug::Draw::DrawLineQuad(topLeft, bottomRight, ion::Colour(0.0f, 0.0f, 1.0f, 1.0f), renderer, cameraInv);
+
+	//Draw bounds
+	GetWorldBounds(topLeft, bottomRight);
+
+	//To OpenGL coords
+	topLeft.y = mapSize.y - topLeft.y - (m_size.y / 2.0f);
+	bottomRight.y = mapSize.y - bottomRight.y - (m_size.y / 2.0f);
+	topLeft.x += (m_size.x / 2.0f);
+	bottomRight.x += (m_size.x / 2.0f);
+
+	Debug::Draw::DrawLineQuad(topLeft, bottomRight, ion::Colour(0.0f, 1.0f, 0.0f, 1.0f), renderer, cameraInv);
+}
+#endif

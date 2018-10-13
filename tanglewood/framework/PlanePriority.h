@@ -10,5 +10,7 @@ enum class PlanePriority
 	PlaneAHigh,
 	SpriteHigh,
 
+	Debug,
+
 	Count
 };
