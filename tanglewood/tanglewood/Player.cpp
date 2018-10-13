@@ -49,7 +49,9 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	m_colour = ColourAbility::Red;
 
 	//Use shared player palette
+#if USE_PALETTE_TEXTURES
 	SetPaletteTexture(Assets::Palettes::Player::shared);
+#endif
 
 	m_activeInteraction = InteractionType::None;
 	m_activeAbility = nullptr;

@@ -171,7 +171,7 @@ template <typename T> T* World::FindEntity(const std::string& name) const
 	T* entity = nullptr;
 	const std::vector<T*>& entities = GetEntities<T>();
 
-	std::vector<T*>::const_iterator it = std::find_if(entities.begin(), entities.end(), [&name](const T* rhs) { return ion::string::CompareNoCase(name, rhs->m_name); });
+	typename std::vector<T*>::const_iterator it = std::find_if(entities.begin(), entities.end(), [&name](const T* rhs) { return ion::string::CompareNoCase(name, rhs->m_name); });
 	if (it != entities.end())
 	{
 		entity = *it;
