@@ -114,6 +114,8 @@ namespace Constants
 		static const float jumpImpulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x038000);
 		static const float jumpScaleX = SUBPIXELS_TO_PIXELS(0x026000);
 
+		static const float minWallHeight = 0x11;
+
 		static const float minChaseDistance = 0x0090/2;
 		static const float searchRandDistMax = 0x00FF;
 		static const float searchRandDelayMin = FRAMES_TO_SECONDS(0x0018);

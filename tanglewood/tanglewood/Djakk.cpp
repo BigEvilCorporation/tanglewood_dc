@@ -35,6 +35,8 @@ Djakk::Djakk(World& world, const GameObject& gameObject, const GameObjectType& g
 	m_jumpVelY = Constants::Djakk::jumpImpulse;
 	m_jumpVelScaleX = Constants::Djakk::jumpScaleX;
 
+	m_minWallHeight = Constants::Djakk::minWallHeight;
+
 	m_jockey = nullptr;
 
 	//Setup animations
