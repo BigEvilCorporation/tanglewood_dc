@@ -13,8 +13,9 @@ namespace Debug
 		void DrawLineQuad(const ion::Vector2& topLeft, ion::Vector2& bottomRight, const ion::Colour& colour, ion::render::Renderer& renderer, const ion::Matrix4& viewMtx)
 		{
 			ion::Vector2 scale = bottomRight - topLeft;
+			ion::Vector2 centre = topLeft + (scale / 2.0f);
 			ion::Matrix4 worldMtx;
-			worldMtx.SetTranslation(ion::Vector3(topLeft.x, topLeft.y, Constants::Rendering::planePriorities[(int)PlanePriority::Debug]));
+			worldMtx.SetTranslation(ion::Vector3(centre.x, centre.y, Constants::Rendering::planePriorities[(int)PlanePriority::Debug]));
 			worldMtx.SetScale(ion::Vector3(scale.x, scale.y, 1.0f));
 
 			Assets::Materials::lineDraw->SetDiffuseColour(colour);
