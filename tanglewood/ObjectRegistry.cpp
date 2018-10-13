@@ -11,6 +11,7 @@
 #include "tanglewood/Player.h"
 #include "tanglewood/Stone.h"
 #include "tanglewood/TriggerBox.h"
+#include "tanglewood/DeathBox.h"
 
 namespace ObjectFactory
 {
@@ -28,5 +29,6 @@ namespace ObjectFactory
 		{ REGISTER_OBJECT("BouncePlant",	"mushroom",		Mushroom) },
 		{ REGISTER_OBJECT("Stone",			"Stone",		Stone) },
 		{ REGISTER_OBJECT("TriggerBox",		"",				TriggerBox) },
+		{ REGISTER_OBJECT("Deathbox",		"",				DeathBox) },
 	};
 }

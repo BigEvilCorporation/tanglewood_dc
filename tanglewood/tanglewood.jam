@@ -66,11 +66,14 @@ local SRC =
 	framework/Stamp.h
 	framework/State.cpp
 	framework/State.h
+	framework/Types.h
 	framework/World.cpp
 	framework/World.h
 
 	tanglewood/Boulder.cpp
 	tanglewood/Boulder.h
+	tanglewood/DeathBox.cpp
+	tanglewood/DeathBox.h
 	tanglewood/Djakk.cpp
 	tanglewood/Djakk.h
 	tanglewood/Enemy.cpp

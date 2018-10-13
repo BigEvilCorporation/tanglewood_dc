@@ -20,6 +20,7 @@
 #include "Fuzzl.h"
 #include "Djakk.h"
 #include "TriggerBox.h"
+#include "DeathBox.h"
 
 const Palette* Player::s_colourPalettes[(int)ColourAbility::Count] =
 {
@@ -59,6 +60,7 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	m_currentPushable = nullptr;
 
 	TriggerBox::RegisterPotentialOccupant(*this);
+	DeathBox::RegisterPotentialVictim(*this);
 	Flue::RegisterPotentialOccupant(*this);
 	Mushroom::RegisterPotentialUser(*this);
 
@@ -85,6 +87,7 @@ Player::~Player()
 {
 	m_world.RemoveEntity<Player>(*this);
 	TriggerBox::UnregisterPotentialOccupant(*this);
+	DeathBox::UnregisterPotentialVictim(*this);
 	Flue::UnregisterPotentialOccupant(*this);
 	Mushroom::UnregisterPotentialUser(*this);
 }
