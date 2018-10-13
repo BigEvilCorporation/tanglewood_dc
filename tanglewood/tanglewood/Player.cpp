@@ -428,7 +428,11 @@ void Player::AbilityTimeSlow::OnEnterState()
 
 void Player::AbilityTimeSlow::OnUpdateState(float deltaTime)
 {
-
+	//If active and pushing an object, reset object's speed
+	if (m_active && m_player.m_currentPushable)
+	{
+		m_player.m_currentPushable->m_speedScale = 1.0f;
+	}
 }
 
 void Player::AbilityTimeSlow::OnExitState(State* newState)
