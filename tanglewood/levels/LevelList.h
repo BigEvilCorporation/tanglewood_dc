@@ -11,12 +11,12 @@ namespace Constants
 {
 	static const LevelDescriptor levels[] =
 	{
-		{ "cd/sprites.bee_sprites", "cd/l1.bee", "l1a1", "l1bg", []() { return new L1A1(); } },
-		{ "cd/sprites.bee_sprites", "cd/l1.bee", "l1a2", "l1bg", []() { return new L1A2(); } },
-		{ "cd/sprites.bee_sprites", "cd/l1.bee", "l1a3", "l1bg", []() { return new L1A3(); } },
-		{ "cd/sprites.bee_sprites", "cd/l1.bee", "l1a4", "l1bg", []() { return new L1A4(); } },
+		{ "assets/sprites.bee_sprites", "assets/l1.bee", "l1a1", "l1bg", []() { return new L1A1(); } },
+		{ "assets/sprites.bee_sprites", "assets/l1.bee", "l1a2", "l1bg", []() { return new L1A2(); } },
+		{ "assets/sprites.bee_sprites", "assets/l1.bee", "l1a3", "l1bg", []() { return new L1A3(); } },
+		{ "assets/sprites.bee_sprites", "assets/l1.bee", "l1a4", "l1bg", []() { return new L1A4(); } },
 
-		{ "cd/sprites.bee_sprites", "cd/l2.bee", "l2a1", "l2bg", []() { return new L1A1(); } },
+		{ "assets/sprites.bee_sprites", "assets/l2.bee", "l2a1", "l2bg", []() { return new L1A1(); } },
 	};
 
 	enum class Levels

@@ -16,7 +16,7 @@ namespace Globals
 
 	namespace Game
 	{
-		int levelIdx = (int)Constants::Levels::l1a1_Harlequin_Act4;
+		int levelIdx = (int)Constants::Levels::l1a1_Harlequin_Act1;
 		World* world = nullptr;
 		Level* level = nullptr;
 		ion::render::Camera* camera = nullptr;
