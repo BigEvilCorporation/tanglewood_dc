@@ -36,8 +36,10 @@ public:
 
 	//Load/setup sprites/level/act
 	bool LoadSprites(const std::string& name);
-	bool LoadLevel(const std::string& name);
-	bool LoadAct(int levelIdx, const std::string& levelMap, const std::string& bgMap);
+	Project* LoadLevelData(const std::string& name);
+	void LoadedLevelData(Project* project);
+	bool LoadAct(Project& project, int levelIdx, const std::string& levelMap, const std::string& bgMap);
+	bool LoadGameObjectTypes(Project& project, const std::string& name);
 	bool CreateGameObjects();
 
 	//Reset world to default state
@@ -90,15 +92,14 @@ private:
 	ion::Vector2 m_mapSizeBg;
 	ion::Vector2 m_cameraPos;
 
-	//Beehive project files
-	Project* m_levelData;
-
 	//TODO: Move to global assets
 	std::map<ActorId, Actor> m_actors;
 
+	TGameObjectTypeMap m_gameObjectTypes;
+
 	//Beehive maps
-	Map* m_currentMap;
-	Map* m_backgroundMap;
+	Map m_currentMap;
+	Map m_backgroundMap;
 
 	//Current stamp set
 	StampSet* m_stampSet;

@@ -13,10 +13,11 @@
 #include "Barrier.h"
 #include "Platform.h"
 
+#include <ion/beehive/TerrainTileset.h>
+#include <ion/beehive/CollisionMap.h>
+
 class PhysicsObj;
 class Project;
-class TerrainTileset;
-class CollisionMap;
 
 class PhysicsWorld
 {
@@ -62,8 +63,8 @@ public:
 private:
 
 	//Physics data
-	TerrainTileset* m_terrainTileset;
-	CollisionMap* m_collisionMap;
+	TerrainTileset m_terrainTileset;
+	CollisionMap m_collisionMap;
 
 	//Gravity
 	float m_gravity;

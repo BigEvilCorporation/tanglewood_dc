@@ -26,9 +26,6 @@ const char* nymnObjectName = "nymn";
 
 World::World()
 {
-	m_levelData = NULL;
-	m_currentMap = NULL;
-	m_backgroundMap = NULL;
 	m_stampSet = NULL;
 	m_planeFg = NULL;
 	m_planeBg = NULL;
@@ -48,6 +45,9 @@ World::World()
 	m_fadeMaterial->SetVertexShader(Assets::Shaders::FlatColoured::vertexShader.Get());
 	m_fadeMaterial->SetPixelShader(Assets::Shaders::FlatColoured::pixelShader.Get());
 #endif
+
+	m_paletteLerpSpeed = 0.0f;
+	m_paletteLerpTimer = 0.0f;
 }
 
 World::~World()
@@ -84,11 +84,6 @@ World::~World()
 	{
 		delete m_planeBg;
 	}
-
-	if(m_levelData)
-	{
-		delete m_levelData;
-	}
 }
 
 bool World::LoadSprites(const std::string& name)
@@ -108,36 +103,32 @@ bool World::LoadSprites(const std::string& name)
 	}
 }
 
-bool World::LoadLevel(const std::string& name)
+Project* World::LoadLevelData(const std::string& name)
 {
-	if(m_levelData)
-	{
-		delete m_levelData;
-
 #if USE_PALETTE_TEXTURES
-		if (Assets::Palettes::World::shared)
-		{
-			delete Assets::Palettes::World::shared;
-		}
-#endif
+	//TODO: Doesn't belong here
+	if (Assets::Palettes::World::shared)
+	{
+		delete Assets::Palettes::World::shared;
 	}
+#endif
 
 	//Load level data from Beehive project file
-	m_levelData = new Project(PlatformPresets::s_configs[PlatformPresets::ePresetMegaDrive]);
-	if(!m_levelData->Load(name))
+	Project* project = new Project(PlatformPresets::s_configs[PlatformPresets::ePresetMegaDrive]);
+	if(!project->Load(name))
 	{
 		ion::debug::error << "Error loading level data " << name << ion::debug::end;
 		return false;
 	}
 
 	//Load stamp set
-	m_stampSet = new StampSet(*m_levelData);
+	m_stampSet = new StampSet(*project);
 
 #if USE_PALETTE_TEXTURES
 	//Get time of day palettes
-	Assets::Palettes::World::day = m_levelData->GetPaletteSlot(0)[0];
-	Assets::Palettes::World::dusk = m_levelData->GetPaletteSlot(1)[0];
-	Assets::Palettes::World::night = m_levelData->GetPaletteSlot(2)[0];
+	Assets::Palettes::World::day = project->GetPaletteSlot(0)[0];
+	Assets::Palettes::World::dusk = project->GetPaletteSlot(1)[0];
+	Assets::Palettes::World::night = project->GetPaletteSlot(2)[0];
 
 	//Set stamp palettes
 	m_currentPalette = Assets::Palettes::World::day;
@@ -149,50 +140,63 @@ bool World::LoadLevel(const std::string& name)
 	}
 #endif
 
-	return true;
+	return project;
 }
 
-bool World::LoadAct(int levelIdx, const std::string& levelMap, const std::string& bgMap)
+void World::LoadedLevelData(Project* project)
+{
+	ion::debug::log << "Mem usage before project delete: " << ion::debug::GetRAMUsed();
+	delete project;
+	ion::debug::log << "Mem usage after project delete: " << ion::debug::GetRAMUsed();
+}
+
+bool World::LoadAct(Project& project, int levelIdx, const std::string& levelMap, const std::string& bgMap)
 {
 	m_levelIdx = levelIdx;
 
 	//Find foreground/game data map
-	m_currentMap = m_levelData->FindMap(levelMap);
-	if(!m_currentMap)
+	if (Map* map = project.FindMap(levelMap))
+	{
+		m_currentMap = *map;
+	}
+	else
 	{
 		ion::debug::error << "Error loading level map " << levelMap << ion::debug::end;
 		return false;
 	}
 
 	//Find background map
-	m_backgroundMap = m_levelData->FindMap(bgMap);
-	if(!m_backgroundMap)
+	if (Map* map = project.FindMap(bgMap))
+	{
+		m_backgroundMap = *map;
+	}
+	else
 	{
 		ion::debug::error << "Error loading background map " << bgMap << ion::debug::end;
 		return false;
 	}
 
 	//Load physics world
-	m_physicsWorld->LoadWorld(*m_levelData, levelMap);
+	m_physicsWorld->LoadWorld(project, levelMap);
 
 	//Create fg plane from map
-	m_planeFg = new Plane(*m_currentMap, *m_stampSet);
+	m_planeFg = new Plane(m_currentMap, *m_stampSet);
 
 	//Create bg plane from map
-	m_planeBg = new Plane(*m_backgroundMap, *m_stampSet);
+	m_planeBg = new Plane(m_backgroundMap, *m_stampSet);
 
 	//Get map size
-	m_mapSizeFg.x = m_currentMap->GetWidth() * 8;
-	m_mapSizeFg.y = m_currentMap->GetHeight() * 8;
-	m_mapSizeBg.x = m_backgroundMap->GetWidth() * 8;
-	m_mapSizeBg.y = m_backgroundMap->GetHeight() * 8;
+	m_mapSizeFg.x = m_currentMap.GetWidth() * 8;
+	m_mapSizeFg.y = m_currentMap.GetHeight() * 8;
+	m_mapSizeBg.x = m_backgroundMap.GetWidth() * 8;
+	m_mapSizeBg.y = m_backgroundMap.GetHeight() * 8;
 
 	//TEMP
 	m_planeBg->m_drawOffset.x = -(64 * 8) / 2;
 	m_planeBg->m_drawOffset.y = -(32 * 8) / 2;
 
 	//Get bg colour
-	const Colour& bgColour = m_levelData->GetPalette(0)->GetColour(0);
+	const Colour& bgColour = project.GetPalette(0)->GetColour(0);
 	m_bgColour.r = bgColour.GetRed() / 255.0f;
 	m_bgColour.g = bgColour.GetGreen() / 255.0f;
 	m_bgColour.b = bgColour.GetBlue() / 255.0f;
@@ -201,18 +205,33 @@ bool World::LoadAct(int levelIdx, const std::string& levelMap, const std::string
 	return true;
 }
 
+bool World::LoadGameObjectTypes(Project& project, const std::string& name)
+{
+	if (project.ImportGameObjectTypes(name))
+	{
+		m_gameObjectTypes = project.GetGameObjectTypes();
+		return true;
+	}
+	
+	return false;
+}
+
 bool World::CreateGameObjects()
 {
-    const TGameObjectPosMap& gameObjects = m_currentMap->GetGameObjects();
+    const TGameObjectPosMap& gameObjects = m_currentMap.GetGameObjects();
+
     for(TGameObjectPosMap::const_iterator it = gameObjects.begin(), end = gameObjects.end(); it != end; ++it)
     {
         //Get game object type
-        if(GameObjectType* gameObjType = m_levelData->GetGameObjectType(it->first))
-        {
+		TGameObjectTypeMap::const_iterator typeIt = m_gameObjectTypes.find(it->first);
+		if(typeIt != m_gameObjectTypes.end())
+		{
+			const GameObjectType& gameObjType = typeIt->second;
+
             for(int i = 0; i < it->second.size(); i++)
             {
                 //Create entity
-                if(Entity* entity = ObjectFactory::Create(*this, m_actors, it->second[i].m_gameObject, *gameObjType))
+                if(Entity* entity = ObjectFactory::Create(*this, m_actors, it->second[i].m_gameObject, gameObjType))
                 {
 					//Add to typed list
 					AddEntity<Entity>(*entity);
@@ -222,8 +241,19 @@ bool World::CreateGameObjects()
                 }
             }
         }
+		else
+		{
+			ion::debug::log << "Failed to find game object type " << it->first << " for game objects: " << ion::debug::end;
+
+			for (int i = 0; i << it->second.size(); i++)
+			{
+				ion::debug::log << "  " << it->second[i].m_gameObject.GetName() << ion::debug::end;
+			}
+
+			ion::debug::Assert(false, "");
+		}
     }
-    
+
     //Find Nymn, create player controller
     //TODO: move
 	std::vector<Player*> players = GetEntities<Player>();
@@ -237,6 +267,18 @@ bool World::CreateGameObjects()
         ion::debug::error << "Could not find Nymn" << ion::debug::end;
         return false;
     }
+
+	ion::debug::log << "Mem used before sprite sheet deletion: " << ion::debug::GetRAMUsed() << ion::debug::end;
+
+	for (std::map<ActorId, Actor>::iterator it = m_actors.begin(), end = m_actors.end(); it != end; ++it)
+	{
+		for (TSpriteSheetMap::iterator sheetIt = it->second.GetSpriteSheets().begin(), sheetEnd = it->second.GetSpriteSheets().end(); sheetIt != sheetEnd; ++sheetIt)
+		{
+			sheetIt->second.ClearFrames();
+		}
+	}
+
+	ion::debug::log << "Mem used after sprite sheet deletion: " << ion::debug::GetRAMUsed() << ion::debug::end;
 
 	return true;
 }
@@ -261,7 +303,7 @@ void World::Reset()
 	m_physicsWorld->RemoveAllObjects();
 
 	//Recreate game objects
-	CreateGameObjects();
+	//CreateGameObjects();
 }
 
 void World::Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad, const ion::render::Window& window, const ion::Vector2i& screenSize)
@@ -342,11 +384,14 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	}
 
 	//Draw fade plane
+#if !defined ION_PLATFORM_DREAMCAST
+	//TODO: Vertex colours wrong on Dreamcast
 	ion::Matrix4 quadMatrix;
 	quadMatrix.SetTranslation(ion::Vector3(Globals::Rendering::windowWidth / 2, Globals::Rendering::windowHeight / 2, 0.0f));
 	m_fadeMaterial->Bind(quadMatrix, ion::Matrix4(), renderer.GetProjectionMatrix());
 	renderer.DrawVertexBuffer(m_fadeQuad->GetVertexBuffer(), m_fadeQuad->GetIndexBuffer());
 	m_fadeMaterial->Unbind();
+#endif
 
 #if defined DEBUG
 	for (int i = 0; i < m_entities.size(); i++)
@@ -424,6 +469,7 @@ void World::BeginPaletteLerp(const Palette& dest, float speed)
 
 void World::UpdatePaletteLerp(float deltaTime)
 {
+#if USE_PALETTE_TEXTURES
 	if (m_paletteLerpSpeed > 0.0f)
 	{
 		m_paletteLerpTimer += m_paletteLerpSpeed * deltaTime;
@@ -438,6 +484,7 @@ void World::UpdatePaletteLerp(float deltaTime)
 		PaletteTools::BlendPalettes(m_sourcePalette, m_currentPalette, palette, m_paletteLerpTimer);
 		PaletteTools::WritePaletteTexture(palette, Assets::Palettes::World::shared);
 	}
+#endif
 }
 
 void World::UpdateFader(float deltaTime)

@@ -33,43 +33,63 @@ void StateLoading::OnEnterState()
 	const LevelDescriptor& levelDesc = Constants::levels[Globals::Game::levelIdx];
 
 	//If world already exists, just reset it
+	//if (Globals::Game::world)
+	//{
+	//	//Delete all entities
+	//	Globals::Game::world->DeleteGameObjects();
+	//
+	//	//Reset physics world
+	//	Globals::Game::world->GetPhysicsWorld().RemoveAllObjects();
+	//
+	//	//If new act
+	//	if (Globals::Game::levelIdx != Globals::Game::world->GetLevelIdx())
+	//	{
+	//		//Load it
+	//		Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
+	//	}
+	//}
+	//else
+	//{
+
 	if (Globals::Game::world)
 	{
-		//Delete all entities
-		Globals::Game::world->DeleteGameObjects();
-
-		//Reset physics world
-		Globals::Game::world->GetPhysicsWorld().RemoveAllObjects();
-
-		//If new act
-		if (Globals::Game::levelIdx != Globals::Game::world->GetLevelIdx())
-		{
-			//Load it
-			Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
-		}
+		delete Globals::Game::world;
 	}
-	else
-	{
+
 		//Create world
+		ion::debug::Log("Creating world");
 		Globals::Game::world = new World();
 
 		//TODO: Thread this
 
-		//Load sprite data from Beehive project file
-		//TODO: Move to global assets
-		Globals::Game::world->LoadSprites(levelDesc.spriteDataFile);
-
 		//Load first level data file from Beehive project file
-		Globals::Game::world->LoadLevel(levelDesc.levelDataFile);
+		ion::debug::Log("Loading level");
+		Project* project = Globals::Game::world->LoadLevelData(levelDesc.levelDataFile);
 
 		//Load first act
-		Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
-	}
+		ion::debug::Log("Loading act");
+		Globals::Game::world->LoadAct(*project, Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
+	//}
 
 	//TODO: Move to global assets
+	ion::debug::Log("Loading palettes");
 	LoadGlobalPalettes();
 
+	ion::debug::Log("Loading gameobj types");
+	Globals::Game::world->LoadGameObjectTypes(*project, "assets/gameobjectsHD.bee_gameobj");
+
+	//Done with project data
+	ion::debug::log << "Mem used before project deletion: " << ion::debug::GetRAMUsed() << ion::debug::end;
+	delete project;
+	ion::debug::log << "Mem used after project deletion: " << ion::debug::GetRAMUsed() << ion::debug::end;
+
+	//Load sprite data from Beehive project file
+	//TODO: Move to global assets
+	ion::debug::Log("Loading sprites");
+	Globals::Game::world->LoadSprites(levelDesc.spriteDataFile);
+
 	//Create game objects
+	ion::debug::Log("Creating game objects");
 	Globals::Game::world->CreateGameObjects();
 }
 

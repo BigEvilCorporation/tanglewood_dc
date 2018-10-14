@@ -18,8 +18,6 @@
 
 PhysicsWorld::PhysicsWorld()
 {
-	m_terrainTileset = NULL;
-	m_collisionMap = NULL;
 	m_gravity = Constants::World::defaultGravity;
 	m_speedScale = 1.0f;
 }
@@ -57,10 +55,10 @@ void PhysicsWorld::RemoveBarrier(Barrier& barrier)
 void PhysicsWorld::LoadWorld(Project& project, const std::string& levelMap)
 {
 	//Get collision map
-	m_collisionMap = &project.GetCollisionMap(project.FindMapId(levelMap));
+	m_collisionMap = project.GetCollisionMap(project.FindMapId(levelMap));
 
 	//Get terrain tileset
-	m_terrainTileset = &project.GetTerrainTileset();
+	m_terrainTileset = project.GetTerrainTileset();
 }
 
 void PhysicsWorld::RemoveAllObjects()
@@ -87,7 +85,7 @@ int PhysicsWorld::FindFloor(const ion::Vector2i& position, int maxSearchLength, 
 	int tileHeight = 0;
 	bool found = false;
 
-	if (tilePos.x >= 0 && tilePos.x < m_collisionMap->GetWidth())
+	if (tilePos.x >= 0 && tilePos.x < m_collisionMap.GetWidth())
 	{
 		//X offset
 		int offsetX = position.x % 8;
@@ -96,16 +94,16 @@ int PhysicsWorld::FindFloor(const ion::Vector2i& position, int maxSearchLength, 
 		int solidTilesFound = 0;
 		int hollowTilesFound = 0;
 
-		while (!found && lengthSearched <= maxSearchLength && tilePos.y >= 0 && tilePos.y < m_collisionMap->GetHeight())
+		while (!found && lengthSearched <= maxSearchLength && tilePos.y >= 0 && tilePos.y < m_collisionMap.GetHeight())
 		{
 			//Assume hollow if no tile
 			int height = 0;
 
 			//Get terrain tile id
-			TerrainTileId terrainTileId = m_collisionMap->GetTerrainTile(tilePos.x, tilePos.y);
+			TerrainTileId terrainTileId = m_collisionMap.GetTerrainTile(tilePos.x, tilePos.y);
 
 			//Get terrain tile
-			if (const TerrainTile* terrainTile = m_terrainTileset->GetTerrainTile(terrainTileId))
+			if (const TerrainTile* terrainTile = m_terrainTileset.GetTerrainTile(terrainTileId))
 			{
 				//Get height at offset
 				height = (int)terrainTile->GetHeight(offsetX);
@@ -158,7 +156,7 @@ int PhysicsWorld::FindFloor(const ion::Vector2i& position, int maxSearchLength, 
 	if (found)
 	{
 		//Get flags
-		tileFlags = m_collisionMap->GetCollisionTileFlags(tilePos.x, tilePos.y);
+		tileFlags = m_collisionMap.GetCollisionTileFlags(tilePos.x, tilePos.y);
 
 		//Tile to pixel space + total height accumulated - 1 tile
 		return ((tilePos.y + 1) * 8) - tileHeight;
@@ -197,17 +195,17 @@ int PhysicsWorld::FindWall(const ion::Vector2i& position, int direction, int max
 	ion::Vector2i tilePos(position.x / 8, position.y / 8);
 	u32 flags = 0;
 
-	if (tilePos.y >= 0 && tilePos.y < m_collisionMap->GetHeight())
+	if (tilePos.y >= 0 && tilePos.y < m_collisionMap.GetHeight())
 	{
-		flags = m_collisionMap->GetCollisionTileFlags(tilePos.x, tilePos.y);
+		flags = m_collisionMap.GetCollisionTileFlags(tilePos.x, tilePos.y);
 		int lengthSearched = 0;
 
 		while ((flags & eCollisionTileFlagSolid) == 0 && lengthSearched < maxSearchLength)
 		{
-			if (tilePos.x >= 0 && tilePos.x < m_collisionMap->GetWidth())
+			if (tilePos.x >= 0 && tilePos.x < m_collisionMap.GetWidth())
 			{
 				tilePos.x += direction;
-				flags = m_collisionMap->GetCollisionTileFlags(tilePos.x, tilePos.y);
+				flags = m_collisionMap.GetCollisionTileFlags(tilePos.x, tilePos.y);
 			}
 
 			lengthSearched += 8;

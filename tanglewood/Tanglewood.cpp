@@ -19,6 +19,8 @@
 #include <ion/core/debug/Debug.h>
 #include <ion/core/thread/Sleep.h>
 
+#include <ion/io/FileDevice.h>
+
 Tanglewood::Tanglewood()
 	: Application("Tanglewood")
 {
@@ -32,9 +34,14 @@ Tanglewood::~Tanglewood()
 
 bool Tanglewood::Initialise()
 {
+	//TODO: Merge ion::io into ion::core and add default file devices in ion::platform::Initialise()
+#if defined ION_PLATFORM_DREAMCAST
+	ion::io::FileDevice::SetDefault(new ion::io::FileDevice("disc", "/cd", ion::io::FileDevice::eOptical, ion::io::FileDevice::eReadOnly));
+#endif
+
 	//Create resource manager
 	m_resourceManager = new ion::io::ResourceManager();
-	m_resourceManager->SetResourceDirectory<ion::render::Shader>("cd/shaders", ".ion.shader");
+	m_resourceManager->SetResourceDirectory<ion::render::Shader>("assets/shaders", ".ion.shader");
 
 	Globals::Rendering::windowWidth = s_defaultWindowWidth;
 	Globals::Rendering::windowHeight = s_defaultWindowHeight;
@@ -178,7 +185,10 @@ void Tanglewood::Render()
 	m_stateManager->Render(*m_renderer, *m_camera, *m_viewport);
 
 	//Render UI
+#if !defined ION_PLATFORM_DREAMCAST
+	//TODO: KGL not happy about some of the OpenGL calls in here
 	m_gui->Render(*m_renderer, *m_viewport);
+#endif
 
 	m_renderer->SwapBuffers();
 	m_renderer->EndFrame();

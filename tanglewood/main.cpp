@@ -29,10 +29,6 @@ int main(int numargs, char** args)
 			u64 endTicks = ion::time::GetSystemTicks();
 			deltaTime = (float)ion::time::TicksToSeconds(endTicks - startTicks);
 			deltaTime = ion::maths::Clamp(deltaTime, 0.0f, 1.0f / 15.0f);
-
-#if defined ION_PLATFORM_DREAMCAST
-			deltaTime = 0.015f;
-#endif
 		}
 
 		app.Shutdown();
