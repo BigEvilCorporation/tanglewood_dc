@@ -40,6 +40,7 @@ class State
 {
 public:
 	State();
+	virtual ~State() {}
 
 	const std::string& GetName() const { return m_name; }
 	const ion::UUID64 GetId() const { return m_id; }

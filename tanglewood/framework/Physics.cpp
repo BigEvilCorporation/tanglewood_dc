@@ -8,8 +8,6 @@
 //				(loosely mirrors Mega Drive framework)
 ///////////////////////////////////////////////////////////////
 
-#pragma once
-
 #include "Physics.h"
 #include "Constants.h"
 #include "PhysicsObj.h"

@@ -37,6 +37,7 @@ public:
 	};
 
 	Level();
+	virtual ~Level() {}
 
 	virtual void Start() = 0;
 	virtual void Update(float deltaTime) = 0;
