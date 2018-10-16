@@ -71,10 +71,6 @@ void StateLoading::OnEnterState()
 		Globals::Game::world->LoadAct(*project, Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
 	//}
 
-	//TODO: Move to global assets
-	ion::debug::Log("Loading palettes");
-	LoadGlobalPalettes();
-
 	ion::debug::Log("Loading gameobj types");
 	Globals::Game::world->LoadGameObjectTypes(*project, "assets/gameobjectsHD.bee_gameobj");
 
@@ -87,6 +83,10 @@ void StateLoading::OnEnterState()
 	//TODO: Move to global assets
 	ion::debug::Log("Loading sprites");
 	Globals::Game::world->LoadSprites(levelDesc.spriteDataFile);
+
+	//TODO: Move to global assets
+	ion::debug::Log("Loading palettes");
+	LoadGlobalPalettes();
 
 	//Create game objects
 	ion::debug::Log("Creating game objects");
