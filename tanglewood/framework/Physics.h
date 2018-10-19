@@ -42,7 +42,7 @@ public:
 	float GetGravity() const { return m_gravity; }
 
 	//Load physics world
-	void LoadWorld(Project& project, const std::string& levelMap);
+	void LoadWorld(const std::string& terrainTilesetFilename, const std::string& collisionMapFilename);
 
 	//Reset physics world
 	void RemoveAllObjects();

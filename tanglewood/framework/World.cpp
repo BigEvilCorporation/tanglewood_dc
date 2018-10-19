@@ -103,7 +103,7 @@ bool World::LoadSprites(const std::string& name)
 	}
 }
 
-Project* World::LoadLevelData(const std::string& name)
+bool World::LoadLevelData()
 {
 #if USE_PALETTE_TEXTURES
 	//TODO: Doesn't belong here
@@ -112,14 +112,6 @@ Project* World::LoadLevelData(const std::string& name)
 		delete Assets::Palettes::World::shared;
 	}
 #endif
-
-	//Load level data from Beehive project file
-	Project* project = new Project(PlatformPresets::s_configs[PlatformPresets::ePresetMegaDrive]);
-	if(!project->Load(name))
-	{
-		ion::debug::error << "Error loading level data " << name << ion::debug::end;
-		return false;
-	}
 
 	//Load tileset
 	ion::io::File tilesetFile("assets/levels/l1/tileset.bee", ion::io::File::eOpenRead);
@@ -170,10 +162,10 @@ Project* World::LoadLevelData(const std::string& name)
 	}
 #endif
 
-	return project;
+	return true;
 }
 
-bool World::LoadAct(Project& project, int levelIdx, const std::string& levelMap, const std::string& bgMap)
+bool World::LoadAct(int levelIdx, const std::string& levelMap, const std::string& bgMap)
 {
 	m_levelIdx = levelIdx;
 
@@ -208,30 +200,8 @@ bool World::LoadAct(Project& project, int levelIdx, const std::string& levelMap,
 		archive.Serialise(m_gameObjects, "gameObjects");
 	}
 
-	//Find foreground/game data map
-	//if (Map* map = project.FindMap(levelMap))
-	//{
-	//	m_currentMap = *map;
-	//}
-	//else
-	//{
-	//	ion::debug::error << "Error loading level map " << levelMap << ion::debug::end;
-	//	return false;
-	//}
-
-	//Find background map
-	if (Map* map = project.FindMap(bgMap))
-	{
-		m_backgroundMap = *map;
-	}
-	else
-	{
-		ion::debug::error << "Error loading background map " << bgMap << ion::debug::end;
-		return false;
-	}
-
 	//Load physics world
-	m_physicsWorld->LoadWorld(project, levelMap);
+	m_physicsWorld->LoadWorld("assets/levels/l1/terraintileset.bee", "assets/levels/l1/l1a1/collisionmap.bee");
 
 	//Create fg plane from map
 	m_planeFg = new Plane(m_stampMapFg, *m_stampSet);
@@ -250,7 +220,7 @@ bool World::LoadAct(Project& project, int levelIdx, const std::string& levelMap,
 	m_planeBg->m_drawOffset.y = -(32 * 8) / 2;
 
 	//Get bg colour
-	const Colour& bgColour = project.GetPalette(0)->GetColour(0);
+	const Colour& bgColour = m_palettes[0].GetColour(0);
 	m_bgColour.r = bgColour.GetRed() / 255.0f;
 	m_bgColour.g = bgColour.GetGreen() / 255.0f;
 	m_bgColour.b = bgColour.GetBlue() / 255.0f;
@@ -259,7 +229,7 @@ bool World::LoadAct(Project& project, int levelIdx, const std::string& levelMap,
 	return true;
 }
 
-bool World::LoadGameObjectTypes(Project& project, const std::string& name)
+bool World::LoadGameObjectTypes(const std::string& name)
 {
 	ion::io::File file(name, ion::io::File::eOpenRead);
 	if (file.IsOpen())

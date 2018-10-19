@@ -36,9 +36,9 @@ public:
 
 	//Load/setup sprites/level/act
 	bool LoadSprites(const std::string& name);
-	Project* LoadLevelData(const std::string& name);
-	bool LoadAct(Project& project, int levelIdx, const std::string& levelMap, const std::string& bgMap);
-	bool LoadGameObjectTypes(Project& project, const std::string& name);
+	bool LoadLevelData();
+	bool LoadAct(int levelIdx, const std::string& levelMap, const std::string& bgMap);
+	bool LoadGameObjectTypes(const std::string& name);
 	bool CreateGameObjects();
 
 	//Reset world to default state
@@ -95,10 +95,6 @@ private:
 	std::map<ActorId, Actor> m_actors;
 
 	TGameObjectTypeMap m_gameObjectTypes;
-
-	//Beehive maps
-	//Map m_currentMap;
-	Map m_backgroundMap;
 
 	//Current tileset
 	Tileset m_tileset;

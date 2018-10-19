@@ -65,19 +65,16 @@ void StateLoading::OnEnterState()
 
 		//Load first level data file from Beehive project file
 		ion::debug::Log("Loading level");
-		Project* project = Globals::Game::world->LoadLevelData(levelDesc.levelDataFile);
+		Globals::Game::world->LoadLevelData();
 
 		//Load act
 		ion::debug::Log("Loading act");
-		Globals::Game::world->LoadAct(*project, Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
+		Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
 
 		//Load game objects types
 		//TODO: Move to global assets
 		ion::debug::Log("Loading gameobj types");
-		Globals::Game::world->LoadGameObjectTypes(*project, "assets/gameobjectsHD.bee_gameobj");
-
-		//Done with project data
-		delete project;
+		Globals::Game::world->LoadGameObjectTypes("assets/gameobjtypes.bee");
 
 		//Load sprite data from Beehive project file
 		//TODO: Move to global assets
