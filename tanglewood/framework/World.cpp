@@ -92,7 +92,7 @@ bool World::LoadSprites(const std::string& name)
 	ion::io::File file(name, ion::io::File::eOpenRead);
 	if (file.IsOpen())
 	{
-		ion::io::Archive archive(file, ion::io::Archive::eIn);
+		ion::io::Archive archive(file, ion::io::Archive::Direction::In);
 		archive.Serialise(m_actors, "actors");
 		return true;
 	}
@@ -121,14 +121,44 @@ Project* World::LoadLevelData(const std::string& name)
 		return false;
 	}
 
-	//Load stamp set
-	m_stampSet = new StampSet(*project);
+	//Load tileset
+	ion::io::File tilesetFile("assets/levels/l1/tileset.bee", ion::io::File::eOpenRead);
+	if (tilesetFile.IsOpen())
+	{
+		ion::io::Archive archive(tilesetFile, ion::io::Archive::Direction::In);
+		archive.SetContentType(ion::io::Archive::Content::Minimal);
+		m_tileset.Serialise(archive);
+		tilesetFile.Close();
+	}
+
+	//Load stamps
+	ion::io::File stampsFile("assets/levels/l1/stamps.bee", ion::io::File::eOpenRead);
+	if (stampsFile.IsOpen())
+	{
+		ion::io::Archive archive(stampsFile, ion::io::Archive::Direction::In);
+		archive.SetContentType(ion::io::Archive::Content::Minimal);
+		archive.Serialise(m_stamps, "stamps");
+		stampsFile.Close();
+	}
+
+	//Load palettes
+	ion::io::File palettesFile("assets/levels/l1/palettes.bee", ion::io::File::eOpenRead);
+	if (palettesFile.IsOpen())
+	{
+		ion::io::Archive archive(palettesFile, ion::io::Archive::Direction::In);
+		archive.SetContentType(ion::io::Archive::Content::Minimal);
+		archive.Serialise(m_palettes, "palettes");
+		palettesFile.Close();
+	}
+
+	//Create stamp set
+	m_stampSet = new StampSet(m_stamps, m_tileset, m_palettes[0]);
 
 #if USE_PALETTE_TEXTURES
 	//Get time of day palettes
-	Assets::Palettes::World::day = project->GetPaletteSlot(0)[0];
-	Assets::Palettes::World::dusk = project->GetPaletteSlot(1)[0];
-	Assets::Palettes::World::night = project->GetPaletteSlot(2)[0];
+	Assets::Palettes::World::day = m_palettes[0];
+	Assets::Palettes::World::dusk = m_palettes[1];
+	Assets::Palettes::World::night = m_palettes[2];
 
 	//Set stamp palettes
 	m_currentPalette = Assets::Palettes::World::day;
@@ -143,27 +173,51 @@ Project* World::LoadLevelData(const std::string& name)
 	return project;
 }
 
-void World::LoadedLevelData(Project* project)
-{
-	ion::debug::log << "Mem usage before project delete: " << ion::debug::GetRAMUsed();
-	delete project;
-	ion::debug::log << "Mem usage after project delete: " << ion::debug::GetRAMUsed();
-}
-
 bool World::LoadAct(Project& project, int levelIdx, const std::string& levelMap, const std::string& bgMap)
 {
 	m_levelIdx = levelIdx;
 
+	//Load FG stamp map
+	ion::io::File stampMapFileFg("assets/levels/l1/l1a1/stampmap.bee", ion::io::File::eOpenRead);
+	if (stampMapFileFg.IsOpen())
+	{
+		ion::io::Archive archive(stampMapFileFg, ion::io::Archive::Direction::In);
+		archive.SetContentType(ion::io::Archive::Content::Minimal);
+		archive.Serialise(m_mapSizeTilesFg, "mapSizeTiles");
+		archive.Serialise(m_stampMapFg, "stamps");
+		stampMapFileFg.Close();
+	}
+
+	//Load BG stamp map
+	ion::io::File stampMapFileBg("assets/levels/l1/l1bg/stampmap.bee", ion::io::File::eOpenRead);
+	if (stampMapFileBg.IsOpen())
+	{
+		ion::io::Archive archive(stampMapFileBg, ion::io::Archive::Direction::In);
+		archive.SetContentType(ion::io::Archive::Content::Minimal);
+		archive.Serialise(m_mapSizeTilesBg, "mapSizeTiles");
+		archive.Serialise(m_stampMapBg, "stamps");
+		stampMapFileBg.Close();
+	}
+
+	//Load game objects
+	ion::io::File gameObjMapFile("assets/levels/l1/l1a1/gameobjects.bee", ion::io::File::eOpenRead);
+	if (gameObjMapFile.IsOpen())
+	{
+		ion::io::Archive archive(gameObjMapFile, ion::io::Archive::Direction::In);
+		archive.SetContentType(ion::io::Archive::Content::Minimal);
+		archive.Serialise(m_gameObjects, "gameObjects");
+	}
+
 	//Find foreground/game data map
-	if (Map* map = project.FindMap(levelMap))
-	{
-		m_currentMap = *map;
-	}
-	else
-	{
-		ion::debug::error << "Error loading level map " << levelMap << ion::debug::end;
-		return false;
-	}
+	//if (Map* map = project.FindMap(levelMap))
+	//{
+	//	m_currentMap = *map;
+	//}
+	//else
+	//{
+	//	ion::debug::error << "Error loading level map " << levelMap << ion::debug::end;
+	//	return false;
+	//}
 
 	//Find background map
 	if (Map* map = project.FindMap(bgMap))
@@ -180,16 +234,16 @@ bool World::LoadAct(Project& project, int levelIdx, const std::string& levelMap,
 	m_physicsWorld->LoadWorld(project, levelMap);
 
 	//Create fg plane from map
-	m_planeFg = new Plane(m_currentMap, *m_stampSet);
+	m_planeFg = new Plane(m_stampMapFg, *m_stampSet);
 
 	//Create bg plane from map
-	m_planeBg = new Plane(m_backgroundMap, *m_stampSet);
+	m_planeBg = new Plane(m_stampMapBg, *m_stampSet);
 
 	//Get map size
-	m_mapSizeFg.x = m_currentMap.GetWidth() * 8;
-	m_mapSizeFg.y = m_currentMap.GetHeight() * 8;
-	m_mapSizeBg.x = m_backgroundMap.GetWidth() * 8;
-	m_mapSizeBg.y = m_backgroundMap.GetHeight() * 8;
+	m_mapSizeFg.x = m_mapSizeTilesFg.x * 8;
+	m_mapSizeFg.y = m_mapSizeTilesFg.y * 8;
+	m_mapSizeBg.x = m_mapSizeTilesBg.x * 8;
+	m_mapSizeBg.y = m_mapSizeTilesBg.y * 8;
 
 	//TEMP
 	m_planeBg->m_drawOffset.x = -(64 * 8) / 2;
@@ -207,9 +261,12 @@ bool World::LoadAct(Project& project, int levelIdx, const std::string& levelMap,
 
 bool World::LoadGameObjectTypes(Project& project, const std::string& name)
 {
-	if (project.ImportGameObjectTypes(name))
+	ion::io::File file(name, ion::io::File::eOpenRead);
+	if (file.IsOpen())
 	{
-		m_gameObjectTypes = project.GetGameObjectTypes();
+		ion::io::Archive archive(file, ion::io::Archive::Direction::In);
+		archive.SetContentType(ion::io::Archive::Content::Minimal);
+		archive.Serialise(m_gameObjectTypes, "gameObjectTypes");
 		return true;
 	}
 	
@@ -218,9 +275,7 @@ bool World::LoadGameObjectTypes(Project& project, const std::string& name)
 
 bool World::CreateGameObjects()
 {
-    const TGameObjectPosMap& gameObjects = m_currentMap.GetGameObjects();
-
-    for(TGameObjectPosMap::const_iterator it = gameObjects.begin(), end = gameObjects.end(); it != end; ++it)
+    for(TGameObjectPosMap::const_iterator it = m_gameObjects.begin(), end = m_gameObjects.end(); it != end; ++it)
     {
         //Get game object type
 		TGameObjectTypeMap::const_iterator typeIt = m_gameObjectTypes.find(it->first);

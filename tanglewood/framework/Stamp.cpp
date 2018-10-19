@@ -173,11 +173,11 @@ void StampRenderer::Render(ion::render::Renderer& renderer, const ion::Vector2& 
 	}
 }
 
-StampSet::StampSet(const Project& project)
+StampSet::StampSet(const TStampMap& stamps, const Tileset& tileset, const Palette& palette)
 {
-	for(TStampMap::const_iterator it = project.StampsBegin(), end = project.StampsEnd(); it != end; ++it)
+	for(TStampMap::const_iterator it = stamps.begin(), end = stamps.end(); it != end; ++it)
 	{
 		//TODO: One for each (used) palette
-		m_stamps.insert(std::make_pair(it->first, StampRenderer(it->second, project.GetTileset(), *project.GetPalette(0))));
+		m_stamps.insert(std::make_pair(it->first, StampRenderer(it->second, tileset, palette)));
 	}
 }

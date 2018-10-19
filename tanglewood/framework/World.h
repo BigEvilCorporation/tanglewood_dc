@@ -37,7 +37,6 @@ public:
 	//Load/setup sprites/level/act
 	bool LoadSprites(const std::string& name);
 	Project* LoadLevelData(const std::string& name);
-	void LoadedLevelData(Project* project);
 	bool LoadAct(Project& project, int levelIdx, const std::string& levelMap, const std::string& bgMap);
 	bool LoadGameObjectTypes(Project& project, const std::string& name);
 	bool CreateGameObjects();
@@ -98,8 +97,26 @@ private:
 	TGameObjectTypeMap m_gameObjectTypes;
 
 	//Beehive maps
-	Map m_currentMap;
+	//Map m_currentMap;
 	Map m_backgroundMap;
+
+	//Current tileset
+	Tileset m_tileset;
+
+	//Current stamp set
+	TStampMap m_stamps;
+
+	//Current stamp maps
+	ion::Vector2i m_mapSizeTilesFg;
+	ion::Vector2i m_mapSizeTilesBg;
+	TStampPosMap m_stampMapFg;
+	TStampPosMap m_stampMapBg;
+
+	//Current palettes
+	std::vector<Palette> m_palettes;
+
+	//Curent game objects
+	TGameObjectPosMap m_gameObjects;
 
 	//Current stamp set
 	StampSet* m_stampSet;

@@ -12,10 +12,10 @@
 
 #include <ion/maths/Geometry.h>
 
-Plane::Plane(const Map& map, StampSet& stampSet)
+Plane::Plane(const TStampPosMap& stampMap, StampSet& stampSet)
 {
 	//Place all stamp instances
-	for(TStampPosMap::const_iterator it = map.StampsBegin(), end = map.StampsEnd(); it != end; ++it)
+	for(TStampPosMap::const_iterator it = stampMap.begin(), end = stampMap.end(); it != end; ++it)
 	{
 		u32 flags = it->m_flags;
 

@@ -22,7 +22,7 @@
 class Plane
 {
 public:
-	Plane(const Map& map, StampSet& stampSet);
+	Plane(const TStampPosMap& stampMap, StampSet& stampSet);
 
 	void Render(ion::render::Renderer& renderer, const Bounds& cameraBounds, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize, PlanePriority priority);
 

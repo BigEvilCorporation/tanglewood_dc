@@ -33,28 +33,29 @@ void StateLoading::OnEnterState()
 	const LevelDescriptor& levelDesc = Constants::levels[Globals::Game::levelIdx];
 
 	//If world already exists, just reset it
-	//if (Globals::Game::world)
-	//{
-	//	//Delete all entities
-	//	Globals::Game::world->DeleteGameObjects();
-	//
-	//	//Reset physics world
-	//	Globals::Game::world->GetPhysicsWorld().RemoveAllObjects();
-	//
-	//	//If new act
-	//	if (Globals::Game::levelIdx != Globals::Game::world->GetLevelIdx())
-	//	{
-	//		//Load it
-	//		Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
-	//	}
-	//}
-	//else
-	//{
-
+#if 0
 	if (Globals::Game::world)
 	{
-		delete Globals::Game::world;
+		//Delete all entities
+		Globals::Game::world->DeleteGameObjects();
+	
+		//Reset physics world
+		Globals::Game::world->GetPhysicsWorld().RemoveAllObjects();
+	
+		//If new act
+		if (Globals::Game::levelIdx != Globals::Game::world->GetLevelIdx())
+		{
+			//Load it
+			Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
+		}
 	}
+	else
+#endif
+	{
+		if (Globals::Game::world)
+		{
+			delete Globals::Game::world;
+		}
 
 		//Create world
 		ion::debug::Log("Creating world");
@@ -66,27 +67,27 @@ void StateLoading::OnEnterState()
 		ion::debug::Log("Loading level");
 		Project* project = Globals::Game::world->LoadLevelData(levelDesc.levelDataFile);
 
-		//Load first act
+		//Load act
 		ion::debug::Log("Loading act");
 		Globals::Game::world->LoadAct(*project, Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
-	//}
 
-	ion::debug::Log("Loading gameobj types");
-	Globals::Game::world->LoadGameObjectTypes(*project, "assets/gameobjectsHD.bee_gameobj");
+		//Load game objects types
+		//TODO: Move to global assets
+		ion::debug::Log("Loading gameobj types");
+		Globals::Game::world->LoadGameObjectTypes(*project, "assets/gameobjectsHD.bee_gameobj");
 
-	//Done with project data
-	ion::debug::log << "Mem used before project deletion: " << ion::debug::GetRAMUsed() << ion::debug::end;
-	delete project;
-	ion::debug::log << "Mem used after project deletion: " << ion::debug::GetRAMUsed() << ion::debug::end;
+		//Done with project data
+		delete project;
 
-	//Load sprite data from Beehive project file
-	//TODO: Move to global assets
-	ion::debug::Log("Loading sprites");
-	Globals::Game::world->LoadSprites(levelDesc.spriteDataFile);
+		//Load sprite data from Beehive project file
+		//TODO: Move to global assets
+		ion::debug::Log("Loading sprites");
+		Globals::Game::world->LoadSprites(levelDesc.spriteDataFile);
 
-	//TODO: Move to global assets
-	ion::debug::Log("Loading palettes");
-	LoadGlobalPalettes();
+		//TODO: Move to global assets
+		ion::debug::Log("Loading palettes");
+		LoadGlobalPalettes();
+	}
 
 	//Create game objects
 	ion::debug::Log("Creating game objects");

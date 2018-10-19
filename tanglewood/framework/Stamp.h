@@ -62,7 +62,7 @@ class StampSet
 {
 public:
 	//Load from Beehive data
-	StampSet(const Project& project);
+	StampSet(const TStampMap& stamps, const Tileset& tileset, const Palette& palette);
 
 	std::map<StampId, StampRenderer> m_stamps;
 };
