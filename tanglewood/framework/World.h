@@ -21,6 +21,7 @@
 #include "Stamp.h"
 #include "Plane.h"
 #include "Physics.h"
+#include "Level.h"
 
 //TODO: Doesn't belong in framework
 #include "tanglewood/PlayerController.h"
@@ -34,11 +35,17 @@ public:
 	World();
 	~World();
 
-	//Load/setup sprites/level/act
+	//Load global data
 	bool LoadSprites(const std::string& name);
-	bool LoadLevelData();
-	bool LoadAct(int levelIdx, const std::string& levelMap, const std::string& bgMap);
 	bool LoadGameObjectTypes(const std::string& name);
+
+	//Load per-chapter data
+	bool LoadChapterData(const LevelDescriptor& level);
+
+	//Load per-act data
+	bool LoadActData(const LevelDescriptor& level);
+
+	//Create game objects
 	bool CreateGameObjects();
 
 	//Reset world to default state

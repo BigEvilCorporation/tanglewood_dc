@@ -19,10 +19,14 @@ typedef std::function<Level*()> LevelFactory;
 
 struct LevelDescriptor
 {
-	std::string spriteDataFile;
-	std::string levelDataFile;
-	std::string actName;
-	std::string bgName;
+	std::string tilesetName;
+	std::string stampsName;
+	std::string palettesName;
+	std::string collisionTilesName;
+	std::string collisionMapName;
+	std::string gameObjectsName;
+	std::string stampMapFgName;
+	std::string stampMapBgName;
 	LevelFactory levelfactory;
 };
 

@@ -33,7 +33,6 @@ void StateLoading::OnEnterState()
 	const LevelDescriptor& levelDesc = Constants::levels[Globals::Game::levelIdx];
 
 	//If world already exists, just reset it
-#if 0
 	if (Globals::Game::world)
 	{
 		//Delete all entities
@@ -46,44 +45,44 @@ void StateLoading::OnEnterState()
 		if (Globals::Game::levelIdx != Globals::Game::world->GetLevelIdx())
 		{
 			//Load it
-			Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
+			Globals::Game::world->LoadActData(levelDesc);
 		}
 	}
 	else
-#endif
 	{
-		if (Globals::Game::world)
-		{
-			delete Globals::Game::world;
-		}
-
 		//Create world
 		ion::debug::Log("Creating world");
 		Globals::Game::world = new World();
 
-		//TODO: Thread this
-
-		//Load first level data file from Beehive project file
-		ion::debug::Log("Loading level");
-		Globals::Game::world->LoadLevelData();
-
-		//Load act
-		ion::debug::Log("Loading act");
-		Globals::Game::world->LoadAct(Globals::Game::levelIdx, levelDesc.actName, levelDesc.bgName);
+		////////////////////////////////////////////////////////////////////////////
+		// GLOBAL DATA
+		// TODO: MOVE TO GLOBAL LOAD STATE
+		////////////////////////////////////////////////////////////////////////////
 
 		//Load game objects types
-		//TODO: Move to global assets
 		ion::debug::Log("Loading gameobj types");
 		Globals::Game::world->LoadGameObjectTypes("assets/gameobjtypes.bee");
 
 		//Load sprite data from Beehive project file
-		//TODO: Move to global assets
 		ion::debug::Log("Loading sprites");
-		Globals::Game::world->LoadSprites(levelDesc.spriteDataFile);
+		Globals::Game::world->LoadSprites("assets/sprites.bee_sprites");
 
-		//TODO: Move to global assets
+		//Load global palettes
 		ion::debug::Log("Loading palettes");
 		LoadGlobalPalettes();
+
+		////////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////////
+
+		//TODO: Thread this
+
+		//Load per-chapter data
+		ion::debug::Log("Loading level");
+		Globals::Game::world->LoadChapterData(levelDesc);
+
+		//Load per-act data
+		ion::debug::Log("Loading act");
+		Globals::Game::world->LoadActData(levelDesc);
 	}
 
 	//Create game objects

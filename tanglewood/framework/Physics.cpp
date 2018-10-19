@@ -52,7 +52,7 @@ void PhysicsWorld::RemoveBarrier(Barrier& barrier)
 	ion::utils::stl::FindAndRemove(m_barriers, &barrier);
 }
 
-void PhysicsWorld::LoadWorld(const std::string& terrainTilesetFilename, const std::string& collisionMapFilename)
+void PhysicsWorld::LoadCollisionTileset(const std::string& terrainTilesetFilename)
 {
 	ion::io::File tilesetFile(terrainTilesetFilename, ion::io::File::eOpenRead);
 	if (tilesetFile.IsOpen())
@@ -62,7 +62,10 @@ void PhysicsWorld::LoadWorld(const std::string& terrainTilesetFilename, const st
 		m_terrainTileset.Serialise(archive);
 		tilesetFile.Close();
 	}
+}
 
+void PhysicsWorld::LoadCollisionMap(const std::string& collisionMapFilename)
+{
 	ion::io::File mapFile(collisionMapFilename, ion::io::File::eOpenRead);
 	if (mapFile.IsOpen())
 	{

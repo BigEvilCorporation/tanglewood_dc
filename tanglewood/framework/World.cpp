@@ -103,7 +103,7 @@ bool World::LoadSprites(const std::string& name)
 	}
 }
 
-bool World::LoadLevelData()
+bool World::LoadChapterData(const LevelDescriptor& level)
 {
 #if USE_PALETTE_TEXTURES
 	//TODO: Doesn't belong here
@@ -114,7 +114,7 @@ bool World::LoadLevelData()
 #endif
 
 	//Load tileset
-	ion::io::File tilesetFile("assets/levels/l1/tileset.bee", ion::io::File::eOpenRead);
+	ion::io::File tilesetFile(level.tilesetName , ion::io::File::eOpenRead);
 	if (tilesetFile.IsOpen())
 	{
 		ion::io::Archive archive(tilesetFile, ion::io::Archive::Direction::In);
@@ -124,7 +124,7 @@ bool World::LoadLevelData()
 	}
 
 	//Load stamps
-	ion::io::File stampsFile("assets/levels/l1/stamps.bee", ion::io::File::eOpenRead);
+	ion::io::File stampsFile(level.stampsName, ion::io::File::eOpenRead);
 	if (stampsFile.IsOpen())
 	{
 		ion::io::Archive archive(stampsFile, ion::io::Archive::Direction::In);
@@ -134,7 +134,7 @@ bool World::LoadLevelData()
 	}
 
 	//Load palettes
-	ion::io::File palettesFile("assets/levels/l1/palettes.bee", ion::io::File::eOpenRead);
+	ion::io::File palettesFile(level.palettesName, ion::io::File::eOpenRead);
 	if (palettesFile.IsOpen())
 	{
 		ion::io::Archive archive(palettesFile, ion::io::Archive::Direction::In);
@@ -142,6 +142,9 @@ bool World::LoadLevelData()
 		archive.Serialise(m_palettes, "palettes");
 		palettesFile.Close();
 	}
+
+	//Load collision tileset
+	m_physicsWorld->LoadCollisionTileset(level.collisionTilesName);
 
 	//Create stamp set
 	m_stampSet = new StampSet(m_stamps, m_tileset, m_palettes[0]);
@@ -165,12 +168,10 @@ bool World::LoadLevelData()
 	return true;
 }
 
-bool World::LoadAct(int levelIdx, const std::string& levelMap, const std::string& bgMap)
+bool World::LoadActData(const LevelDescriptor& level)
 {
-	m_levelIdx = levelIdx;
-
 	//Load FG stamp map
-	ion::io::File stampMapFileFg("assets/levels/l1/l1a1/stampmap.bee", ion::io::File::eOpenRead);
+	ion::io::File stampMapFileFg(level.stampMapFgName, ion::io::File::eOpenRead);
 	if (stampMapFileFg.IsOpen())
 	{
 		ion::io::Archive archive(stampMapFileFg, ion::io::Archive::Direction::In);
@@ -181,7 +182,7 @@ bool World::LoadAct(int levelIdx, const std::string& levelMap, const std::string
 	}
 
 	//Load BG stamp map
-	ion::io::File stampMapFileBg("assets/levels/l1/l1bg/stampmap.bee", ion::io::File::eOpenRead);
+	ion::io::File stampMapFileBg(level.stampMapBgName, ion::io::File::eOpenRead);
 	if (stampMapFileBg.IsOpen())
 	{
 		ion::io::Archive archive(stampMapFileBg, ion::io::Archive::Direction::In);
@@ -192,7 +193,7 @@ bool World::LoadAct(int levelIdx, const std::string& levelMap, const std::string
 	}
 
 	//Load game objects
-	ion::io::File gameObjMapFile("assets/levels/l1/l1a1/gameobjects.bee", ion::io::File::eOpenRead);
+	ion::io::File gameObjMapFile(level.gameObjectsName, ion::io::File::eOpenRead);
 	if (gameObjMapFile.IsOpen())
 	{
 		ion::io::Archive archive(gameObjMapFile, ion::io::Archive::Direction::In);
@@ -200,8 +201,8 @@ bool World::LoadAct(int levelIdx, const std::string& levelMap, const std::string
 		archive.Serialise(m_gameObjects, "gameObjects");
 	}
 
-	//Load physics world
-	m_physicsWorld->LoadWorld("assets/levels/l1/terraintileset.bee", "assets/levels/l1/l1a1/collisionmap.bee");
+	//Load physics map
+	m_physicsWorld->LoadCollisionMap(level.collisionMapName);
 
 	//Create fg plane from map
 	m_planeFg = new Plane(m_stampMapFg, *m_stampSet);
@@ -293,6 +294,7 @@ bool World::CreateGameObjects()
         return false;
     }
 
+#if 0
 	ion::debug::log << "Mem used before sprite sheet deletion: " << ion::debug::GetRAMUsed() << ion::debug::end;
 
 	for (std::map<ActorId, Actor>::iterator it = m_actors.begin(), end = m_actors.end(); it != end; ++it)
@@ -304,6 +306,7 @@ bool World::CreateGameObjects()
 	}
 
 	ion::debug::log << "Mem used after sprite sheet deletion: " << ion::debug::GetRAMUsed() << ion::debug::end;
+#endif
 
 	return true;
 }
@@ -328,7 +331,7 @@ void World::Reset()
 	m_physicsWorld->RemoveAllObjects();
 
 	//Recreate game objects
-	//CreateGameObjects();
+	CreateGameObjects();
 }
 
 void World::Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad, const ion::render::Window& window, const ion::Vector2i& screenSize)
