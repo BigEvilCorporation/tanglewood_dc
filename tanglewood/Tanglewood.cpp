@@ -45,6 +45,8 @@ bool Tanglewood::Initialise()
 
 	Globals::Rendering::windowWidth = s_defaultWindowWidth;
 	Globals::Rendering::windowHeight = s_defaultWindowHeight;
+	Globals::Rendering::gameCanvasWidth = s_defaultScreenWidth;
+	Globals::Rendering::gameCanvasHeight = s_defaultScreenHeight;
 
 	//Create window/renderer/camera/viewport
 	m_window = ion::render::Window::Create("Tanglewood", s_defaultWindowWidth, s_defaultWindowHeight, false);
@@ -69,10 +71,6 @@ bool Tanglewood::Initialise()
 
 	//Create state manager
 	m_stateManager = new ion::gamekit::StateManager();
-
-	//Set initial screen size
-	m_screenSize.x = s_defaultScreenWidth;
-	m_screenSize.y = s_defaultScreenHeight;
 
 	//Create GUI
 	m_gui = new ion::gui::GUI(ion::Vector2i(s_defaultWindowWidth, s_defaultWindowHeight));
@@ -147,9 +145,6 @@ bool Tanglewood::Update(float deltaTime)
 	m_keyboard->Update();
 	m_gamepad->Update();
 
-	//Update world
-	Globals::Game::world->Update(deltaTime, *m_camera, *m_keyboard, *m_gamepad, *m_window, m_screenSize);
-
 	//Update gamestate
 	m_stateManager->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
 
@@ -177,9 +172,6 @@ void Tanglewood::Render()
 	m_renderer->SetFaceCulling(ion::render::Renderer::eNoCull);
 
 	ion::Matrix4 cameraInv = m_camera->GetTransform().GetInverse();
-
-	//Render world
-	Globals::Game::world->Render(*m_renderer, *m_camera, *m_viewport, cameraInv);
 
 	//Render gamestate
 	m_stateManager->Render(*m_renderer, *m_camera, *m_viewport);

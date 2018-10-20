@@ -24,7 +24,9 @@ namespace Globals
 
 	namespace Rendering
 	{
-		int windowWidth = 320;
-		int windowHeight = 240;
+		int windowWidth = 1024;
+		int windowHeight = 760;
+		int gameCanvasWidth = 320;
+		int gameCanvasHeight = 240;
 	}
 }

@@ -49,6 +49,9 @@ void StateGameplay::OnResumeState()
 
 bool StateGameplay::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
+	//Update world
+	Globals::Game::world->Update(deltaTime, *keyboard, *gamepad);
+
 	//Update level logic
 	Globals::Game::level->Update(deltaTime);
 
@@ -82,5 +85,6 @@ bool StateGameplay::Update(float deltaTime, ion::input::Keyboard* keyboard, ion:
 
 void StateGameplay::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
-
+	//Render world
+	Globals::Game::world->Render(renderer, camera, viewport, camera.GetTransform().GetInverse());
 }

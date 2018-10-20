@@ -2,6 +2,7 @@
 
 #include <ion/io/Archive.h>
 #include <ion/renderer/Camera.h>
+#include <ion/renderer/Types.h>
 
 class LevelDescriptor;
 class Level;
@@ -30,5 +31,7 @@ namespace Globals
 	{
 		extern int windowWidth;
 		extern int windowHeight;
+		extern int gameCanvasWidth;
+		extern int gameCanvasHeight;
 	}
 }

@@ -55,11 +55,11 @@ public:
 	int GetLevelIdx() const { return m_levelIdx; }
 
 	//Update/render
-	void Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad, const ion::render::Window& window, const ion::Vector2i& screenSize);
+	void Update(float deltaTime, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad);
 	void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv);
 
 	//Set camera position, correcting for viewport size
-	void SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize);
+	void SetCameraPosition(const ion::Vector2& position);
 
 	//Entity map
 	template <typename T> void AddEntity(T& entity);

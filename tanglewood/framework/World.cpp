@@ -37,7 +37,7 @@ World::World()
 	//Init effects
 	m_fader = 0.0f;
 	m_fadeSpeed = 0.0f;
-	m_fadeQuad = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2(Globals::Rendering::windowWidth / 2, Globals::Rendering::windowHeight / 2));
+	m_fadeQuad = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2(Globals::Rendering::gameCanvasWidth / 2, Globals::Rendering::gameCanvasHeight / 2));
 	m_fadeMaterial = new ion::render::Material();
 	m_fadeMaterial->SetDiffuseColour(ion::Colour(0.0f, 0.0f, 0.0f, 1.0f));
 
@@ -334,7 +334,7 @@ void World::Reset()
 	CreateGameObjects();
 }
 
-void World::Update(float deltaTime, ion::render::Camera& camera, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad, const ion::render::Window& window, const ion::Vector2i& screenSize)
+void World::Update(float deltaTime, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad)
 {
     //Update player controller
     if(m_playerController)
@@ -361,7 +361,7 @@ void World::Update(float deltaTime, ion::render::Camera& camera, const ion::inpu
 	if(m_playerController)
 	{
 		ion::Vector2 playerPos = m_playerController->GetCentre();
-		SetCameraPosition(ion::Vector2(playerPos.x, m_mapSizeFg.y - playerPos.y), camera, window, screenSize);
+		SetCameraPosition(ion::Vector2(playerPos.x, m_mapSizeFg.y - playerPos.y));
 	}
 
 	//Update background scroll
@@ -429,25 +429,25 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 #endif
 }
 
-void World::SetCameraPosition(const ion::Vector2& position, ion::render::Camera& camera, const ion::render::Window& window, const ion::Vector2i& screenSize)
+void World::SetCameraPosition(const ion::Vector2& position)
 {
 	//Calc ratio of window to screen size
 	ion::Vector3 cameraZoom;
-	cameraZoom.x = (float)window.GetClientAreaWidth() / (float)screenSize.x;
-	cameraZoom.y = (float)window.GetClientAreaHeight() / (float)screenSize.y;
+	cameraZoom.x = (float)Globals::Rendering::windowWidth / (float)Globals::Rendering::gameCanvasWidth;
+	cameraZoom.y = (float)Globals::Rendering::windowHeight / (float)Globals::Rendering::gameCanvasHeight;
 	cameraZoom.z = 1.0f;
 
 	//Set camera zoom
-	camera.SetZoom(cameraZoom);
+	Globals::Game::camera->SetZoom(cameraZoom);
 
 	//Compensate camera pos
 	ion::Vector3 cameraPos;
-	cameraPos.x = position.x - (float)screenSize.x / 2.0f;
-	cameraPos.y = position.y - (float)screenSize.y / 2.0f;
+	cameraPos.x = position.x - (float)Globals::Rendering::gameCanvasWidth / 2.0f;
+	cameraPos.y = position.y - (float)Globals::Rendering::gameCanvasHeight / 2.0f;
 	cameraPos.z = -0.1f;
 
 	//Set camera pos
-	camera.SetPosition(cameraPos);
+	Globals::Game::camera->SetPosition(cameraPos);
 
 	m_cameraPos = position;
 }
