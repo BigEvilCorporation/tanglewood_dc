@@ -42,6 +42,9 @@ local SRC =
 	Tanglewood.cpp
 	Tanglewood.h
 
+	effects/Fader.cpp
+	effects/Fader.h
+
 	framework/Barrier.h
 	framework/Character.cpp
 	framework/Character.h

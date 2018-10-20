@@ -10,6 +10,7 @@
 #include "StateLoading.h"
 #include "Globals.h"
 #include "Palettes.h"
+#include "Animations.h"
 
 #include "levels/LevelList.h"
 
@@ -24,7 +25,7 @@
 StateLoading::StateLoading(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
 	: ion::gamekit::State("loading", stateManager, resourceManager)
 {
-
+	m_loadingSprite = nullptr;
 }
 
 StateLoading::~StateLoading()
@@ -32,9 +33,31 @@ StateLoading::~StateLoading()
 
 }
 
+void StateLoading::SetCameraPosition(const ion::Vector2& position)
+{
+	//Calc ratio of window to screen size
+	ion::Vector3 cameraZoom;
+	cameraZoom.x = (float)Globals::Rendering::windowWidth / (float)Globals::Rendering::gameCanvasWidth;
+	cameraZoom.y = (float)Globals::Rendering::windowHeight / (float)Globals::Rendering::gameCanvasHeight;
+	cameraZoom.z = 1.0f;
+
+	//Set camera zoom
+	m_loadingCamera.SetZoom(cameraZoom);
+
+	//Compensate camera pos
+	ion::Vector3 cameraPos;
+	cameraPos.x = position.x - (float)Globals::Rendering::gameCanvasWidth / 2.0f;
+	cameraPos.y = position.y - (float)Globals::Rendering::gameCanvasHeight / 2.0f;
+	cameraPos.z = -0.1f;
+
+	//Set camera pos
+	m_loadingCamera.SetPosition(cameraPos);
+}
+
 void StateLoading::OnEnterState()
 {
 	//Reset fader
+	m_fader.ResetToBlack();
 	m_fadingOut = false;
 
 	//Start loading thread
@@ -45,6 +68,42 @@ void StateLoading::OnEnterState()
 #else
 	m_loadingThread->Entry();
 #endif
+
+	//Load loading screen assets
+	//TODO: Use a secondary world
+	ion::io::File file("assets/loading.bee_sprites", ion::io::File::eOpenRead);
+	if (file.IsOpen())
+	{
+		ion::io::Archive archive(file, ion::io::Archive::Direction::In);
+		archive.Serialise(m_actors, "actors");
+
+		if (m_actors.size() > 0 && m_actors.begin()->second.GetSpriteSheetCount() > 0)
+		{
+			//Create game obj
+			Actor& actor = m_actors.begin()->second;
+			const SpriteSheet& sheet = actor.SpriteSheetsBegin()->second;
+
+			m_loadingWorld = new World();
+			m_loadingGameObjType = new GameObjectType(0);
+			m_loadingGameObj = new GameObject(0, 0, ion::Vector2i(0, 0), ion::Vector2i(sheet.GetWidthTiles() * Constants::MegaDrive::tileWidth, sheet.GetHeightTiles() * Constants::MegaDrive::tileHeight));
+			m_loadingSprite = new SpriteObj(*m_loadingWorld, *m_loadingGameObj, *m_loadingGameObjType, &actor);
+
+			//Setup rendering
+			m_loadingScreenSize.x = Globals::Rendering::gameCanvasWidth;
+			m_loadingScreenSize.y = Globals::Rendering::gameCanvasHeight;
+			ion::Vector2 centre = m_loadingSprite->GetWorldCentre();
+
+			SetCameraPosition(ion::Vector2(
+				centre.x - (m_loadingScreenSize.x / 2) + (m_loadingSprite->m_size.x / 2) + 8,
+				m_loadingScreenSize.y - centre.y + (m_loadingScreenSize.y / 2) - (m_loadingSprite->m_size.y / 2) - 8));
+
+			//Begin animation
+			m_loadingSprite->PlayAnimation(Animations::Loading::run);
+
+			//Begin fading up
+			m_fader.BeginFade(Constants::Flow::defaultFadeSpeed);
+		}
+	}
 }
 
 void StateLoading::OnLeaveState()
@@ -64,6 +123,15 @@ void StateLoading::OnResumeState()
 
 bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
+	//Update loading sprite
+	if (m_loadingSprite)
+	{
+		m_loadingSprite->Update(deltaTime);
+	}
+
+	//Update fader
+	m_fader.Update(deltaTime);
+
 	//Wait until loading thread done
 	if (m_loadingThread->m_running)
 	{
@@ -75,15 +143,19 @@ bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::
 		if (m_fadingOut)
 		{
 			//Wait for fade
-			if (Globals::Game::world->IsFading())
+			if (!m_fader.IsFading())
 			{
 				//Done with loading thread
 				if (m_loadingThread)
 				{
 					delete m_loadingThread;
 					m_loadingThread = nullptr;
-
 				}
+
+				//Done with loading world
+
+				//Done with loading assets
+
 				//Next state
 				m_stateManager.SwapState("gameplay");
 			}
@@ -91,7 +163,7 @@ bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::
 		else
 		{
 			//Begin fade out
-			Globals::Game::world->BeginFade(-Constants::Flow::defaultFadeSpeed);
+			m_fader.BeginFade(-Constants::Flow::defaultFadeSpeed);
 			m_fadingOut = true;
 		}
 	}
@@ -101,7 +173,14 @@ bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::
 
 void StateLoading::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
+	//Render loading sprite
+	if (m_loadingSprite)
+	{
+		m_loadingSprite->Render(renderer, m_loadingCamera, viewport, m_loadingCamera.GetTransform().GetInverse(), m_loadingScreenSize);
+	}
 
+	//Render fader
+	m_fader.Render(renderer);
 }
 
 void StateLoading::LoadingThread::Entry()
@@ -112,9 +191,6 @@ void StateLoading::LoadingThread::Entry()
 	//If world already exists, just reset it
 	if (Globals::Game::world)
 	{
-		//Begin fade up
-		Globals::Game::world->BeginFade(Constants::Flow::defaultFadeSpeed);
-
 		//Delete all entities
 		Globals::Game::world->DeleteGameObjects();
 

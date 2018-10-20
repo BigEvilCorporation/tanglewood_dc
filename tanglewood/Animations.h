@@ -4,6 +4,11 @@
 
 namespace Animations
 {
+	namespace Loading
+	{
+		static const AnimType run =				{ "run",			"run",			AnimFlags::Loop };
+	}
+
 	namespace Player
 	{
 		static const AnimType idle =			{ "idle",			"idle",			AnimFlags::Loop };

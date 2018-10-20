@@ -23,6 +23,8 @@
 #include "Physics.h"
 #include "Level.h"
 
+#include "effects/Fader.h"
+
 //TODO: Doesn't belong in framework
 #include "tanglewood/PlayerController.h"
 
@@ -80,6 +82,7 @@ public:
 	PlayerController* GetPlayerController() const { return m_playerController; }
 
 	//Effects
+	void ResetFader();
 	bool BeginFade(float speed);
 	bool IsFading() const;
 
@@ -89,7 +92,6 @@ public:
 	void BeginPaletteLerp(const Palette& dest, float speed);
 
 private:
-	void UpdateFader(float deltaTime);
 	void UpdatePaletteLerp(float deltaTime);
 
 	int m_levelIdx;
@@ -143,10 +145,7 @@ private:
     PlayerController* m_playerController;
 
 	//Effects
-	float m_fader;
-	float m_fadeSpeed;
-	ion::render::Quad* m_fadeQuad;
-	ion::render::Material* m_fadeMaterial;
+	Fader m_fader;
 
 	//Palette lerp
 	Palette m_sourcePalette;

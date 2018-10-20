@@ -10,8 +10,12 @@
 #pragma once
 
 #include "framework/Level.h"
+#include "framework/SpriteObj.h"
+
+#include "effects/Fader.h"
 
 #include <ion/core/thread/Thread.h>
+#include <ion/core/thread/CriticalSection.h>
 #include <ion/gamekit/StateManager.h>
 
 #if defined ION_PLATFORM_DREAMCAST
@@ -35,7 +39,10 @@ public:
 	virtual void Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport);
 
 private:
+	//TODO: Use a secondary world
+	void SetCameraPosition(const ion::Vector2& position);
 
+	//Load thread
 	class LoadingThread : public ion::thread::Thread
 	{
 	public:
@@ -55,4 +62,15 @@ private:
 
 	LoadingThread* m_loadingThread;
 	bool m_fadingOut;
+
+	//Loading screen assets
+	//TODO: Use a secondary world
+	std::map<ActorId, Actor> m_actors;
+	World* m_loadingWorld;
+	SpriteObj* m_loadingSprite;
+	GameObjectType* m_loadingGameObjType;
+	GameObject* m_loadingGameObj;
+	ion::render::Camera m_loadingCamera;
+	ion::Vector2 m_loadingScreenSize;
+	Fader m_fader;
 };
