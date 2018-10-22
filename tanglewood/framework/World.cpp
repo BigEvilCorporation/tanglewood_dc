@@ -398,10 +398,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	}
 
 	//Draw fade plane
-#if !defined ION_PLATFORM_DREAMCAST
-	//TODO: Vertex colours wrong on Dreamcast
 	m_fader.Render(renderer);
-#endif
 
 #if defined DEBUG
 	for (int i = 0; i < m_entities.size(); i++)

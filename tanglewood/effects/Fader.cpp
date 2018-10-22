@@ -62,9 +62,12 @@ void Fader::Update(float deltaTime)
 
 void Fader::Render(ion::render::Renderer& renderer)
 {
+    //TODO: Vertex colours wrong on Dreamcast+Linux
+#if !defined ION_PLATFORM_DREAMCAST && !defined ION_PLATFORM_LINUX
 	ion::Matrix4 quadMatrix;
 	quadMatrix.SetTranslation(ion::Vector3(Globals::Rendering::windowWidth / 2, Globals::Rendering::windowHeight / 2, 0.0f));
 	m_fadeMaterial->Bind(quadMatrix, ion::Matrix4(), renderer.GetProjectionMatrix());
 	renderer.DrawVertexBuffer(m_fadeQuad->GetVertexBuffer(), m_fadeQuad->GetIndexBuffer());
 	m_fadeMaterial->Unbind();
+#endif
 }
