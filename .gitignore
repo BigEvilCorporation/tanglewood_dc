@@ -4,3 +4,5 @@ buildtools
 roms
 bigevilcorp.jamrules
 tanglewood/_build
+!*.exe
+!*.dll
