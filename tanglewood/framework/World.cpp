@@ -72,8 +72,47 @@ World::~World()
 	}
 }
 
-bool World::LoadSprites(const std::string& name)
+bool World::LoadSprites()
 {
+	//TODO: move to constants
+	const std::string directory = "assets/sprites";
+
+	for (TGameObjectPosMap::const_iterator it = m_gameObjects.begin(), end = m_gameObjects.end(); it != end; ++it)
+	{
+		TGameObjectTypeMap::const_iterator typeIt = m_gameObjectTypes.find(it->first);
+		if (typeIt != m_gameObjectTypes.end())
+		{
+			const GameObjectType& gameObjType = typeIt->second;
+			const std::string& typeName = gameObjType.GetName();
+
+			//Find in object registry
+			std::vector<ObjectFactory::ObjectRegistryEntry>::const_iterator regIt = std::find_if(ObjectFactory::objectRegistry.begin(), ObjectFactory::objectRegistry.end(), [&typeName](const ObjectFactory::ObjectRegistryEntry& rhs) { return typeName == rhs.typeName; });
+
+			if (regIt != ObjectFactory::objectRegistry.end())
+			{
+				const ObjectFactory::ObjectRegistryEntry& registryEntry = (*regIt);
+
+				//Load actor file
+				Actor* actor = nullptr;
+				if (!registryEntry.actorName.empty())
+				{
+					std::stringstream filename;
+					filename << directory << "/" << registryEntry.actorName << ".bee";
+					LoadSprite(filename.str());
+				}
+			}
+			else
+			{
+				ion::debug::log << "World::LoadSprites() - Could not find object factory for type \'" << typeName << "\'" << ion::debug::end;
+			}
+		}
+		else
+		{
+			ion::debug::log << "World::LoadSprites() - Could not find game object type id \'" << it->first << "\'" << ion::debug::end;
+		}
+	}
+
+#if 0
 	//Load sprite data from Beehive project file
 	ion::io::File file(name, ion::io::File::eOpenRead);
 	if (file.IsOpen())
@@ -87,6 +126,36 @@ bool World::LoadSprites(const std::string& name)
 		ion::debug::error << "Error loading sprite data " << name << ion::debug::end;
 		return false;
 	}
+#endif
+
+	return true;
+}
+
+bool World::LoadSprite(const std::string filename)
+{
+	//If not already loaded
+	if (!FindActor(filename))
+	{
+		ion::io::File file(filename, ion::io::File::eOpenRead);
+		if (file.IsOpen())
+		{
+			//New actor
+			m_actors.push_back(Actor());
+
+			//Serialise
+			ion::io::Archive archive(file, ion::io::Archive::Direction::In);
+			archive.SetContentType(ion::io::Archive::Content::Minimal);
+			archive.Serialise(m_actors.back(), "actor");
+
+			return true;
+		}
+		else
+		{
+			ion::debug::log << "World::LoadSprite() - Could not load sprite actor \'" << filename << "\'" << ion::debug::end;
+		}
+	}
+
+	return false;
 }
 
 bool World::LoadChapterData(const LevelDescriptor& level)
@@ -436,11 +505,11 @@ void World::SetCameraPosition(const ion::Vector2& position)
 
 const Actor* World::FindActor(const std::string& name) const
 {
-	for (std::map<ActorId, Actor>::const_iterator it = m_actors.begin(), end = m_actors.end(); it != end; ++it)
+	for (std::vector<Actor>::const_iterator it = m_actors.begin(), end = m_actors.end(); it != end; ++it)
 	{
-		if (ion::string::CompareNoCase(it->second.GetName(), name))
+		if (ion::string::CompareNoCase(it->GetName(), name))
 		{
-			return &it->second;
+			return &(*it);
 		}
 	}
 

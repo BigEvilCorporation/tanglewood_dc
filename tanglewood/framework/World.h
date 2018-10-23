@@ -38,7 +38,6 @@ public:
 	~World();
 
 	//Load global data
-	bool LoadSprites(const std::string& name);
 	bool LoadGameObjectTypes(const std::string& name);
 
 	//Load per-chapter data
@@ -46,6 +45,8 @@ public:
 
 	//Load per-act data
 	bool LoadActData(const LevelDescriptor& level);
+	bool LoadSprites();
+	bool LoadSprite(const std::string filename);
 
 	//Create game objects
 	bool CreateGameObjects();
@@ -101,7 +102,7 @@ private:
 	ion::Vector2 m_cameraPos;
 
 	//TODO: Move to global assets
-	std::map<ActorId, Actor> m_actors;
+	std::vector<Actor> m_actors;
 
 	TGameObjectTypeMap m_gameObjectTypes;
 

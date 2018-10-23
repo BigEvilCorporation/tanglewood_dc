@@ -29,7 +29,8 @@ namespace ObjectFactory
 		ObjectAllocator allocator;
 	};
 
-	Entity* Create(World& world, TActorMap& actors, const GameObject& gameObject, const GameObjectType& gameObjType);
+	Entity* Create(World& world, std::vector<Actor>& actors, const GameObject& gameObject, const GameObjectType& gameObjType);
+	Actor* FindActor(std::vector<Actor>& actors, const std::string& actorName);
 
 	extern const std::vector<ObjectRegistryEntry> objectRegistry;
 }

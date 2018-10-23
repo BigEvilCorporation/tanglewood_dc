@@ -222,10 +222,6 @@ void StateLoading::LoadingThread::Entry()
 		ion::debug::Log("Loading gameobj types");
 		Globals::Game::world->LoadGameObjectTypes("assets/gameobjtypes.bee");
 
-		//Load sprite data from Beehive project file
-		ion::debug::Log("Loading sprites");
-		Globals::Game::world->LoadSprites("assets/sprites.bee_sprites");
-
 		//Load global palettes
 		ion::debug::Log("Loading palettes");
 		LoadGlobalPalettes();
@@ -240,6 +236,10 @@ void StateLoading::LoadingThread::Entry()
 		//Load per-act data
 		ion::debug::Log("Loading act data");
 		Globals::Game::world->LoadActData(levelDesc);
+
+		//Load sprite data
+		ion::debug::Log("Loading sprites");
+		Globals::Game::world->LoadSprites();
 	}
 
 	//Create game objects
@@ -254,29 +254,44 @@ void StateLoading::LoadingThread::LoadGlobalPalettes()
 {
 	if (!Assets::Palettes::Player::shared)
 	{
-		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_red"))
+		if (Globals::Game::world->LoadSprite("assets/sprites/nymn_pal_red.bee"))
 		{
-			Assets::Palettes::Player::red = *actor->GetMasterPalette();
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_red"))
+			{
+				Assets::Palettes::Player::red = *actor->GetMasterPalette();
+			}
 		}
 
-		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_green"))
+		if (Globals::Game::world->LoadSprite("assets/sprites/nymn_pal_green.bee"))
 		{
-			Assets::Palettes::Player::green = *actor->GetMasterPalette();
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_green"))
+			{
+				Assets::Palettes::Player::green = *actor->GetMasterPalette();
+			}
 		}
 
-		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_blue"))
+		if (Globals::Game::world->LoadSprite("assets/sprites/nymn_pal_blue.bee"))
 		{
-			Assets::Palettes::Player::blue = *actor->GetMasterPalette();
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_blue"))
+			{
+				Assets::Palettes::Player::blue = *actor->GetMasterPalette();
+			}
 		}
 
-		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_yellow"))
+		if (Globals::Game::world->LoadSprite("assets/sprites/nymn_pal_yellow.bee"))
 		{
-			Assets::Palettes::Player::yellow = *actor->GetMasterPalette();
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_yellow"))
+			{
+				Assets::Palettes::Player::yellow = *actor->GetMasterPalette();
+			}
 		}
 
-		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_white"))
+		if (Globals::Game::world->LoadSprite("assets/sprites/nymn_pal_white.bee"))
 		{
-			Assets::Palettes::Player::white = *actor->GetMasterPalette();
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_white"))
+			{
+				Assets::Palettes::Player::white = *actor->GetMasterPalette();
+			}
 		}
 
 		Assets::Palettes::Player::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::Player::red);
