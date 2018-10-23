@@ -178,6 +178,7 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 		tilesetFile.Close();
 	}
 
+#if 0
 	//Load stamps
 	ion::io::File stampsFile(level.stampsName, ion::io::File::eOpenRead);
 	if (stampsFile.IsOpen())
@@ -187,6 +188,7 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 		archive.Serialise(m_stamps, "stamps");
 		stampsFile.Close();
 	}
+#endif
 
 	//Load palettes
 	ion::io::File palettesFile(level.palettesName, ion::io::File::eOpenRead);
@@ -201,8 +203,10 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 	//Load collision tileset
 	m_physicsWorld->LoadCollisionTileset(level.collisionTilesName);
 
+#if 0
 	//Create stamp set
 	m_stampSet = new StampSet(m_stamps, m_tileset, m_palettes[0]);
+#endif
 
 #if USE_PALETTE_TEXTURES
 	//Get time of day palettes
@@ -210,14 +214,13 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 	Assets::Palettes::World::dusk = m_palettes[1];
 	Assets::Palettes::World::night = m_palettes[2];
 
+#if 0
 	//Set stamp palettes
-	m_currentPalette = Assets::Palettes::World::day;
-	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(m_currentPalette);
-
 	for (std::map<StampId, StampRenderer>::iterator it = m_stampSet->m_stamps.begin(), end = m_stampSet->m_stamps.end(); it != end; ++it)
 	{
 		it->second.SetPaletteTexture(Assets::Palettes::World::shared);
 	}
+#endif
 #endif
 
 	return true;
@@ -225,6 +228,7 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 
 bool World::LoadActData(const LevelDescriptor& level)
 {
+#if 0
 	//Load FG stamp map
 	ion::io::File stampMapFileFg(level.stampMapFgName, ion::io::File::eOpenRead);
 	if (stampMapFileFg.IsOpen())
@@ -246,6 +250,26 @@ bool World::LoadActData(const LevelDescriptor& level)
 		archive.Serialise(m_stampMapBg, "stamps");
 		stampMapFileBg.Close();
 	}
+#endif
+
+	//TODO: Shared tileset texture
+
+	//Load fg map
+	ion::io::File mapFileFg(level.tileMapFgName, ion::io::File::eOpenRead);
+	if (mapFileFg.IsOpen())
+	{
+		//Serialise
+		std::vector<Map::TileDesc> tileMap;
+
+		ion::io::Archive archive(mapFileFg, ion::io::Archive::Direction::In);
+		archive.SetContentType(ion::io::Archive::Content::Minimal);
+		archive.Serialise(m_mapSizeTilesFg, "size");
+		archive.Serialise(tileMap, "tileMap");
+		mapFileFg.Close();
+
+		//Create fg plane from map
+		m_planeFg = new Plane(m_tileset, tileMap, m_mapSizeTilesFg, m_palettes[0]);
+	}
 
 	//Load game objects
 	ion::io::File gameObjMapFile(level.gameObjectsName, ion::io::File::eOpenRead);
@@ -259,11 +283,13 @@ bool World::LoadActData(const LevelDescriptor& level)
 	//Load physics map
 	m_physicsWorld->LoadCollisionMap(level.collisionMapName);
 
+#if 0
 	//Create fg plane from map
 	m_planeFg = new Plane(m_stampMapFg, *m_stampSet);
 
 	//Create bg plane from map
 	m_planeBg = new Plane(m_stampMapBg, *m_stampSet);
+#endif
 
 	//Get map size
 	m_mapSizeFg.x = m_mapSizeTilesFg.x * 8;
@@ -272,8 +298,15 @@ bool World::LoadActData(const LevelDescriptor& level)
 	m_mapSizeBg.y = m_mapSizeTilesBg.y * 8;
 
 	//TEMP
-	m_planeBg->m_drawOffset.x = -(64 * 8) / 2;
-	m_planeBg->m_drawOffset.y = -(32 * 8) / 2;
+	//m_planeBg->m_drawOffset.x = -(64 * 8) / 2;
+	//m_planeBg->m_drawOffset.y = -(32 * 8) / 2;
+
+	//Set plane palettes
+	m_currentPalette = Assets::Palettes::World::day;
+	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(m_currentPalette);
+
+	m_planeFg->SetPaletteTexture(Assets::Palettes::World::shared);
+	//m_planeBg->SetPaletteTexture(Assets::Palettes::World::shared);
 
 	//Get bg colour
 	const Colour& bgColour = m_palettes[0].GetColour(0);
@@ -420,8 +453,8 @@ void World::Update(float deltaTime, const ion::input::Keyboard& keyboard, const 
 	}
 
 	//Update background scroll
-	m_planeBg->m_scroll.x = m_cameraPos.x;
-	m_planeBg->m_scroll.y = m_cameraPos.y;
+	//m_planeBg->m_scroll.x = m_cameraPos.x;
+	//m_planeBg->m_scroll.y = m_cameraPos.y;
 
 	//Update effects
 	m_fader.Update(deltaTime);
@@ -441,7 +474,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	const std::vector<SpriteObj*>& sprites = GetEntities<SpriteObj>();
 
 	//Draw planes
-	m_planeBg->Render(renderer, cameraBounds, cameraInv, m_mapSizeBg, PlanePriority::PlaneBLow);
+	//m_planeBg->Render(renderer, cameraBounds, cameraInv, m_mapSizeBg, PlanePriority::PlaneBLow);
 	m_planeFg->Render(renderer, cameraBounds, cameraInv, m_mapSizeFg, PlanePriority::PlaneALow);
 
 	//Draw sprites
@@ -452,10 +485,6 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 			sprites[i]->Render(renderer, camera, viewport, cameraInv, m_mapSizeFg);
 		}
 	}
-
-	//Draw planes
-	m_planeBg->Render(renderer, cameraBounds, cameraInv, m_mapSizeBg, PlanePriority::PlaneBHigh);
-	m_planeFg->Render(renderer, cameraBounds, cameraInv, m_mapSizeFg, PlanePriority::PlaneAHigh);
 
 	//Draw sprites
 	for (int i = 0; i < sprites.size(); i++)

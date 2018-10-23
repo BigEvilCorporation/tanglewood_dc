@@ -22,9 +22,14 @@
 class Plane
 {
 public:
-	Plane(const TStampPosMap& stampMap, StampSet& stampSet);
+	Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& size, const Palette& palette);
+	~Plane();
 
 	void Render(ion::render::Renderer& renderer, const Bounds& cameraBounds, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize, PlanePriority priority);
+
+#if USE_PALETTE_TEXTURES
+	void SetPaletteTexture(ion::render::Texture* texture) { m_paletteTexture = texture; }
+#endif
 
 	ion::Vector2 m_scroll;
 	ion::Vector2 m_drawOffset;
@@ -38,5 +43,22 @@ private:
 		StampRenderer* stamp;
 	};
 
+	void CreateTilesetTexture(const Tileset& tileset, const Palette& palette);
+	void PaintTile(TileId tileId, int x, int y, u32 flipFlags);
+	void PaintMap(const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& size);
+	void GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], u32 tileFlags) const;
+
 	std::vector<StampInstance> m_stampInstances;
+
+	ion::render::Texture* m_tilesetTexture;
+	ion::render::Chessboard* m_canvasPrimitive;
+	ion::render::Material* m_material;
+
+#if USE_PALETTE_TEXTURES
+	ion::render::Texture* m_paletteTexture;
+#endif
+
+	ion::Vector2i m_canvasSize;
+	u32 m_tilesetSizeSq;
+	float m_cellSizeTexSpaceSq;
 };

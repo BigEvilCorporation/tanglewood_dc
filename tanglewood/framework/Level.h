@@ -25,8 +25,8 @@ struct LevelDescriptor
 	std::string collisionTilesName;
 	std::string collisionMapName;
 	std::string gameObjectsName;
-	std::string stampMapFgName;
-	std::string stampMapBgName;
+	std::string tileMapFgName;
+	std::string tileMapBgName;
 	LevelFactory levelfactory;
 };
 
