@@ -64,6 +64,9 @@ public:
 	//Set camera position, correcting for viewport size
 	void SetCameraPosition(const ion::Vector2& position);
 
+	//Pre-stream map
+	void PreStreamMap();
+
 	//Entity map
 	template <typename T> void AddEntity(T& entity);
 	template <typename T> void RemoveEntity(T& entity);
@@ -110,16 +113,10 @@ private:
 	//Current tileset
 	Tileset m_tileset;
 
-	//Current stamp set
-	TStampMap m_stamps;
-
 	//Current maps
 	ion::Vector2i m_mapSizeTilesFg;
 	ion::Vector2i m_mapSizeTilesBg;
 	std::vector<Map::TileDesc> m_tileMapFg;
-
-	//TStampPosMap m_stampMapFg;
-	//TStampPosMap m_stampMapBg;
 
 	//Current palettes
 	std::vector<Palette> m_palettes;

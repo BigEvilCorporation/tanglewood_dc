@@ -26,6 +26,8 @@ public:
 	Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& mapSizeTiles, const ion::Vector2i& canvasSizeTiles, const Palette& palette);
 	~Plane();
 
+	void PreStream(const ion::render::Camera& camera);
+
 	void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, PlanePriority priority);
 
 #if USE_PALETTE_TEXTURES
@@ -52,7 +54,6 @@ private:
 
 	void CreateTilesetTexture(const Tileset& tileset, const Palette& palette);
 	void PaintTile(TileId tileId, int x, int y, u32 flipFlags);
-	void PaintMap();
 	void GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], u32 tileFlags) const;
 
 	void ShiftMapX(int direction);
@@ -60,7 +61,6 @@ private:
 	void StreamColumn(int x, int y, int direction);
 	void StreamRow(int x, int y, int direction);
 
-	//std::vector<StampInstance> m_stampInstances;
 	const std::vector<Map::TileDesc>& m_tileMap;
 	std::vector<RenderTile> m_renderTiles;
 

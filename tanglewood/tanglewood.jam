@@ -65,8 +65,6 @@ local SRC =
 	framework/Plane.h
 	framework/SpriteObj.cpp
 	framework/SpriteObj.h
-	framework/Stamp.cpp
-	framework/Stamp.h
 	framework/State.cpp
 	framework/State.h
 	framework/Types.h

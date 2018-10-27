@@ -178,18 +178,6 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 		tilesetFile.Close();
 	}
 
-#if 0
-	//Load stamps
-	ion::io::File stampsFile(level.stampsName, ion::io::File::eOpenRead);
-	if (stampsFile.IsOpen())
-	{
-		ion::io::Archive archive(stampsFile, ion::io::Archive::Direction::In);
-		archive.SetContentType(ion::io::Archive::Content::Minimal);
-		archive.Serialise(m_stamps, "stamps");
-		stampsFile.Close();
-	}
-#endif
-
 	//Load palettes
 	ion::io::File palettesFile(level.palettesName, ion::io::File::eOpenRead);
 	if (palettesFile.IsOpen())
@@ -203,24 +191,11 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 	//Load collision tileset
 	m_physicsWorld->LoadCollisionTileset(level.collisionTilesName);
 
-#if 0
-	//Create stamp set
-	m_stampSet = new StampSet(m_stamps, m_tileset, m_palettes[0]);
-#endif
-
 #if USE_PALETTE_TEXTURES
 	//Get time of day palettes
 	Assets::Palettes::World::day = m_palettes[0];
 	Assets::Palettes::World::dusk = m_palettes[1];
 	Assets::Palettes::World::night = m_palettes[2];
-
-#if 0
-	//Set stamp palettes
-	for (std::map<StampId, StampRenderer>::iterator it = m_stampSet->m_stamps.begin(), end = m_stampSet->m_stamps.end(); it != end; ++it)
-	{
-		it->second.SetPaletteTexture(Assets::Palettes::World::shared);
-	}
-#endif
 #endif
 
 	return true;
@@ -228,30 +203,6 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 
 bool World::LoadActData(const LevelDescriptor& level)
 {
-#if 0
-	//Load FG stamp map
-	ion::io::File stampMapFileFg(level.stampMapFgName, ion::io::File::eOpenRead);
-	if (stampMapFileFg.IsOpen())
-	{
-		ion::io::Archive archive(stampMapFileFg, ion::io::Archive::Direction::In);
-		archive.SetContentType(ion::io::Archive::Content::Minimal);
-		archive.Serialise(m_mapSizeTilesFg, "mapSizeTiles");
-		archive.Serialise(m_stampMapFg, "stamps");
-		stampMapFileFg.Close();
-	}
-
-	//Load BG stamp map
-	ion::io::File stampMapFileBg(level.stampMapBgName, ion::io::File::eOpenRead);
-	if (stampMapFileBg.IsOpen())
-	{
-		ion::io::Archive archive(stampMapFileBg, ion::io::Archive::Direction::In);
-		archive.SetContentType(ion::io::Archive::Content::Minimal);
-		archive.Serialise(m_mapSizeTilesBg, "mapSizeTiles");
-		archive.Serialise(m_stampMapBg, "stamps");
-		stampMapFileBg.Close();
-	}
-#endif
-
 	//TODO: Shared tileset texture
 
 	//Load fg map
@@ -281,13 +232,6 @@ bool World::LoadActData(const LevelDescriptor& level)
 	//Load physics map
 	m_physicsWorld->LoadCollisionMap(level.collisionMapName);
 
-#if 0
-	//Create fg plane from map
-	m_planeFg = new Plane(m_stampMapFg, *m_stampSet);
-
-	//Create bg plane from map
-	m_planeBg = new Plane(m_stampMapBg, *m_stampSet);
-#endif
 
 	//Get map size
 	m_mapSizeFg.x = m_mapSizeTilesFg.x * 8;
@@ -532,6 +476,26 @@ void World::SetCameraPosition(const ion::Vector2& position)
 	Globals::Game::camera->SetPosition(cameraPos);
 
 	m_cameraPos = position;
+}
+
+void World::PreStreamMap()
+{
+	if (m_playerController)
+	{
+		//Set initial camera pos
+		ion::Vector2 playerPos = m_playerController->GetCentre();
+		SetCameraPosition(ion::Vector2(playerPos.x, m_mapSizeFg.y - playerPos.y));
+
+		if (m_planeFg)
+		{
+			m_planeFg->PreStream(*Globals::Game::camera);
+		}
+
+		if (m_planeBg)
+		{
+			m_planeBg->PreStream(*Globals::Game::camera);
+		}
+	}
 }
 
 const Actor* World::FindActor(const std::string& name) const

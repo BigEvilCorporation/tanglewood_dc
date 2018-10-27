@@ -20,8 +20,8 @@ Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, 
 	m_material = nullptr;
 	m_canvasPrimitive = nullptr;
 
-	//Set size (+1 tile border for scroll buffer)
-	m_canvasSizeTiles = canvasSizeTiles + ion::Vector2i(2, 2);
+	//Set size (+2 tile border for scroll buffer)
+	m_canvasSizeTiles = canvasSizeTiles + ion::Vector2i(4, 4);
 	m_mapSizeTiles = mapSizeTiles;
 
 	//Alloc render tile buffer
@@ -34,34 +34,6 @@ Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, 
 
 	//Create and draw tileset
 	CreateTilesetTexture(tileset, palette);
-
-	//Paint map
-	PaintMap();
-
-#if 0
-	//Place all stamp instances
-	for(TStampPosMap::const_iterator it = stampMap.begin(), end = stampMap.end(); it != end; ++it)
-	{
-		u32 flags = it->m_flags;
-
-		StampInstance instance;
-		instance.position.x = ((float)it->m_position.x * 8);
-		instance.position.y = ((float)it->m_position.y * 8);
-		instance.flippedX = (flags & Map::eFlipX) != 0;
-		instance.flippedY = (flags & Map::eFlipY) != 0;
-
-		std::map<StampId, StampRenderer>::iterator stampRndIt = stampSet.m_stamps.find(it->m_id);
-		if (stampRndIt != stampSet.m_stamps.end())
-		{
-			instance.stamp = &stampRndIt->second;
-			m_stampInstances.push_back(instance);
-		}
-		else
-		{
-			ion::debug::log << "Plane::Plane() - Could not find stamp id " << it->m_id << ion::debug::end;
-		}
-	}
-#endif
 }
 
 Plane::~Plane()
@@ -71,58 +43,134 @@ Plane::~Plane()
 	delete m_canvasPrimitive;
 }
 
-void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, PlanePriority priority)
+void Plane::PreStream(const ion::render::Camera& camera)
 {
-	ion::Matrix4 transform;
+	ion::Vector3 cameraPos = camera.GetTransform().GetTranslation();
+	int streamColumnX = cameraPos.x / 8.0f;
+	int streamColumnY = m_mapSizeTiles.y - 1 - (cameraPos.y / 8.0f) - m_canvasSizeTiles.y;
 
-	//Translate
-	transform.SetTranslation(ion::Vector3((m_canvasSizeTiles.x * 8.0f) / 2.0f, (m_canvasSizeTiles.y * 8.0f) / 2.0f, Constants::Rendering::planePriorities[(int)priority]));
-
-	//Wrap camera around scroll buffer size
-	ion::Matrix4 planeCamera = camera.GetTransform();
-	ion::Vector3 cameraZoom = camera.GetZoom();
-	ion::Vector3 cameraTransform = planeCamera.GetTranslation();
-	planeCamera.SetTranslation(ion::Vector3(ion::maths::Fmod(cameraTransform.x, 8.0f), ion::maths::Fmod(cameraTransform.y, 8.0f), cameraTransform.z));
-
-	bool redraw = false;
-
-	int streamColumnX = cameraTransform.x / 8.0f;
-	int streamColumnY = m_mapSizeTiles.y - 1 - (cameraTransform.y / 8.0f) - m_canvasSizeTiles.y;
-
-	if (streamColumnX > m_lastStreamedX)
+	//Stream all columns
+	for (int x = 0; x < m_canvasSizeTiles.x; x++)
 	{
-		ShiftMapX(-1);
-		StreamColumn(streamColumnX, streamColumnY, 1);
-		redraw = true;
-	}
-	else if (streamColumnX < m_lastStreamedX)
-	{
-		ShiftMapX(1);
-		StreamColumn(streamColumnX, streamColumnY, -1);
-		redraw = true;
-	}
+		int srcX = streamColumnX + x;
+		int srcY = streamColumnY;
 
-	if (streamColumnY > m_lastStreamedY)
-	{
-		ShiftMapY(1);
-		StreamRow(streamColumnX, streamColumnY, 1);
-		redraw = true;
-	}
-	else if (streamColumnY < m_lastStreamedY)
-	{
-		ShiftMapY(-1);
-		StreamRow(streamColumnX, streamColumnY, -1);
-		redraw = true;
-	}
+		int dstX = x;
 
-	m_lastStreamedX = streamColumnX;
-	m_lastStreamedY = streamColumnY;
+		//Clamp source X to map bounds
+		srcX = ion::maths::Clamp(srcX, 0, m_mapSizeTiles.x - 1);
+
+		//Stream in next column
+		for (int dstY = 0; dstY < m_canvasSizeTiles.y; dstY++)
+		{
+			//Clamp source Y to map bounds
+			srcY = ion::maths::Clamp(srcY, 0, m_mapSizeTiles.y - 1);
+
+			//Get tile
+			const Map::TileDesc& tileDesc = m_tileMap[(srcY * m_mapSizeTiles.x) + srcX];
+
+			//Get id
+			const TileId& tileId = tileDesc.m_id;
+
+			//Get V/H flip
+			u32 tileFlags = tileDesc.m_flags;
+
+			//Invert dest Y for OpenGL
+			int dstYinv = m_canvasSizeTiles.y - 1 - dstY;
+
+			//Paint tile
+			PaintTile(tileId, dstX, dstYinv, tileFlags);
+
+			//Next source Y
+			srcY++;
+		}
+	}
 
 	//Copy render tiles to canvas
 	for (int i = 0; i < m_renderTiles.size(); i++)
 	{
 		m_canvasPrimitive->SetTexCoords(i, m_renderTiles[i].coords, m_renderTiles[i].z);
 	}
+
+	m_lastStreamedX = streamColumnX;
+	m_lastStreamedY = streamColumnY;
+}
+
+void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, PlanePriority priority)
+{
+	//Get camera pos
+	ion::Matrix4 planeCamera = camera.GetTransform();
+	ion::Vector3 cameraPos = planeCamera.GetTranslation();
+
+	//Determine next column/row to stream
+	int streamColumn = ion::maths::Floor(cameraPos.x / Constants::MegaDrive::tileWidth);
+	int streamRow = ion::maths::Floor(cameraPos.y / Constants::MegaDrive::tileHeight);
+	int streamRowInv = m_mapSizeTiles.y - streamRow - m_canvasSizeTiles.y;
+
+	bool redraw = false;
+
+	while (streamColumn != m_lastStreamedX || streamRowInv != m_lastStreamedY)
+	{
+		int streamDirectionX = 0;
+		int streamDirectionY = 0;
+
+		//Shift map first
+		if (streamRowInv > m_lastStreamedY)
+		{
+			ShiftMapY(1);
+			streamDirectionY = 1;
+		}
+		else if (streamRowInv < m_lastStreamedY)
+		{
+			ShiftMapY(-1);
+			streamDirectionY = -1;
+		}
+
+		if (streamColumn > m_lastStreamedX)
+		{
+			ShiftMapX(-1);
+			streamDirectionX = 1;
+		}
+		else if (streamColumn < m_lastStreamedX)
+		{
+			ShiftMapX(1);
+			streamDirectionX = -1;
+		}
+
+		int nextColumn = m_lastStreamedX + streamDirectionX;
+		int nextRow = m_lastStreamedY + streamDirectionY;
+
+		//Stream new columns/rows
+		if (streamDirectionY)
+		{
+			StreamRow(nextColumn, nextRow, streamDirectionY);
+			m_lastStreamedY += streamDirectionY;
+			redraw = true;
+		}
+
+		if (streamDirectionX)
+		{
+			StreamColumn(nextColumn, nextRow, streamDirectionX);
+			m_lastStreamedX += streamDirectionX;
+			redraw = true;
+		}
+	}
+
+	if (redraw)
+	{
+		//Blit to canvas
+		for (int i = 0; i < m_renderTiles.size(); i++)
+		{
+			m_canvasPrimitive->SetTexCoords(i, m_renderTiles[i].coords, m_renderTiles[i].z);
+		}
+	}
+
+	//Wrap camera around scroll buffer size (use stream column/row to match float precision)
+	planeCamera.SetTranslation(ion::Vector3(cameraPos.x - (streamColumn * Constants::MegaDrive::tileWidth), cameraPos.y - (streamRow * Constants::MegaDrive::tileHeight), cameraPos.z));
+
+	//Plane draw offset
+	ion::Matrix4 transform;
+	transform.SetTranslation(ion::Vector3((m_canvasSizeTiles.x * Constants::MegaDrive::tileWidth) / 2.0f, (m_canvasSizeTiles.y * Constants::MegaDrive::tileHeight) / 2.0f, Constants::Rendering::planePriorities[(int)priority]));
 
 #if USE_PALETTE_TEXTURES
 	Assets::Shaders::IndexTexture::Params::indexedTexture.SetValue(*m_tilesetTexture);
@@ -137,31 +185,6 @@ void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 
 	//Unbind material
 	m_material->Unbind();
-
-#if 0
-	//Visibility test on plane A only
-	const bool noVisibilityTest = (priority == PlanePriority::PlaneBLow || priority == PlanePriority::PlaneBHigh);
-
-	for(int i = 0; i < m_stampInstances.size(); i++)
-	{
-		//TODO: Store in priority lists
-		if (m_stampInstances[i].stamp->m_planePriority == priority)
-		{
-			const ion::Vector2 topLeft = m_stampInstances[i].position;
-			const ion::Vector2 bottomRight = topLeft + m_stampInstances[i].stamp->m_size;
-
-			if (noVisibilityTest || ion::maths::BoxIntersectsBox(cameraBounds.topLeft, cameraBounds.bottomRight, topLeft, bottomRight))
-			{
-				//Centred quad to top-left + draw offset + scroll, inverted for OpenGL
-				ion::Vector2 position;
-				position.x = m_stampInstances[i].position.x + (m_stampInstances[i].stamp->m_size.x / 2.0f) + m_scroll.x + m_drawOffset.x;
-				position.y = mapSize.y - m_stampInstances[i].position.y - (m_stampInstances[i].stamp->m_size.y / 2.0f) + m_scroll.y + m_drawOffset.y;
-
-				m_stampInstances[i].stamp->Render(renderer, position, cameraBounds, cameraInv, m_stampInstances[i].flippedX, m_stampInstances[i].flippedY);
-			}
-		}
-	}
-#endif
 }
 
 void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
@@ -254,31 +277,6 @@ void Plane::PaintTile(TileId tileId, int x, int y, u32 tileFlags)
 
 	//Set z
 	m_renderTiles[index].z = (tileFlags & Map::eHighPlane) ? Constants::Rendering::planePriorities[(int)PlanePriority::PlaneAHigh] : Constants::Rendering::planePriorities[(int)PlanePriority::PlaneALow];
-}
-
-void Plane::PaintMap()
-{
-	//Paint all tiles
-	for (int y = 0; y < m_canvasSizeTiles.y; y++)
-	{
-		for (int x = 0; x < m_canvasSizeTiles.x; x++)
-		{
-			//Get tile
-			const Map::TileDesc& tileDesc = m_tileMap[(y * m_mapSizeTiles.x) + x];
-
-			//Get id
-			const TileId& tileId = tileDesc.m_id;
-
-			//Invert Y for OpenGL
-			int yInv = m_canvasSizeTiles.y - 1 - y;
-
-			//Get V/H flip
-			u32 tileFlags = tileDesc.m_flags;
-
-			//Paint tile
-			PaintTile(tileId, x, yInv, tileFlags);
-		}
-	}
 }
 
 void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], u32 flipFlags) const
@@ -403,17 +401,17 @@ void Plane::StreamColumn(int x, int y, int direction)
 
 	int dstX = direction > 0 ? (m_canvasSizeTiles.x - 1) : 0;
 
-	//Clamp source X to map bounds
-	srcX = ion::maths::Clamp(srcX, 0, m_mapSizeTiles.x - 1);
-
 	//Stream in next column
 	for (int dstY = 0; dstY < m_canvasSizeTiles.y; dstY++)
 	{
-		//Clamp source Y to map bounds
-		srcY = ion::maths::Clamp(srcY, 0, m_mapSizeTiles.y - 1);
-
 		//Get tile
-		const Map::TileDesc& tileDesc = m_tileMap[(srcY * m_mapSizeTiles.x) + srcX];
+		int tileIndex = 0;
+		if (srcX >= 0 && srcX < m_mapSizeTiles.x && srcY >= 0 && srcY < m_mapSizeTiles.y)
+		{
+			tileIndex = (srcY * m_mapSizeTiles.x) + srcX;
+		}
+
+		const Map::TileDesc& tileDesc = m_tileMap[tileIndex];
 
 		//Get id
 		const TileId& tileId = tileDesc.m_id;
@@ -439,17 +437,17 @@ void Plane::StreamRow(int x, int y, int direction)
 
 	int dstY = direction > 0 ? (m_canvasSizeTiles.y - 1) : 0;
 
-	//Clamp source Y to map bounds
-	srcY = ion::maths::Clamp(srcY, 0, m_mapSizeTiles.y - 1);
-
 	//Stream in next row
 	for (int dstX = 0; dstX < m_canvasSizeTiles.x; dstX++)
 	{
-		//Clamp source X to map bounds
-		srcX = ion::maths::Clamp(srcX, 0, m_mapSizeTiles.x - 1);
-
 		//Get tile
-		const Map::TileDesc& tileDesc = m_tileMap[(srcY * m_mapSizeTiles.x) + srcX];
+		int tileIndex = 0;
+		if (srcX >= 0 && srcX < m_mapSizeTiles.x && srcY >= 0 && srcY < m_mapSizeTiles.y)
+		{
+			tileIndex = (srcY * m_mapSizeTiles.x) + srcX;
+		}
+
+		const Map::TileDesc& tileDesc = m_tileMap[tileIndex];
 
 		//Get id
 		const TileId& tileId = tileDesc.m_id;
