@@ -12,13 +12,18 @@
 
 #include <ion/renderer/Renderer.h>
 #include <ion/renderer/Camera.h>
+#include <ion/renderer/TexCoord.h>
+#include <ion/renderer/Texture.h>
+#include <ion/renderer/Primitive.h>
+#include <ion/renderer/Material.h>
 #include <ion/beehive/Map.h>
 #include <ion/beehive/Stamp.h>
 
 #include <map>
 #include <vector>
 
-#include "Stamp.h"
+#include "Constants.h"
+#include "PlanePriority.h"
 
 class Plane
 {
@@ -38,14 +43,6 @@ public:
 	ion::Vector2 m_drawOffset;
 
 private:
-	struct StampInstance
-	{
-		ion::Vector2 position;
-		bool flippedX;
-		bool flippedY;
-		StampRenderer* stamp;
-	};
-
 	struct RenderTile
 	{
 		ion::render::TexCoord coords[4];

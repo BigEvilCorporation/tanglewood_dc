@@ -26,7 +26,6 @@ const char* nymnObjectName = "nymn";
 
 World::World()
 {
-	m_stampSet = NULL;
 	m_planeFg = NULL;
 	m_planeBg = NULL;
 	m_playerController = NULL;
@@ -54,11 +53,6 @@ World::~World()
 	if (m_physicsWorld)
 	{
 		delete m_physicsWorld;
-	}
-
-	if(m_stampSet)
-	{
-		delete m_stampSet;
 	}
 
 	if(m_planeFg)

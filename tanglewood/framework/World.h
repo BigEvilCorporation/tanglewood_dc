@@ -18,7 +18,6 @@
 #include <ion/core/utils/STL.h>
 #include <ion/core/string/String.h>
 
-#include "Stamp.h"
 #include "Plane.h"
 #include "Physics.h"
 #include "Level.h"
@@ -123,9 +122,6 @@ private:
 
 	//Curent game objects
 	TGameObjectPosMap m_gameObjects;
-
-	//Current stamp set
-	StampSet* m_stampSet;
 
 	//Current planes
 	Plane* m_planeFg;
