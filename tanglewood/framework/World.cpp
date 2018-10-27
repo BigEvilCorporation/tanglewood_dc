@@ -259,16 +259,14 @@ bool World::LoadActData(const LevelDescriptor& level)
 	if (mapFileFg.IsOpen())
 	{
 		//Serialise
-		std::vector<Map::TileDesc> tileMap;
-
 		ion::io::Archive archive(mapFileFg, ion::io::Archive::Direction::In);
 		archive.SetContentType(ion::io::Archive::Content::Minimal);
 		archive.Serialise(m_mapSizeTilesFg, "size");
-		archive.Serialise(tileMap, "tileMap");
+		archive.Serialise(m_tileMapFg, "tileMap");
 		mapFileFg.Close();
 
 		//Create fg plane from map
-		m_planeFg = new Plane(m_tileset, tileMap, m_mapSizeTilesFg, m_palettes[0]);
+		m_planeFg = new Plane(m_tileset, m_tileMapFg, m_mapSizeTilesFg, ion::Vector2i(40, 30), m_palettes[0]);
 	}
 
 	//Load game objects
@@ -475,7 +473,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 
 	//Draw planes
 	//m_planeBg->Render(renderer, cameraBounds, cameraInv, m_mapSizeBg, PlanePriority::PlaneBLow);
-	m_planeFg->Render(renderer, cameraBounds, cameraInv, m_mapSizeFg, PlanePriority::PlaneALow);
+	m_planeFg->Render(renderer, camera, PlanePriority::PlaneALow);
 
 	//Draw sprites
 	for (int i = 0; i < sprites.size(); i++)
@@ -485,6 +483,10 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 			sprites[i]->Render(renderer, camera, viewport, cameraInv, m_mapSizeFg);
 		}
 	}
+
+	//Draw planes
+	//m_planeBg->Render(renderer, cameraBounds, cameraInv, m_mapSizeBg, PlanePriority::PlaneBHigh);
+	m_planeFg->Render(renderer, camera, PlanePriority::PlaneAHigh);
 
 	//Draw sprites
 	for (int i = 0; i < sprites.size(); i++)

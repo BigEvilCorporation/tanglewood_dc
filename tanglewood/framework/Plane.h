@@ -11,6 +11,7 @@
 #pragma once
 
 #include <ion/renderer/Renderer.h>
+#include <ion/renderer/Camera.h>
 #include <ion/beehive/Map.h>
 #include <ion/beehive/Stamp.h>
 
@@ -22,10 +23,10 @@
 class Plane
 {
 public:
-	Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& size, const Palette& palette);
+	Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& mapSizeTiles, const ion::Vector2i& canvasSizeTiles, const Palette& palette);
 	~Plane();
 
-	void Render(ion::render::Renderer& renderer, const Bounds& cameraBounds, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize, PlanePriority priority);
+	void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, PlanePriority priority);
 
 #if USE_PALETTE_TEXTURES
 	void SetPaletteTexture(ion::render::Texture* texture) { m_paletteTexture = texture; }
@@ -43,12 +44,25 @@ private:
 		StampRenderer* stamp;
 	};
 
+	struct RenderTile
+	{
+		ion::render::TexCoord coords[4];
+		float z;
+	};
+
 	void CreateTilesetTexture(const Tileset& tileset, const Palette& palette);
 	void PaintTile(TileId tileId, int x, int y, u32 flipFlags);
-	void PaintMap(const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& size);
+	void PaintMap();
 	void GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], u32 tileFlags) const;
 
-	std::vector<StampInstance> m_stampInstances;
+	void ShiftMapX(int direction);
+	void ShiftMapY(int direction);
+	void StreamColumn(int x, int y, int direction);
+	void StreamRow(int x, int y, int direction);
+
+	//std::vector<StampInstance> m_stampInstances;
+	const std::vector<Map::TileDesc>& m_tileMap;
+	std::vector<RenderTile> m_renderTiles;
 
 	ion::render::Texture* m_tilesetTexture;
 	ion::render::Chessboard* m_canvasPrimitive;
@@ -58,7 +72,11 @@ private:
 	ion::render::Texture* m_paletteTexture;
 #endif
 
-	ion::Vector2i m_canvasSize;
+	ion::Vector2i m_mapSizeTiles;
+	ion::Vector2i m_canvasSizeTiles;
 	u32 m_tilesetSizeSq;
 	float m_cellSizeTexSpaceSq;
+
+	int m_lastStreamedX;
+	int m_lastStreamedY;
 };

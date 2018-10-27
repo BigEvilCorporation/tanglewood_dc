@@ -100,6 +100,7 @@ private:
 	ion::Vector2 m_mapSizeFg;
 	ion::Vector2 m_mapSizeBg;
 	ion::Vector2 m_cameraPos;
+	ion::Vector2 m_scrollFg;
 
 	//TODO: Move to global assets
 	std::vector<Actor> m_actors;
@@ -112,11 +113,13 @@ private:
 	//Current stamp set
 	TStampMap m_stamps;
 
-	//Current stamp maps
+	//Current maps
 	ion::Vector2i m_mapSizeTilesFg;
 	ion::Vector2i m_mapSizeTilesBg;
-	TStampPosMap m_stampMapFg;
-	TStampPosMap m_stampMapBg;
+	std::vector<Map::TileDesc> m_tileMapFg;
+
+	//TStampPosMap m_stampMapFg;
+	//TStampPosMap m_stampMapBg;
 
 	//Current palettes
 	std::vector<Palette> m_palettes;

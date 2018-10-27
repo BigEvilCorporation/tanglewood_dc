@@ -13,25 +13,30 @@
 
 #include <ion/maths/Geometry.h>
 
-Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& size, const Palette& palette)
+Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& mapSizeTiles, const ion::Vector2i& canvasSizeTiles, const Palette& palette)
+	: m_tileMap(tileMap)
 {
 	m_tilesetTexture = nullptr;
 	m_material = nullptr;
 	m_canvasPrimitive = nullptr;
 
-	//Set size
-	m_canvasSize = size;
+	//Set size (+1 tile border for scroll buffer)
+	m_canvasSizeTiles = canvasSizeTiles + ion::Vector2i(2, 2);
+	m_mapSizeTiles = mapSizeTiles;
+
+	//Alloc render tile buffer
+	m_renderTiles.resize(m_canvasSizeTiles.x * m_canvasSizeTiles.y);
 
 	//Create render canvases
 	const int tileWidth = Constants::MegaDrive::tileWidth;
 	const int tileHeight = Constants::MegaDrive::tileHeight;
-	m_canvasPrimitive = new ion::render::Chessboard(ion::render::Chessboard::xy, ion::Vector2((float)m_canvasSize.x * (tileWidth / 2.0f), (float)m_canvasSize.y * (tileHeight / 2.0f)), m_canvasSize.x, m_canvasSize.y, true);
+	m_canvasPrimitive = new ion::render::Chessboard(ion::render::Chessboard::xy, ion::Vector2((float)m_canvasSizeTiles.x * (tileWidth / 2.0f), (float)m_canvasSizeTiles.y * (tileHeight / 2.0f)), m_canvasSizeTiles.x, m_canvasSizeTiles.y, true);
 
 	//Create and draw tileset
 	CreateTilesetTexture(tileset, palette);
 
 	//Paint map
-	PaintMap(tileMap, size);
+	PaintMap();
 
 #if 0
 	//Place all stamp instances
@@ -66,12 +71,58 @@ Plane::~Plane()
 	delete m_canvasPrimitive;
 }
 
-void Plane::Render(ion::render::Renderer& renderer, const Bounds& cameraBounds, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize, PlanePriority priority)
+void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, PlanePriority priority)
 {
 	ion::Matrix4 transform;
 
 	//Translate
-	transform.SetTranslation(ion::Vector3(mapSize.x / 2.0f, mapSize.y / 2.0f, Constants::Rendering::planePriorities[(int)priority]));
+	transform.SetTranslation(ion::Vector3((m_canvasSizeTiles.x * 8.0f) / 2.0f, (m_canvasSizeTiles.y * 8.0f) / 2.0f, Constants::Rendering::planePriorities[(int)priority]));
+
+	//Wrap camera around scroll buffer size
+	ion::Matrix4 planeCamera = camera.GetTransform();
+	ion::Vector3 cameraZoom = camera.GetZoom();
+	ion::Vector3 cameraTransform = planeCamera.GetTranslation();
+	planeCamera.SetTranslation(ion::Vector3(ion::maths::Fmod(cameraTransform.x, 8.0f), ion::maths::Fmod(cameraTransform.y, 8.0f), cameraTransform.z));
+
+	bool redraw = false;
+
+	int streamColumnX = cameraTransform.x / 8.0f;
+	int streamColumnY = m_mapSizeTiles.y - 1 - (cameraTransform.y / 8.0f) - m_canvasSizeTiles.y;
+
+	if (streamColumnX > m_lastStreamedX)
+	{
+		ShiftMapX(-1);
+		StreamColumn(streamColumnX, streamColumnY, 1);
+		redraw = true;
+	}
+	else if (streamColumnX < m_lastStreamedX)
+	{
+		ShiftMapX(1);
+		StreamColumn(streamColumnX, streamColumnY, -1);
+		redraw = true;
+	}
+
+	if (streamColumnY > m_lastStreamedY)
+	{
+		ShiftMapY(1);
+		StreamRow(streamColumnX, streamColumnY, 1);
+		redraw = true;
+	}
+	else if (streamColumnY < m_lastStreamedY)
+	{
+		ShiftMapY(-1);
+		StreamRow(streamColumnX, streamColumnY, -1);
+		redraw = true;
+	}
+
+	m_lastStreamedX = streamColumnX;
+	m_lastStreamedY = streamColumnY;
+
+	//Copy render tiles to canvas
+	for (int i = 0; i < m_renderTiles.size(); i++)
+	{
+		m_canvasPrimitive->SetTexCoords(i, m_renderTiles[i].coords, m_renderTiles[i].z);
+	}
 
 #if USE_PALETTE_TEXTURES
 	Assets::Shaders::IndexTexture::Params::indexedTexture.SetValue(*m_tilesetTexture);
@@ -79,7 +130,7 @@ void Plane::Render(ion::render::Renderer& renderer, const Bounds& cameraBounds, 
 #endif
 
 	//Bind material
-	m_material->Bind(transform, cameraInv, renderer.GetProjectionMatrix());
+	m_material->Bind(transform, planeCamera.GetInverse(), renderer.GetProjectionMatrix());
 
 	//Draw vertex buffer
 	renderer.DrawVertexBuffer(m_canvasPrimitive->GetVertexBuffer(), m_canvasPrimitive->GetIndexBuffer());
@@ -193,31 +244,33 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 
 void Plane::PaintTile(TileId tileId, int x, int y, u32 tileFlags)
 {
+	//Get tile index
+	int index = (y * m_canvasSizeTiles.x) + x;
+
 	//Set texture coords for cell
 	ion::render::TexCoord coords[4];
 	ion::render::TexCoord coordsZero[4] = { ion::render::TexCoord(0.0f, 0.0f) };
-	GetTileTexCoords(tileId, coords, tileFlags);
+	GetTileTexCoords(tileId, m_renderTiles[index].coords, tileFlags);
 
-	float z = (tileFlags & Map::eHighPlane) ? Constants::Rendering::planePriorities[(int)PlanePriority::PlaneAHigh] : Constants::Rendering::planePriorities[(int)PlanePriority::PlaneALow];
-
-	m_canvasPrimitive->SetTexCoords((y * m_canvasSize.x) + x, coords, z);
+	//Set z
+	m_renderTiles[index].z = (tileFlags & Map::eHighPlane) ? Constants::Rendering::planePriorities[(int)PlanePriority::PlaneAHigh] : Constants::Rendering::planePriorities[(int)PlanePriority::PlaneALow];
 }
 
-void Plane::PaintMap(const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& size)
+void Plane::PaintMap()
 {
 	//Paint all tiles
-	for (int y = 0; y < size.y; y++)
+	for (int y = 0; y < m_canvasSizeTiles.y; y++)
 	{
-		for (int x = 0; x < size.x; x++)
+		for (int x = 0; x < m_canvasSizeTiles.x; x++)
 		{
 			//Get tile
-			const Map::TileDesc& tileDesc = tileMap[(y * size.x) + x];
+			const Map::TileDesc& tileDesc = m_tileMap[(y * m_mapSizeTiles.x) + x];
 
 			//Get id
 			const TileId& tileId = tileDesc.m_id;
 
 			//Invert Y for OpenGL
-			int yInv = size.y - 1 - y;
+			int yInv = m_canvasSizeTiles.y - 1 - y;
 
 			//Get V/H flip
 			u32 tileFlags = tileDesc.m_flags;
@@ -284,5 +337,133 @@ void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], 
 		//Top right
 		texCoords[3].x = right;
 		texCoords[3].y = top;
+	}
+}
+
+void Plane::ShiftMapX(int direction)
+{
+	//Shifting from left to right
+	int startX = m_canvasSizeTiles.x - 1;
+	int endX = 0;
+	int incrementX = -1;
+
+	if (direction < 0)
+	{
+		//Shifting from right to left
+		startX = 0;
+		endX = m_canvasSizeTiles.x - 1;
+		incrementX = 1;
+	}
+
+	//Shift one column at a time
+	for (int x = startX; x != endX; x += incrementX)
+	{
+		for (int y = 0; y < m_canvasSizeTiles.y; y++)
+		{
+			int indexSrc = (y * m_canvasSizeTiles.x) + x + incrementX;
+			int indexDst = (y * m_canvasSizeTiles.x) + x;
+
+			m_renderTiles[indexDst] = m_renderTiles[indexSrc];
+		}
+	}
+}
+
+void Plane::ShiftMapY(int direction)
+{
+	//Shifting from top to bottom
+	int startY = m_canvasSizeTiles.y - 1;
+	int endY = 0;
+	int incrementY = -1;
+
+	if (direction < 0)
+	{
+		//Shifting from bottom to top
+		startY = 0;
+		endY = m_canvasSizeTiles.y - 1;
+		incrementY = 1;
+	}
+
+	//Shift one column at a time
+	for (int y = startY; y != endY; y += incrementY)
+	{
+		for (int x = 0; x < m_canvasSizeTiles.x; x++)
+		{
+			int indexSrc = ((y + incrementY) * m_canvasSizeTiles.x) + x;
+			int indexDst = (y * m_canvasSizeTiles.x) + x;
+
+			m_renderTiles[indexDst] = m_renderTiles[indexSrc];
+		}
+	}
+}
+
+void Plane::StreamColumn(int x, int y, int direction)
+{	
+	int srcX = x + (direction > 0 ? (m_canvasSizeTiles.x - 1) : 0);
+	int srcY = y;
+
+	int dstX = direction > 0 ? (m_canvasSizeTiles.x - 1) : 0;
+
+	//Clamp source X to map bounds
+	srcX = ion::maths::Clamp(srcX, 0, m_mapSizeTiles.x - 1);
+
+	//Stream in next column
+	for (int dstY = 0; dstY < m_canvasSizeTiles.y; dstY++)
+	{
+		//Clamp source Y to map bounds
+		srcY = ion::maths::Clamp(srcY, 0, m_mapSizeTiles.y - 1);
+
+		//Get tile
+		const Map::TileDesc& tileDesc = m_tileMap[(srcY * m_mapSizeTiles.x) + srcX];
+
+		//Get id
+		const TileId& tileId = tileDesc.m_id;
+
+		//Get V/H flip
+		u32 tileFlags = tileDesc.m_flags;
+
+		//Invert dest Y for OpenGL
+		int dstYinv = m_canvasSizeTiles.y - 1 - dstY;
+
+		//Paint tile
+		PaintTile(tileId, dstX, dstYinv, tileFlags);
+
+		//Next source Y
+		srcY++;
+	}
+}
+
+void Plane::StreamRow(int x, int y, int direction)
+{
+	int srcX = x;
+	int srcY = y + (direction > 0 ? (m_canvasSizeTiles.y - 1) : 0);
+
+	int dstY = direction > 0 ? (m_canvasSizeTiles.y - 1) : 0;
+
+	//Clamp source Y to map bounds
+	srcY = ion::maths::Clamp(srcY, 0, m_mapSizeTiles.y - 1);
+
+	//Stream in next row
+	for (int dstX = 0; dstX < m_canvasSizeTiles.x; dstX++)
+	{
+		//Clamp source X to map bounds
+		srcX = ion::maths::Clamp(srcX, 0, m_mapSizeTiles.x - 1);
+
+		//Get tile
+		const Map::TileDesc& tileDesc = m_tileMap[(srcY * m_mapSizeTiles.x) + srcX];
+
+		//Get id
+		const TileId& tileId = tileDesc.m_id;
+
+		//Get V/H flip
+		u32 tileFlags = tileDesc.m_flags;
+
+		//Invert dest Y for OpenGL
+		int dstYinv = m_canvasSizeTiles.y - 1 - dstY;
+
+		//Paint tile
+		PaintTile(tileId, dstX, dstYinv, tileFlags);
+
+		//Next source X
+		srcX++;
 	}
 }
