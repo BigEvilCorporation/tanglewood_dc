@@ -116,6 +116,7 @@ private:
 	ion::Vector2i m_mapSizeTilesFg;
 	ion::Vector2i m_mapSizeTilesBg;
 	std::vector<Map::TileDesc> m_tileMapFg;
+	std::vector<Map::TileDesc> m_tileMapBg;
 
 	//Current palettes
 	std::vector<Palette> m_palettes;

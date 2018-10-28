@@ -10,6 +10,7 @@
 
 #include "Plane.h"
 #include "Shaders.h"
+#include "Globals.h"
 
 #include <ion/maths/Geometry.h>
 
@@ -19,6 +20,9 @@ Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, 
 	m_tilesetTexture = nullptr;
 	m_material = nullptr;
 	m_canvasPrimitive = nullptr;
+
+	m_edgeBehaviourX = EdgeBehaviour::Wrap;
+	m_edgeBehaviourY = EdgeBehaviour::Wrap;
 
 	//Set size (+2 tile border for scroll buffer)
 	m_canvasSizeTiles = canvasSizeTiles + ion::Vector2i(4, 4);
@@ -96,11 +100,34 @@ void Plane::PreStream(const ion::render::Camera& camera)
 	m_lastStreamedY = streamColumnY;
 }
 
-void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, PlanePriority priority)
+void Plane::SetEdgeBehaviour(EdgeBehaviour x, EdgeBehaviour y)
+{
+	m_edgeBehaviourX = x;
+	m_edgeBehaviourY = y;
+}
+
+void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera* camera, PlanePriority priority)
 {
 	//Get camera pos
-	ion::Matrix4 planeCamera = camera.GetTransform();
-	ion::Vector3 cameraPos = planeCamera.GetTranslation();
+	ion::Matrix4 planeCamera;
+	ion::Vector3 cameraPos;
+	
+	if (camera)
+	{
+		planeCamera = camera->GetTransform();
+		cameraPos = camera->GetTransform().GetTranslation();
+	}
+	else
+	{
+		ion::Vector3 cameraZoom;
+		cameraZoom.x = (float)Globals::Rendering::windowWidth / (float)Globals::Rendering::gameCanvasWidth;
+		cameraZoom.y = (float)Globals::Rendering::windowHeight / (float)Globals::Rendering::gameCanvasHeight;
+		cameraZoom.z = 1.0f;
+
+		planeCamera.SetScale(ion::Vector3(1.0f, 1.0f, 1.0f) / cameraZoom);
+
+		cameraPos = ion::Vector3(m_scroll.x, m_scroll.y, -0.1f);
+	}
 
 	//Determine next column/row to stream
 	int streamColumn = ion::maths::Floor(cameraPos.x / Constants::MegaDrive::tileWidth);
@@ -406,9 +433,17 @@ void Plane::StreamColumn(int x, int y, int direction)
 	{
 		//Get tile
 		int tileIndex = 0;
-		if (srcX >= 0 && srcX < m_mapSizeTiles.x && srcY >= 0 && srcY < m_mapSizeTiles.y)
+
+		if (m_edgeBehaviourX == EdgeBehaviour::Clamp)
 		{
-			tileIndex = (srcY * m_mapSizeTiles.x) + srcX;
+			if (srcX >= 0 && srcX < m_mapSizeTiles.x && srcY >= 0 && srcY < m_mapSizeTiles.y)
+			{
+				tileIndex = (srcY * m_mapSizeTiles.x) + srcX;
+			}
+		}
+		else
+		{
+			tileIndex = (ion::maths::Wrap(srcY, m_mapSizeTiles.y) * m_mapSizeTiles.x) + ion::maths::Wrap(srcX, m_mapSizeTiles.x);
 		}
 
 		const Map::TileDesc& tileDesc = m_tileMap[tileIndex];
@@ -442,9 +477,17 @@ void Plane::StreamRow(int x, int y, int direction)
 	{
 		//Get tile
 		int tileIndex = 0;
-		if (srcX >= 0 && srcX < m_mapSizeTiles.x && srcY >= 0 && srcY < m_mapSizeTiles.y)
+
+		if (m_edgeBehaviourX == EdgeBehaviour::Clamp)
 		{
-			tileIndex = (srcY * m_mapSizeTiles.x) + srcX;
+			if (srcX >= 0 && srcX < m_mapSizeTiles.x && srcY >= 0 && srcY < m_mapSizeTiles.y)
+			{
+				tileIndex = (srcY * m_mapSizeTiles.x) + srcX;
+			}
+		}
+		else
+		{
+			tileIndex = (ion::maths::Wrap(srcY, m_mapSizeTiles.y) * m_mapSizeTiles.x) + ion::maths::Wrap(srcX, m_mapSizeTiles.x);
 		}
 
 		const Map::TileDesc& tileDesc = m_tileMap[tileIndex];

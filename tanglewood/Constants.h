@@ -41,6 +41,9 @@ namespace Constants
 
 		static const float screenWidth = 320.0f;
 		static const float screenHeight = 240.0f;
+
+		static const int planeWidthTiles = 40;
+		static const int planeHeightTiles = 40;
 	}
 
 	namespace Rendering

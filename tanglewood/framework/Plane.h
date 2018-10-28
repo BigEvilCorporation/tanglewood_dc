@@ -28,12 +28,19 @@
 class Plane
 {
 public:
+	enum class EdgeBehaviour
+	{
+		Clamp,
+		Wrap
+	};
+
 	Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& mapSizeTiles, const ion::Vector2i& canvasSizeTiles, const Palette& palette);
 	~Plane();
 
+	void SetEdgeBehaviour(EdgeBehaviour x, EdgeBehaviour y);
 	void PreStream(const ion::render::Camera& camera);
 
-	void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, PlanePriority priority);
+	void Render(ion::render::Renderer& renderer, const ion::render::Camera* camera, PlanePriority priority);
 
 #if USE_PALETTE_TEXTURES
 	void SetPaletteTexture(ion::render::Texture* texture) { m_paletteTexture = texture; }
@@ -57,6 +64,9 @@ private:
 	void ShiftMapY(int direction);
 	void StreamColumn(int x, int y, int direction);
 	void StreamRow(int x, int y, int direction);
+
+	EdgeBehaviour m_edgeBehaviourX;
+	EdgeBehaviour m_edgeBehaviourY;
 
 	const std::vector<Map::TileDesc>& m_tileMap;
 	std::vector<RenderTile> m_renderTiles;

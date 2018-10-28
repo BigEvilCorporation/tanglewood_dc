@@ -106,22 +106,6 @@ bool World::LoadSprites()
 		}
 	}
 
-#if 0
-	//Load sprite data from Beehive project file
-	ion::io::File file(name, ion::io::File::eOpenRead);
-	if (file.IsOpen())
-	{
-		ion::io::Archive archive(file, ion::io::Archive::Direction::In);
-		archive.Serialise(m_actors, "actors");
-		return true;
-	}
-	else
-	{
-		ion::debug::error << "Error loading sprite data " << name << ion::debug::end;
-		return false;
-	}
-#endif
-
 	return true;
 }
 
@@ -211,7 +195,22 @@ bool World::LoadActData(const LevelDescriptor& level)
 		mapFileFg.Close();
 
 		//Create fg plane from map
-		m_planeFg = new Plane(m_tileset, m_tileMapFg, m_mapSizeTilesFg, ion::Vector2i(40, 30), m_palettes[0]);
+		m_planeFg = new Plane(m_tileset, m_tileMapFg, m_mapSizeTilesFg, ion::Vector2i(Constants::MegaDrive::planeWidthTiles, Constants::MegaDrive::planeHeightTiles), m_palettes[0]);
+	}
+
+	//Load bg map
+	ion::io::File mapFileBg(level.tileMapBgName, ion::io::File::eOpenRead);
+	if (mapFileBg.IsOpen())
+	{
+		//Serialise
+		ion::io::Archive archive(mapFileBg, ion::io::Archive::Direction::In);
+		archive.SetContentType(ion::io::Archive::Content::Minimal);
+		archive.Serialise(m_mapSizeTilesBg, "size");
+		archive.Serialise(m_tileMapBg, "tileMap");
+		mapFileBg.Close();
+
+		//Create fg plane from map
+		m_planeBg = new Plane(m_tileset, m_tileMapBg, m_mapSizeTilesBg, ion::Vector2i(Constants::MegaDrive::planeWidthTiles, Constants::MegaDrive::planeHeightTiles), m_palettes[0]);
 	}
 
 	//Load game objects
@@ -233,16 +232,12 @@ bool World::LoadActData(const LevelDescriptor& level)
 	m_mapSizeBg.x = m_mapSizeTilesBg.x * 8;
 	m_mapSizeBg.y = m_mapSizeTilesBg.y * 8;
 
-	//TEMP
-	//m_planeBg->m_drawOffset.x = -(64 * 8) / 2;
-	//m_planeBg->m_drawOffset.y = -(32 * 8) / 2;
-
 	//Set plane palettes
 	m_currentPalette = Assets::Palettes::World::day;
 	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(m_currentPalette);
 
 	m_planeFg->SetPaletteTexture(Assets::Palettes::World::shared);
-	//m_planeBg->SetPaletteTexture(Assets::Palettes::World::shared);
+	m_planeBg->SetPaletteTexture(Assets::Palettes::World::shared);
 
 	//Get bg colour
 	const Colour& bgColour = m_palettes[0].GetColour(0);
@@ -250,6 +245,10 @@ bool World::LoadActData(const LevelDescriptor& level)
 	m_bgColour.g = bgColour.GetGreen() / 255.0f;
 	m_bgColour.b = bgColour.GetBlue() / 255.0f;
 	m_bgColour.a = 1.0f;
+
+	//Set plane scroll types
+	m_planeBg->SetEdgeBehaviour(Plane::EdgeBehaviour::Wrap, Plane::EdgeBehaviour::Clamp);
+	m_planeFg->SetEdgeBehaviour(Plane::EdgeBehaviour::Clamp, Plane::EdgeBehaviour::Clamp);
 
 	return true;
 }
@@ -389,8 +388,8 @@ void World::Update(float deltaTime, const ion::input::Keyboard& keyboard, const 
 	}
 
 	//Update background scroll
-	//m_planeBg->m_scroll.x = m_cameraPos.x;
-	//m_planeBg->m_scroll.y = m_cameraPos.y;
+	m_planeBg->m_scroll.x = m_cameraPos.x / 2.0f;
+	//m_planeBg->m_scroll.y = m_cameraPos.y / 2.0f;
 
 	//Update effects
 	m_fader.Update(deltaTime);
@@ -409,9 +408,9 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	//TODO: One plane per draw priority (store sprites on plane)
 	const std::vector<SpriteObj*>& sprites = GetEntities<SpriteObj>();
 
-	//Draw planes
-	//m_planeBg->Render(renderer, cameraBounds, cameraInv, m_mapSizeBg, PlanePriority::PlaneBLow);
-	m_planeFg->Render(renderer, camera, PlanePriority::PlaneALow);
+	//Draw planes (low prio)
+	m_planeBg->Render(renderer, nullptr, PlanePriority::PlaneBLow);
+	m_planeFg->Render(renderer, &camera, PlanePriority::PlaneALow);
 
 	//Draw sprites
 	for (int i = 0; i < sprites.size(); i++)
@@ -422,9 +421,9 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 		}
 	}
 
-	//Draw planes
-	//m_planeBg->Render(renderer, cameraBounds, cameraInv, m_mapSizeBg, PlanePriority::PlaneBHigh);
-	m_planeFg->Render(renderer, camera, PlanePriority::PlaneAHigh);
+	//Draw planes (high prio)
+	m_planeBg->Render(renderer, nullptr, PlanePriority::PlaneBHigh);
+	m_planeFg->Render(renderer, &camera, PlanePriority::PlaneAHigh);
 
 	//Draw sprites
 	for (int i = 0; i < sprites.size(); i++)
