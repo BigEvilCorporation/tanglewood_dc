@@ -236,11 +236,11 @@ void StateLoading::LoadingThread::Entry()
 		//Load per-act data
 		ion::debug::Log("Loading act data");
 		Globals::Game::world->LoadActData(levelDesc);
-
-		//Load sprite data
-		ion::debug::Log("Loading sprites");
-		Globals::Game::world->LoadSprites();
 	}
+
+	//Load sprite data
+	ion::debug::Log("Loading sprites");
+	Globals::Game::world->LoadSprites();
 
 	//Create game objects
 	ion::debug::Log("Creating game objects");
@@ -257,7 +257,7 @@ void StateLoading::LoadingThread::LoadGlobalPalettes()
 {
 	if (!Assets::Palettes::Player::shared)
 	{
-		if (Globals::Game::world->LoadSprite("assets/sprites/nymn_pal_red.bee"))
+		if (Globals::Game::world->LoadSprite("nymn_pal_red"))
 		{
 			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_red"))
 			{
@@ -265,7 +265,7 @@ void StateLoading::LoadingThread::LoadGlobalPalettes()
 			}
 		}
 
-		if (Globals::Game::world->LoadSprite("assets/sprites/nymn_pal_green.bee"))
+		if (Globals::Game::world->LoadSprite("nymn_pal_green"))
 		{
 			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_green"))
 			{
@@ -273,7 +273,7 @@ void StateLoading::LoadingThread::LoadGlobalPalettes()
 			}
 		}
 
-		if (Globals::Game::world->LoadSprite("assets/sprites/nymn_pal_blue.bee"))
+		if (Globals::Game::world->LoadSprite("nymn_pal_blue"))
 		{
 			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_blue"))
 			{
@@ -281,7 +281,7 @@ void StateLoading::LoadingThread::LoadGlobalPalettes()
 			}
 		}
 
-		if (Globals::Game::world->LoadSprite("assets/sprites/nymn_pal_yellow.bee"))
+		if (Globals::Game::world->LoadSprite("nymn_pal_yellow"))
 		{
 			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_yellow"))
 			{
@@ -289,7 +289,7 @@ void StateLoading::LoadingThread::LoadGlobalPalettes()
 			}
 		}
 
-		if (Globals::Game::world->LoadSprite("assets/sprites/nymn_pal_white.bee"))
+		if (Globals::Game::world->LoadSprite("nymn_pal_white"))
 		{
 			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_white"))
 			{

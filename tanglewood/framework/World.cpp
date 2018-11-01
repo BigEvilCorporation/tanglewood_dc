@@ -68,8 +68,14 @@ World::~World()
 
 bool World::LoadSprites()
 {
-	//TODO: move to constants
-	const std::string directory = "assets/sprites";
+	//Build used and unused sprite lists
+	std::set<std::string> unusedActors;
+	std::vector<std::string> usedActors;
+
+	for(std::map<std::string, Actor>::const_iterator it = m_actors.begin(), end = m_actors.end(); it != end; ++it)
+	{
+		unusedActors.insert(ion::string::ToLower(it->second.GetName()));
+	}
 
 	for (TGameObjectPosMap::const_iterator it = m_gameObjects.begin(), end = m_gameObjects.end(); it != end; ++it)
 	{
@@ -86,13 +92,12 @@ bool World::LoadSprites()
 			{
 				const ObjectFactory::ObjectRegistryEntry& registryEntry = (*regIt);
 
-				//Load actor file
+				//Add to used list, remove from unused list
 				Actor* actor = nullptr;
 				if (!registryEntry.actorName.empty())
 				{
-					std::stringstream filename;
-					filename << directory << "/" << registryEntry.actorName << ".bee";
-					LoadSprite(filename.str());
+					usedActors.push_back(registryEntry.actorName);
+					unusedActors.erase(ion::string::ToLower(registryEntry.actorName));
 				}
 			}
 			else
@@ -106,30 +111,49 @@ bool World::LoadSprites()
 		}
 	}
 
+	//Dump unused actors
+	for (std::set<std::string>::const_iterator it = unusedActors.begin(), end = unusedActors.end(); it != end; ++it)
+	{
+		m_actors.erase(*it);
+	}
+
+	//Load used actors
+	for(int i = 0; i < usedActors.size(); i++)
+	{
+		
+		LoadSprite(usedActors[i]);
+	}
+
 	return true;
 }
 
-bool World::LoadSprite(const std::string filename)
+bool World::LoadSprite(const std::string& name)
 {
 	//If not already loaded
-	if (!FindActor(filename))
+	if (!FindActor(name))
 	{
-		ion::io::File file(filename, ion::io::File::eOpenRead);
+		//TODO: move to constants
+		const std::string directory = "assets/sprites";
+
+		std::stringstream filename;
+		filename << directory << "/" << name << ".bee";
+
+		ion::io::File file(filename.str(), ion::io::File::eOpenRead);
 		if (file.IsOpen())
 		{
 			//New actor
-			m_actors.push_back(Actor());
+			Actor& actor = m_actors.insert(std::make_pair(ion::string::ToLower(name), Actor())).first->second;
 
 			//Serialise
 			ion::io::Archive archive(file, ion::io::Archive::Direction::In);
 			archive.SetContentType(ion::io::Archive::Content::Minimal);
-			archive.Serialise(m_actors.back(), "actor");
+			archive.Serialise(actor, "actor");
 
 			return true;
 		}
 		else
 		{
-			ion::debug::log << "World::LoadSprite() - Could not load sprite actor \'" << filename << "\'" << ion::debug::end;
+			ion::debug::log << "World::LoadSprite() - Could not load sprite actor \'" << filename.str() << "\'" << ion::debug::end;
 		}
 	}
 
@@ -493,12 +517,10 @@ void World::PreStreamMap()
 
 const Actor* World::FindActor(const std::string& name) const
 {
-	for (std::vector<Actor>::const_iterator it = m_actors.begin(), end = m_actors.end(); it != end; ++it)
+	std::map<std::string, Actor>::const_iterator it = m_actors.find(ion::string::ToLower(name));
+	if (it != m_actors.end())
 	{
-		if (ion::string::CompareNoCase(it->GetName(), name))
-		{
-			return &(*it);
-		}
+		return &it->second;
 	}
 
 	return nullptr;
