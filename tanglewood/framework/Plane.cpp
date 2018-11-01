@@ -269,7 +269,6 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 
 #if USE_PALETTE_TEXTURES
 					data[dataOffset] = colourIdx;
-					bmp.SetColourIndex(destPixelX, destPixelY, colourIdx);
 #else
 					const Colour& colour = palette.GetColour(colourIdx);
 					data[dataOffset] = colour.GetRed();
