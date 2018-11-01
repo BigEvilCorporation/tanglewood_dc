@@ -81,9 +81,9 @@ namespace Constants
 	enum class Levels
 	{
 		l1a1_Harlequin_Act1,
-		l1a1_Harlequin_Act2,
-		l1a1_Harlequin_Act3,
-		l1a1_Harlequin_Act4,
+		l1a2_Harlequin_Act2,
+		l1a3_Harlequin_Act3,
+		l1a4_Harlequin_Act4,
 		l2a1_StormWarning_Act1,
 	};
 }
