@@ -14,6 +14,8 @@
 
 #include <ion/maths/Geometry.h>
 
+#include <ion/renderer/imageformats/BMPReader.h>
+
 Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& mapSizeTiles, const ion::Vector2i& canvasSizeTiles, const Palette& palette)
 	: m_tileMap(tileMap)
 {
@@ -219,10 +221,16 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 	const int tileWidth = Constants::MegaDrive::tileWidth;
 	const int tileHeight = Constants::MegaDrive::tileHeight;
 
+	const int tileBorderX = 1;
+	const int tileBorderY = 1;
+
+	const int tileWidthBordered = tileWidth + (tileBorderX * 2);
+	const int tileHeightBordered = tileHeight + (tileBorderY * 2);
+
 	u32 numTiles = tileset.GetCount();
 	m_tilesetSizeSq = ion::maths::Max(1, (int)ion::maths::Ceil(ion::maths::Sqrt((float)numTiles)));
-	u32 textureWidth = m_tilesetSizeSq * tileWidth;
-	u32 textureHeight = m_tilesetSizeSq * tileHeight;
+	u32 textureWidth = m_tilesetSizeSq * tileWidthBordered;
+	u32 textureHeight = m_tilesetSizeSq * tileHeightBordered;
 	u32 bytesPerPixel = 3;
 	u32 textureSize = textureWidth * textureHeight * bytesPerPixel;
 	m_cellSizeTexSpaceSq = 1.0f / (float)m_tilesetSizeSq;
@@ -238,26 +246,30 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 		u32 x = i % m_tilesetSizeSq;
 		u32 y = i / m_tilesetSizeSq;
 
-		for (int pixelY = 0; pixelY < tileHeight; pixelY++)
+		for (int pixelY = 0; pixelY < tileHeightBordered; pixelY++)
 		{
-			for (int pixelX = 0; pixelX < tileWidth; pixelX++)
+			for (int pixelX = 0; pixelX < tileWidthBordered; pixelX++)
 			{
-				//Invert Y for OpenGL
-				int pixelY_OGL = tileHeight - 1 - pixelY;
+				int pixelXBordered = ion::maths::Clamp(pixelX - tileBorderX, 0, tileWidth - 1);
+				int pixelYBordered = ion::maths::Clamp(pixelY - tileBorderY, 0, tileHeight - 1);
 
-				u8 colourIdx = tile.GetPixelColour(pixelX, pixelY_OGL);
+				//Invert Y for OpenGL
+				int pixelY_OGL = tileHeight - 1 - pixelYBordered;
+
+				u8 colourIdx = tile.GetPixelColour(pixelXBordered, pixelY_OGL);
 
 				//Protect against blank tiles
 				if (palette.IsColourUsed(colourIdx))
 				{
-					int destPixelX = (x * tileWidth) + pixelX;
-					int destPixelY = (y * tileHeight) + pixelY;
+					int destPixelX = (x * tileWidthBordered) + pixelX;
+					int destPixelY = (y * tileHeightBordered) + pixelY;
 					u32 pixelIdx = (destPixelY * textureWidth) + destPixelX;
 					u32 dataOffset = pixelIdx * bytesPerPixel;
 					ion::debug::Assert(dataOffset + 2 < textureSize, "eOut of bounds");
 
 #if USE_PALETTE_TEXTURES
 					data[dataOffset] = colourIdx;
+					bmp.SetColourIndex(destPixelX, destPixelY, colourIdx);
 #else
 					const Colour& colour = palette.GetColour(colourIdx);
 					data[dataOffset] = colour.GetRed();
@@ -311,6 +323,18 @@ void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], 
 	const int tileWidth = Constants::MegaDrive::tileWidth;
 	const int tileHeight = Constants::MegaDrive::tileHeight;
 
+	const int tileBorderX = 1;
+	const int tileBorderY = 1;
+
+	const int tileWidthBordered = tileWidth + (tileBorderX * 2);
+	const int tileHeightBordered = tileHeight + (tileBorderY * 2);
+
+	const float onePixelTexSpaceX = m_cellSizeTexSpaceSq / tileWidth;
+	const float onePixelTexSpaceY = m_cellSizeTexSpaceSq / tileHeight;
+
+	const float tilePixelBorderX = onePixelTexSpaceX * tileBorderX;
+	const float tilePixelBorderY = onePixelTexSpaceY * tileBorderY;
+
 	if (tileId == InvalidTileId)
 	{
 		tileId = 0;
@@ -319,8 +343,6 @@ void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], 
 	if (tileId == InvalidTileId)
 	{
 		//Invalid tile, use top-left pixel
-		float onePixelTexSpaceX = m_cellSizeTexSpaceSq / tileWidth;
-		float onePixelTexSpaceY = m_cellSizeTexSpaceSq / tileHeight;
 
 		//Top left
 		texCoords[0].x = 0.0f;
@@ -340,15 +362,16 @@ void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], 
 		//Map tile to X/Y on tileset texture
 		int tilesetX = (tileId % m_tilesetSizeSq);
 		int tilesetY = (tileId / m_tilesetSizeSq);
-		ion::Vector2 textureBottomLeft(m_cellSizeTexSpaceSq * tilesetX, m_cellSizeTexSpaceSq * tilesetY);
+		ion::Vector2 textureBottomLeft((m_cellSizeTexSpaceSq * tilesetX) + tilePixelBorderX, (m_cellSizeTexSpaceSq * tilesetY) + tilePixelBorderY);
+		ion::Vector2 textureTopRight((m_cellSizeTexSpaceSq * (tilesetX + 1)) - tilePixelBorderX, (m_cellSizeTexSpaceSq * (tilesetY + 1)) - tilePixelBorderY);
 
 		bool flipX = (flipFlags & Map::eFlipX) != 0;
 		bool flipY = (flipFlags & Map::eFlipY) != 0;
 
-		float top = flipY ? (textureBottomLeft.y) : (textureBottomLeft.y + m_cellSizeTexSpaceSq);
-		float left = flipX ? (textureBottomLeft.x + m_cellSizeTexSpaceSq) : (textureBottomLeft.x);
-		float bottom = flipY ? (textureBottomLeft.y + m_cellSizeTexSpaceSq) : (textureBottomLeft.y);
-		float right = flipX ? (textureBottomLeft.x) : (textureBottomLeft.x + m_cellSizeTexSpaceSq);
+		float top = flipY ? (textureBottomLeft.y) : textureTopRight.y;
+		float left = flipX ? textureTopRight.x : (textureBottomLeft.x);
+		float bottom = flipY ? textureTopRight.y : (textureBottomLeft.y);
+		float right = flipX ? (textureBottomLeft.x) : textureTopRight.x;
 
 		//Top left
 		texCoords[0].x = left;
