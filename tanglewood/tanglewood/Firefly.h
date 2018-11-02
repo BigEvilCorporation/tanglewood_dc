@@ -18,6 +18,5 @@ public:
 	Firefly(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor);
 	virtual ~Firefly();
 
-	//Update
-	virtual void Update(float deltaTime);
+	void Pickup();
 };

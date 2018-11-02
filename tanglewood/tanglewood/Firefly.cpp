@@ -10,20 +10,24 @@
 
 #include "Firefly.h"
 #include "Animations.h"
+#include "framework/World.h"
 
 Firefly::Firefly(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: SpriteObj(world, gameObject, gameObjType, actor)
 {
+	world.AddEntity<Firefly>(*this);
+
 	//Setup animation
 	PlayAnimation(Animations::Firefly::idle);
 }
 
 Firefly::~Firefly()
 {
-
+	m_world.RemoveEntity<Firefly>(*this);
 }
 
-void Firefly::Update(float deltaTime)
+void Firefly::Pickup()
 {
-	SpriteObj::Update(deltaTime);
+	m_active = false;
+	m_visible = false;
 }

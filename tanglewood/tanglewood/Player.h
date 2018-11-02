@@ -45,6 +45,8 @@ public:
 
 	void GoToSleep();
 
+	void PickupTestFirefly();
+
 	ColourAbility m_colour;
 
 private:

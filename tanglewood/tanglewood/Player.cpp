@@ -21,6 +21,7 @@
 #include "Djakk.h"
 #include "TriggerBox.h"
 #include "DeathBox.h"
+#include "Firefly.h"
 
 const Palette* Player::s_colourPalettes[(int)ColourAbility::Count] =
 {
@@ -133,6 +134,9 @@ void Player::Update(float deltaTime)
 		m_worldPos = m_currentMount->m_worldPos + m_mountSaddlePos;
 		m_flippedX = m_currentMount->m_flippedX;
 	}
+
+	//Query pickups
+	PickupTestFirefly();
 }
 
 void Player::Move(float speed)
@@ -382,6 +386,22 @@ void Player::UpdatePushable()
 
 				//Match velocity
 				m_currentPushable->m_velocity.x = m_velocity.x;
+			}
+		}
+	}
+}
+
+void Player::PickupTestFirefly()
+{
+	const std::vector<Firefly*>& fireflies = m_world.GetEntities<Firefly>();
+
+	for (int i = 0; i < fireflies.size(); i++)
+	{
+		if (fireflies[i]->m_active)
+		{
+			if (Intersects(*fireflies[i]))
+			{
+				fireflies[i]->Pickup();
 			}
 		}
 	}
