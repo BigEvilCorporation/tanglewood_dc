@@ -45,6 +45,7 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	m_boundsBottomRight.y = m_boundsTopLeft.y + Constants::Player::boundsHeight;
 
 	m_minWallHeight = Constants::Player::minWallHeight;
+	m_ceilingProbeOffset.y = Constants::Player::ceilingProbeOffsetY;
 
 	//Initial colour
 	m_colour = ColourAbility::Red;

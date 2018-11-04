@@ -18,6 +18,7 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 	world.GetPhysicsWorld().AddObject(*this);
 
 	m_floorProbeOffset = ion::Vector2(m_size.x / 2.0f, m_size.y - Constants::MegaDrive::tileHeight);
+	m_ceilingProbeOffset = ion::Vector2(m_size.x / 2.0f, 0.0f);
 
 	m_maxVelocityX = 100.0f;
 	m_maxVelocityXAir = 100.0f;
@@ -188,7 +189,7 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 			if (m_velocity.y < 0.0f)
 			{
 				//Find terrain
-				ion::Vector2 floorProbe(m_worldPos.x + m_floorProbeOffset.x, m_worldPos.y + m_floorProbeOffset.y);
+				ion::Vector2 floorProbe = m_worldPos + m_floorProbeOffset;
 				const float objectBottom = m_worldPos.y + m_size.y;
 
 				u16 floorFlags = 0;
@@ -229,6 +230,24 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 						m_onFloor = true;
 						m_closeToFloor = true;
 					}
+				}
+			}
+			else if (m_velocity.y > 0.0f)
+			{
+				//Find ceiling
+				ion::Vector2 ceilingProbe = m_worldPos + m_ceilingProbeOffset;
+
+				float ceilingHeight = (float)physicsWorld.FindCeiling(ion::Vector2i((int)ceilingProbe.x, (int)ceilingProbe.y), Constants::World::ceilingSearchDist);
+
+				if (ceilingHeight >= 0.0f && ceilingHeight < m_worldPos.y)
+				{
+					//Collision with ceiling, adjust position
+					m_worldPos.y = ceilingHeight;
+
+					//Kill Y velocity/acceleration
+					m_velocity.y = 0.0f;
+					m_acceleration.y = 0.0f;
+					velocitySlice.y = 0.0f;
 				}
 			}
 		}

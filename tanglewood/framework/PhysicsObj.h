@@ -29,6 +29,7 @@ public:
 	ion::Vector2 m_acceleration;
 	ion::Vector2 m_deceleration;
 	ion::Vector2 m_floorProbeOffset;
+	ion::Vector2 m_ceilingProbeOffset;
 
 	float m_maxVelocityX;
 	float m_maxVelocityXAir;

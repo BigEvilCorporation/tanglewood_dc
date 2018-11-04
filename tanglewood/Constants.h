@@ -65,6 +65,7 @@ namespace Constants
 	{
 		static const float defaultGravity = SUBPIXELS_TO_ACCELERATION(0x3000);
 		static const float floorSearchDist = MegaDrive::tileHeight * 2;
+		static const float ceilingSearchDist = MegaDrive::tileHeight * 2;
 		static const float wallSearchDist = MegaDrive::tileWidth * 2;
 		static const float paletteLerpSpeed = 0.5f;
 	}
@@ -153,6 +154,7 @@ namespace Constants
 
 		//Collision
 		static const float minWallHeight = 0x11;
+		static const float ceilingProbeOffsetY = 0x08;
 
 		//Pushing
 		static const float heavyPushObjectHeight = 0x0010;
