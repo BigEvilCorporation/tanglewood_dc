@@ -107,7 +107,7 @@ void Player::Update(float deltaTime)
 	switch (m_activeInteraction)
 	{
 	case InteractionType::Push:
-		UpdatePushable();
+		UpdatePushable(deltaTime);
 		break;
 	}
 
@@ -316,9 +316,15 @@ bool Player::TryInteractPushable()
 	{
 		if (Intersects(*pushableObjs[i]))
 		{
-			//TODO: Check facing right direction
+			//If facing right direction
+			float playerCentre = GetWorldCentre().x;
+			float pushableCentre = pushableObjs[i]->GetWorldCentre().x;
 
-			m_currentPushable = pushableObjs[i];
+			if ((!m_flippedX && (pushableCentre > playerCentre))
+				|| (m_flippedX && (pushableCentre < playerCentre)))
+			{
+				m_currentPushable = pushableObjs[i];
+			}
 		}
 	}
 
@@ -347,13 +353,18 @@ bool Player::TryInteractFuzzl()
 	return false;
 }
 
-void Player::UpdatePushable()
+void Player::UpdatePushable(float deltaTime)
 {
 	if (m_currentPushable)
 	{
-		//Check still intersects
-		//TODO: Check still facing right direction
-		if (!Intersects(*m_currentPushable))
+		//Check still intersects (use outer push bounds)
+		ion::Vector2 topLeft;
+		ion::Vector2 bottomRight;
+		m_currentPushable->GetWorldBounds(topLeft, bottomRight);
+		topLeft.x -= Constants::Player::pushBoundsOuter;
+		bottomRight.x += Constants::Player::pushBoundsOuter;
+
+		if (!Intersects(topLeft, bottomRight))
 		{
 			EndInteract();
 		}
@@ -362,7 +373,7 @@ void Player::UpdatePushable()
 			float playerCentre = GetWorldCentre().x;
 			float pushableCentre = m_currentPushable->GetWorldCentre().x;
 
-			//If facing right direction
+			//Check still facing right direction
 			if ((!m_flippedX && (pushableCentre > playerCentre))
 				|| (m_flippedX && (pushableCentre < playerCentre)))
 			{
@@ -375,18 +386,35 @@ void Player::UpdatePushable()
 				GetWorldBounds(playerTopLeft, playerBottomRight);
 				m_currentPushable->GetWorldBounds(pushableTopLeft, pushableBottomRight);
 
-				//Snap to edge
-				if (m_flippedX && (pushableBottomRight.x > playerTopLeft.x))
+				//Check not hitting wall
+				if ((!m_flippedX || !m_currentPushable->CheckCollision((int)CollisionFlags::HitWallLeft))
+					&& (m_flippedX || !m_currentPushable->CheckCollision((int)CollisionFlags::HitWallRight)))
 				{
-					pushableBottomRight.x = playerTopLeft.x;
-				}
-				else if (!m_flippedX && (playerBottomRight.x > pushableTopLeft.x))
-				{
-					pushableTopLeft.x = playerBottomRight.x;
-				}
+					//Snap to edge
+					if (m_flippedX && (pushableBottomRight.x > playerTopLeft.x))
+					{
+						m_currentPushable->AddImpulse(ion::Vector2((playerTopLeft.x - pushableBottomRight.x) / deltaTime, 0.0f));
+					}
+					else if (!m_flippedX && (pushableTopLeft.x < playerBottomRight.x))
+					{
+						m_currentPushable->AddImpulse(ion::Vector2((playerBottomRight.x - pushableTopLeft.x) / deltaTime, 0.0f));
+					}
 
-				//Match velocity
-				m_currentPushable->m_velocity.x = m_velocity.x;
+					//Match velocity
+					m_currentPushable->m_velocity.x = m_velocity.x;
+
+					//Scale anim speed based on velocity
+					if (SpriteAnimation* anim = GetCurrentAnimation())
+					{
+						float speedScale = m_pushingHeavy ? Constants::Player::pushAnimSpeedScaleHeavy : Constants::Player::pushAnimSpeedScaleLight;
+						anim->SetPlaybackSpeed(ion::maths::Abs(m_velocity.x) * speedScale);
+					}
+				}
+			}
+			else
+			{
+				//Not facing right direction
+				EndInteract();
 			}
 		}
 	}

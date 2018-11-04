@@ -158,6 +158,9 @@ namespace Constants
 
 		//Pushing
 		static const float heavyPushObjectHeight = 0x0010;
+		static const float pushBoundsOuter = 0x08;
+		static const float pushAnimSpeedScaleLight = 0.15f;
+		static const float pushAnimSpeedScaleHeavy = 0.1f;
 
 		//Colour ability
 		static const float colourAbilityMaxTime = FRAMES_TO_SECONDS(0x0600);

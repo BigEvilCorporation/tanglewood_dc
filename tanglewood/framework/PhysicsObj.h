@@ -24,6 +24,8 @@ public:
 
 	void AddImpulse(const ion::Vector2& impulse);
 
+	bool CheckCollision(int collisionFlags);
+
 	ion::Vector2 m_velocity;
 	ion::Vector2 m_impulse;
 	ion::Vector2 m_acceleration;
@@ -44,9 +46,11 @@ public:
 
 	bool m_ignoreHoles;
 
+	//Collision flags
 	bool m_onFloor;
 	bool m_closeToFloor;
 	bool m_hitWall;
+	int m_collisionFlags;
 
 	float m_speedScale;
 

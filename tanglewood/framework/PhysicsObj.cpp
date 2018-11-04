@@ -36,6 +36,7 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 	m_onFloor = false;
 	m_closeToFloor = false;
 	m_hitWall = false;
+	m_collisionFlags = 0;
 }
 
 PhysicsObj::~PhysicsObj()
@@ -121,10 +122,20 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 			velocitySlice = velocitySlice / (float)numTimeSteps;
 		}
 
-		//Clear floor/wall flags
-		m_onFloor = false;
-		m_closeToFloor = false;
-		m_hitWall = false;
+		//Clear wall flags
+		if (!ion::maths::IsZero(m_velocity.x))
+		{
+			m_hitWall = false;
+			m_collisionFlags &= ~(int)CollisionFlags::HitWallLeft;
+			m_collisionFlags &= ~(int)CollisionFlags::HitWallRight;
+		}
+
+		//Clear floor flags
+		if (!ion::maths::IsZero(m_velocity.y))
+		{
+			m_onFloor = false;
+			m_closeToFloor = false;
+		}
 
 		for (int i = 0; i < numTimeSteps; i++)
 		{
@@ -166,8 +177,9 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 				m_acceleration.x = 0.0f;
 				velocitySlice.x = 0.0f;
 
-				//Hit wall
+				//Hit wall to right
 				m_hitWall = true;
+				m_collisionFlags |= (int)CollisionFlags::HitWallRight;
 			}
 			else if (wallPos >= 0.0f && velocitySlice.x < 0.0f && wallPos > boundsTopLeft.x)
 			{
@@ -182,8 +194,9 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 				m_acceleration.x = 0.0f;
 				velocitySlice.x = 0.0f;
 
-				//Hit wall
+				//Hit wall to left
 				m_hitWall = true;
+				m_collisionFlags |= (int)CollisionFlags::HitWallLeft;
 			}
 
 			if (m_velocity.y < 0.0f)
@@ -257,4 +270,9 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 void PhysicsObj::AddImpulse(const ion::Vector2& impulse)
 {
 	m_impulse += impulse;
+}
+
+bool PhysicsObj::CheckCollision(int collisionFlags)
+{
+	return m_collisionFlags & collisionFlags;
 }

@@ -19,6 +19,12 @@
 class PhysicsObj;
 class Project;
 
+enum class CollisionFlags
+{
+	HitWallLeft,
+	HitWallRight
+};
+
 class PhysicsWorld
 {
 public:

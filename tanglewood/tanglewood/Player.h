@@ -132,7 +132,7 @@ private:
 	bool TryInteractPushable();
 	bool TryInteractFuzzl();
 
-	void UpdatePushable();
+	void UpdatePushable(float deltaTime);
 
 	InteractionType m_activeInteraction;
 
