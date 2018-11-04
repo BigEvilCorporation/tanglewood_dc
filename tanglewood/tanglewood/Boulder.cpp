@@ -21,6 +21,9 @@ Boulder::Boulder(World& world, const GameObject& gameObject, const GameObjectTyp
 {
 	m_spawnPos = m_worldPos;
 
+	m_canPush = true;
+	m_canPull = false;
+
 	Respawn();
 }
 

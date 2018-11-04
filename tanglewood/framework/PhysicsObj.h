@@ -46,6 +46,9 @@ public:
 
 	bool m_ignoreHoles;
 
+	bool m_canPush;
+	bool m_canPull;
+
 	//Collision flags
 	bool m_onFloor;
 	bool m_closeToFloor;

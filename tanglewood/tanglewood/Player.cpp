@@ -237,6 +237,7 @@ void Player::EndInteract()
 	m_currentPushable = nullptr;
 	m_pushingLight = false;
 	m_pushingHeavy = false;
+	m_lockFlipDirection = false;
 }
 
 void Player::BeginAbility(bool debounce)
@@ -314,16 +315,23 @@ bool Player::TryInteractPushable()
 	//Find intersecting pushable obj
 	for (int i = 0; i < pushableObjs.size() && !m_currentPushable; i++)
 	{
-		if (Intersects(*pushableObjs[i]))
+		if (pushableObjs[i]->m_canPush || pushableObjs[i]->m_canPull)
 		{
-			//If facing right direction
-			float playerCentre = GetWorldCentre().x;
-			float pushableCentre = pushableObjs[i]->GetWorldCentre().x;
-
-			if ((!m_flippedX && (pushableCentre > playerCentre))
-				|| (m_flippedX && (pushableCentre < playerCentre)))
+			if (Intersects(*pushableObjs[i]))
 			{
-				m_currentPushable = pushableObjs[i];
+				//If facing right direction
+				float playerCentre = GetWorldCentre().x;
+				float pushableCentre = pushableObjs[i]->GetWorldCentre().x;
+
+				if (pushableObjs[i]->m_canPull
+					|| (!m_flippedX && (pushableCentre > playerCentre))
+					|| (m_flippedX && (pushableCentre < playerCentre)))
+				{
+					m_currentPushable = pushableObjs[i];
+
+					//If object can be pulled, lock flipping
+					m_lockFlipDirection = m_currentPushable->m_canPull;
+				}
 			}
 		}
 	}
@@ -374,7 +382,8 @@ void Player::UpdatePushable(float deltaTime)
 			float pushableCentre = m_currentPushable->GetWorldCentre().x;
 
 			//Check still facing right direction
-			if ((!m_flippedX && (pushableCentre > playerCentre))
+			if (m_currentPushable->m_canPull
+				|| (!m_flippedX && (pushableCentre > playerCentre))
 				|| (m_flippedX && (pushableCentre < playerCentre)))
 			{
 				//Get bounding boxes
@@ -387,15 +396,16 @@ void Player::UpdatePushable(float deltaTime)
 				m_currentPushable->GetWorldBounds(pushableTopLeft, pushableBottomRight);
 
 				//Check not hitting wall
-				if ((!m_flippedX || !m_currentPushable->CheckCollision((int)CollisionFlags::HitWallLeft))
-					&& (m_flippedX || !m_currentPushable->CheckCollision((int)CollisionFlags::HitWallRight)))
+				if (m_currentPushable->m_canPull
+					|| ((!m_flippedX || !m_currentPushable->CheckCollision((int)CollisionFlags::HitWallLeft))
+					&& (m_flippedX || !m_currentPushable->CheckCollision((int)CollisionFlags::HitWallRight))))
 				{
 					//Snap to edge
-					if (m_flippedX && (pushableBottomRight.x > playerTopLeft.x))
+					if (m_flippedX && (m_currentPushable->m_canPull || (pushableBottomRight.x > playerTopLeft.x)))
 					{
 						m_currentPushable->AddImpulse(ion::Vector2((playerTopLeft.x - pushableBottomRight.x) / deltaTime, 0.0f));
 					}
-					else if (!m_flippedX && (pushableTopLeft.x < playerBottomRight.x))
+					else if (!m_flippedX && (m_currentPushable->m_canPull || (pushableTopLeft.x < playerBottomRight.x)))
 					{
 						m_currentPushable->AddImpulse(ion::Vector2((playerBottomRight.x - pushableTopLeft.x) / deltaTime, 0.0f));
 					}

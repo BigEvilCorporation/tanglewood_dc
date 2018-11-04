@@ -38,6 +38,8 @@ Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& g
 	m_maxVelocityYDown = Constants::Fuzzl::maxVelocityYDown;
 	m_deceleration = Constants::Fuzzl::deceleration;
 	m_ignoreHoles = true;
+	m_canPush = true;
+	m_canPull = true;
 
 	//Character
 	m_allowRunning = false;

@@ -37,6 +37,9 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 	m_closeToFloor = false;
 	m_hitWall = false;
 	m_collisionFlags = 0;
+
+	m_canPush = false;
+	m_canPull = false;
 }
 
 PhysicsObj::~PhysicsObj()

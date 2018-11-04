@@ -45,6 +45,7 @@ Character::Character(World& world, const GameObject& gameObject, const GameObjec
 	m_pushingLight = false;
 	m_pushingHeavy = false;
 	m_walkToRunAnimTransition = false;
+	m_lockFlipDirection = false;
 
 	SetCharacterAnimation(CharacterAnimations::Idle);
 }
@@ -70,13 +71,16 @@ void Character::Update(float deltaTime)
 	}
 
 	//Flip sprite
-	if(m_velocity.x < 0.0f)
+	if (!m_lockFlipDirection)
 	{
-		m_flippedX = true;
-	}
-	else if(m_velocity.x > 0.0f)
-	{
-		m_flippedX = false;
+		if (m_velocity.x < 0.0f)
+		{
+			m_flippedX = true;
+		}
+		else if (m_velocity.x > 0.0f)
+		{
+			m_flippedX = false;
+		}
 	}
 
 	//Update walk/run
