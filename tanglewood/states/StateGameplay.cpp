@@ -87,4 +87,7 @@ void StateGameplay::Render(ion::render::Renderer& renderer, const ion::render::C
 {
 	//Render world
 	Globals::Game::world->Render(renderer, camera, viewport);
+
+	//Render level
+	Globals::Game::level->Render(renderer, camera, viewport);
 }

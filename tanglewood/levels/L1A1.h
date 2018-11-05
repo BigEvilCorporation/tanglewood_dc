@@ -21,6 +21,7 @@ public:
 
 	virtual void Start();
 	virtual void Update(float deltaTime);
+	virtual void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport);
 	virtual void End();
 
 	void OnTriggerEndLevel(const TriggerBox& triggerBox);

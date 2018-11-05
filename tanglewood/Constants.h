@@ -61,6 +61,15 @@ namespace Constants
 		};
 	}
 
+	namespace Effects
+	{
+		namespace Letterbox
+		{
+			static const float barHeight = 75.0f;
+			static const float moveSpeed = 1.0f * barHeight; // 1 second
+		}
+	}
+
 	namespace World
 	{
 		static const float defaultGravity = SUBPIXELS_TO_ACCELERATION(0x3000);

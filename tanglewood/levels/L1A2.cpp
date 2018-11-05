@@ -42,6 +42,11 @@ void L1A2::Update(float deltaTime)
 	m_cutsceneDjakkReveal->Update(deltaTime);
 }
 
+void L1A2::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
+{
+	m_cutsceneDjakkReveal->Render(renderer, camera, viewport);
+}
+
 void L1A2::End()
 {
 

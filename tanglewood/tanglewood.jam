@@ -47,6 +47,8 @@ local SRC =
 
 	effects/Fader.cpp
 	effects/Fader.h
+	effects/Letterbox.cpp
+	effects/Letterbox.h
 
 	framework/Barrier.h
 	framework/Camera.cpp

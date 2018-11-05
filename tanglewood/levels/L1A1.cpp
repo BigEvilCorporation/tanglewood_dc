@@ -30,6 +30,11 @@ void L1A1::Update(float deltaTime)
 
 }
 
+void L1A1::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
+{
+
+}
+
 void L1A1::End()
 {
 

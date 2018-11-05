@@ -10,6 +10,10 @@
 
 #pragma once
 
+#include <ion/renderer/Renderer.h>
+#include <ion/renderer/Camera.h>
+#include <ion/renderer/Viewport.h>
+
 #include <string>
 #include <functional>
 
@@ -45,6 +49,7 @@ public:
 
 	virtual void Start() = 0;
 	virtual void Update(float deltaTime) = 0;
+	virtual void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport) = 0;
 	virtual void End() = 0;
 
 	State GetState() const { return m_state; }
