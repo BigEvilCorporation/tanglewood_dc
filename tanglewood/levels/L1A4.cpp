@@ -27,22 +27,26 @@ L1A4::~L1A4()
 {
 	TriggerBox::UnregisterTriggerFunc("L1A4_Trigger_WakeDjakk");
 	TriggerBox::UnregisterTriggerFunc("L1A4_Trigger_End");
+
+	delete m_cutsceneDjakkReveal;
 }
 
 void L1A4::Start()
 {
 	//Start at night time
 	Globals::Game::world->SetPalette(Assets::Palettes::World::night);
+
+	m_cutsceneDjakkReveal = new Cutscenes::DjakkReveal(*Globals::Players::player1, *Globals::Game::world->FindEntity<Djakk>("djakk"));
 }
 
 void L1A4::Update(float deltaTime)
 {
-
+	m_cutsceneDjakkReveal->Update(deltaTime);
 }
 
 void L1A4::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
-
+	m_cutsceneDjakkReveal->Render(renderer, camera, viewport);
 }
 
 void L1A4::End()
@@ -52,21 +56,7 @@ void L1A4::End()
 
 void L1A4::OnTriggerDjakk(const TriggerBox& triggerBox)
 {
-	std::vector<Djakk*> djakks = Globals::Game::world->GetEntities<Djakk>();
-	
-	Djakk* djakk = nullptr;
-
-	for (int i = 0; i < djakks.size() && !djakk; i++)
-	{
-		if (ion::string::CompareNoCase(djakks[i]->m_name, "djakk"))
-		{
-			djakk = djakks[i];
-		}
-	}
-
-	ion::debug::Assert(djakk, "L1A4::OnTriggerDjakk() - Djakk not found");
-
-	djakk->BeginChase(false);
+	m_cutsceneDjakkReveal->Play();
 }
 
 void L1A4::OnTriggerDismountDjakk(const TriggerBox& triggerBox)

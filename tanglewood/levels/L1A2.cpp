@@ -30,6 +30,8 @@ L1A2::~L1A2()
 	TriggerBox::UnregisterTriggerFunc("L1A2_Trigger_Night");
 	TriggerBox::UnregisterTriggerFunc("L1A2_Trigger_Djakk");
 	TriggerBox::UnregisterTriggerFunc("L1A2_Trigger_End");
+
+	delete m_cutsceneDjakkReveal;
 }
 
 void L1A2::Start()
