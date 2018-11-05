@@ -11,6 +11,7 @@
 #include "StateGameplay.h"
 
 #include "Globals.h"
+#include "tanglewood/Player.h"
 
 StateGameplay::StateGameplay(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
 	: ion::gamekit::State("gameplay", stateManager, resourceManager)
@@ -53,7 +54,7 @@ bool StateGameplay::Update(float deltaTime, ion::input::Keyboard* keyboard, ion:
 	Globals::Game::world->Update(deltaTime, *keyboard, *gamepad);
 
 	//Update level logic
-	Globals::Game::level->Update(deltaTime);
+	Globals::Game::level->Update(deltaTime, keyboard, mouse, gamepad);
 
 	//Check level ended
 	if (!Globals::Game::level->IsRunning())

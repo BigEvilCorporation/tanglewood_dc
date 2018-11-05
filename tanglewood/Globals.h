@@ -7,6 +7,7 @@ class LevelDescriptor;
 class Level;
 class World;
 class Player;
+class PlayerController;
 class GameCamera;
 
 namespace Globals
@@ -17,6 +18,7 @@ namespace Globals
 	{
 		extern Player* player1;
 		extern Player* player2;
+		extern PlayerController* playerController1;
 	}
 
 	namespace Game

@@ -23,13 +23,13 @@
 
 //TODO: Move
 #include "tanglewood/Player.h"
+#include "tanglewood/PlayerController.h"
 const char* nymnObjectName = "nymn";
 
 World::World()
 {
 	m_planeFg = NULL;
 	m_planeBg = NULL;
-	m_playerController = NULL;
 	m_levelIdx = -1;
 
 	m_physicsWorld = new PhysicsWorld();
@@ -330,11 +330,17 @@ bool World::CreateGameObjects()
 
     //Find Nymn, create player controller
     //TODO: move
+	if (Globals::Players::playerController1)
+	{
+		delete Globals::Players::playerController1;
+		Globals::Players::playerController1 = nullptr;
+	}
+
 	std::vector<Player*> players = GetEntities<Player>();
 	if (!players.empty())
 	{
 		Globals::Players::player1 = players[0];
-		m_playerController = new PlayerController(*players[0]);
+		Globals::Players::playerController1 = new PlayerController(*players[0]);
 
 		//Set default camera target
 		Globals::Game::camera->SetTarget(Globals::Players::player1);
@@ -388,12 +394,12 @@ void World::Reset()
 void World::Update(float deltaTime, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad)
 {
     //Update player controller
-    if(m_playerController)
+    if(Globals::Players::playerController1)
     {
-        m_playerController->Update(deltaTime, keyboard, gamepad);
+		Globals::Players::playerController1->Update(deltaTime, keyboard, gamepad);
     }
 
-	if (!m_playerController || !m_playerController->m_debugMove)
+	if (!Globals::Players::playerController1 || !Globals::Players::playerController1->m_debugMove)
 	{
 		//Step physics world
 		m_physicsWorld->Step(deltaTime);
@@ -475,10 +481,10 @@ void World::SetCameraPosition(const ion::Vector2& position)
 
 void World::PreStreamMap()
 {
-	if (m_playerController)
+	if (Globals::Players::playerController1)
 	{
 		//Set initial camera pos
-		ion::Vector2 playerPos = m_playerController->GetCentre();
+		ion::Vector2 playerPos = Globals::Players::player1->GetWorldCentre();
 		SetCameraPosition(ion::Vector2(playerPos.x, m_mapSizeFg.y - playerPos.y));
 
 		if (m_planeFg)

@@ -48,6 +48,9 @@ void StateEndAct::OnResumeState()
 
 bool StateEndAct::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
+	//Update world
+	Globals::Game::world->Update(deltaTime, *keyboard, *gamepad);
+
 	//TODO: Fade out
 
 	//Next level

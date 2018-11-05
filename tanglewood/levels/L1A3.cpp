@@ -34,7 +34,7 @@ void L1A3::Start()
 	Globals::Game::world->SetPalette(Assets::Palettes::World::night);
 }
 
-void L1A3::Update(float deltaTime)
+void L1A3::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
 
 }

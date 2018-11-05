@@ -39,7 +39,7 @@ void L1A2::Start()
 	m_cutsceneDjakkReveal = new Cutscenes::DjakkReveal(*Globals::Players::player1, *Globals::Game::world->FindEntity<Djakk>("djakk"));
 }
 
-void L1A2::Update(float deltaTime)
+void L1A2::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
 	m_cutsceneDjakkReveal->Update(deltaTime);
 }

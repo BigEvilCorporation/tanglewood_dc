@@ -29,6 +29,7 @@ namespace Animations
 		static const AnimType rideJump =		{ "ridedjakkjump",	"ridedjakkjump",AnimFlags::Loop };
 		static const AnimType laydown =			{ "laydown",		"laydown",		AnimFlags::FreezeMovementX };
 		static const AnimType sleep =			{ "sleep",			"sleep",		AnimFlags::FreezeMovementX | AnimFlags::Loop };
+		static const AnimType awake =			{ "laydown",		"wake",			AnimFlags::FreezeMovementX };
 	}
 
 	namespace Boulder

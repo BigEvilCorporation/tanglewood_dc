@@ -14,6 +14,10 @@
 #include <ion/renderer/Camera.h>
 #include <ion/renderer/Viewport.h>
 
+#include <ion/input/Keyboard.h>
+#include <ion/input/Mouse.h>
+#include <ion/input/Gamepad.h>
+
 #include <string>
 #include <functional>
 
@@ -48,7 +52,7 @@ public:
 	virtual ~Level() {}
 
 	virtual void Start() = 0;
-	virtual void Update(float deltaTime) = 0;
+	virtual void Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad) = 0;
 	virtual void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport) = 0;
 	virtual void End() = 0;
 

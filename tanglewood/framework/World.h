@@ -18,14 +18,12 @@
 #include <ion/core/utils/STL.h>
 #include <ion/core/string/String.h>
 
+#include "Entity.h"
 #include "Plane.h"
 #include "Physics.h"
 #include "Level.h"
 
 #include "effects/Fader.h"
-
-//TODO: Doesn't belong in framework
-#include "tanglewood/PlayerController.h"
 
 #include <vector>
 #include <map>
@@ -80,10 +78,6 @@ public:
 	//Physics world
 	PhysicsWorld& GetPhysicsWorld() { return *m_physicsWorld; }
 
-	//Player(s)
-	//TODO: Doesn't belong in framework
-	PlayerController* GetPlayerController() const { return m_playerController; }
-
 	//Effects
 	void ResetFader();
 	bool BeginFade(float speed);
@@ -136,10 +130,6 @@ private:
     //Entities
     std::vector<Entity*> m_entities;
 	std::map<std::string, std::vector<Entity*>> m_entitiesByType;
-    
-    //Player controller
-	//TODO: Doesn't belong in framework
-    PlayerController* m_playerController;
 
 	//Effects
 	Fader m_fader;

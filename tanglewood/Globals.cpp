@@ -1,6 +1,7 @@
 #include "Globals.h"
 #include "levels/LevelList.h"
 #include "framework/Camera.h"
+#include "tanglewood/PlayerController.h"
 
 namespace Globals
 {
@@ -13,11 +14,12 @@ namespace Globals
 	{
 		Player* player1 = nullptr;
 		Player* player2 = nullptr;
+		PlayerController* playerController1 = nullptr;
 	}
 
 	namespace Game
 	{
-		int levelIdx = (int)Constants::Levels::l1a3_Harlequin_Act3;
+		int levelIdx = (int)Constants::Levels::l1a1_Harlequin_Act1;
 		World* world = nullptr;
 		Level* level = nullptr;
 		GameCamera* camera = nullptr;
@@ -26,7 +28,7 @@ namespace Globals
 	namespace Rendering
 	{
 		int windowWidth = 1024;
-		int windowHeight = 760;
+		int windowHeight = 768;
 		int gameCanvasWidth = 320;
 		int gameCanvasHeight = 240;
 	}

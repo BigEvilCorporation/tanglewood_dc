@@ -12,10 +12,11 @@
 #include "Nest.h"
 #include "Flue.h"
 #include "Constants.h"
+#include "Globals.h"
+#include "Player.h"
 #include "Animations.h"
 
 #include "framework/World.h"
-
 
 std::string Fuzzl::s_spritePrefixes[(int)ColourAbility::Count] =
 {
@@ -162,7 +163,7 @@ void Fuzzl::StateIdle::OnEnterState()
 void Fuzzl::StateIdle::OnUpdateState(float deltaTime)
 {
 	//Watch for player
-	ion::Vector2 playerCentre = m_fuzzl.m_world.GetPlayerController()->GetCentre();
+	ion::Vector2 playerCentre = Globals::Players::player1->GetWorldCentre();
 
 	if ((playerCentre - m_fuzzl.m_worldPos).GetLength() < Constants::Fuzzl::alertDistance)
 	{
@@ -191,7 +192,7 @@ void Fuzzl::StateWatching::OnEnterState()
 void Fuzzl::StateWatching::OnUpdateState(float deltaTime)
 {
 	//Update anim frame to point eyes towards player
-	ion::Vector2 playerCentre = m_fuzzl.m_world.GetPlayerController()->GetCentre();
+	ion::Vector2 playerCentre = Globals::Players::player1->GetWorldCentre();
 	ion::Vector2 fuzzlCentre = m_fuzzl.GetWorldCentre();
 	ion::Vector2 direction = (playerCentre - fuzzlCentre).Normalise();
 	float angleRad = direction.Angle(ion::Vector2(0.0f, 1.0f));
@@ -243,7 +244,7 @@ void Fuzzl::StateRolling::OnUpdateState(float deltaTime)
 	//If stopped, and player out of view distance
 	if (ion::maths::IsZero(m_fuzzl.m_velocity.GetLength()))
 	{
-		ion::Vector2 playerCentre = m_fuzzl.m_world.GetPlayerController()->GetCentre();
+		ion::Vector2 playerCentre = Globals::Players::player1->GetWorldCentre();
 
 		if ((playerCentre - m_fuzzl.m_worldPos).GetLength() > Constants::Fuzzl::lostDistance)
 		{
@@ -278,7 +279,7 @@ void Fuzzl::StateNest::OnEnterState()
 void Fuzzl::StateNest::OnUpdateState(float deltaTime)
 {
 	//If player not same colour
-	const Player& player = m_fuzzl.m_world.GetPlayerController()->GetPlayer();
+	const Player& player = *Globals::Players::player1;
 
 	if (m_fuzzl.m_colour != player.m_colour)
 	{

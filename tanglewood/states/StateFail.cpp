@@ -9,8 +9,9 @@
 ///////////////////////////////////////////////////////////////
 
 #include "StateFail.h"
-
 #include "Globals.h"
+
+#include "tanglewood/Player.h"
 
 StateFail::StateFail(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
 	: ion::gamekit::State("fail", stateManager, resourceManager)
@@ -45,6 +46,9 @@ void StateFail::OnResumeState()
 
 bool StateFail::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
+	//Update world
+	Globals::Game::world->Update(deltaTime, *keyboard, *gamepad);
+
 	//Wait for death animation to finish
 	if (!Globals::Players::player1->GetCurrentAnimation() || Globals::Players::player1->GetCurrentAnimation()->GetState() == ion::render::Animation::eStopped)
 	{

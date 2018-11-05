@@ -48,6 +48,9 @@ void StateEndChapter::OnResumeState()
 
 bool StateEndChapter::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
+	//Update world
+	Globals::Game::world->Update(deltaTime, *keyboard, *gamepad);
+
 	if (m_fadingOut)
 	{
 		//Wait until fade finished
