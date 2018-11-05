@@ -13,6 +13,8 @@
 #include "Globals.h"
 #include "Animations.h"
 #include "Palettes.h"
+
+#include "framework/Camera.h"
 #include "framework/World.h"
 
 #include "Flue.h"
@@ -570,6 +572,9 @@ void Player::AbilityBeastTame::OnUpdateState(float deltaTime)
 		//Waiting for mount anim to finish
 		if (!m_player.GetCurrentAnimation() || m_player.GetCurrentAnimation()->GetState() == ion::render::Animation::eStopped)
 		{
+			//Lerp camera up to player
+			Globals::Game::camera->BeginLerp(&m_player, Constants::Effects::Camera::defaultLerpSpeed);
+
 			//Forward all controls to pet
 			m_player.m_currentMount = m_beast;
 			m_player.m_mountSaddlePos = Constants::Djakk::saddleOffset;

@@ -68,6 +68,11 @@ namespace Constants
 			static const float barHeight = 75.0f;
 			static const float moveSpeed = 1.0f * barHeight; // 1 second
 		}
+
+		namespace Camera
+		{
+			static const float defaultLerpSpeed = 1.0f;
+		}
 	}
 
 	namespace World

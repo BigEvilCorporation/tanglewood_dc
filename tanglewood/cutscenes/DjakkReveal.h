@@ -13,6 +13,8 @@
 //
 ///////////////////////////////////////////////////////////////
 
+#pragma once
+
 #include "framework/Cutscene.h"
 #include "cutscenes/Common.h"
 #include "tanglewood/Player.h"
@@ -49,7 +51,7 @@ namespace Cutscenes
 				[](float dt) -> bool { return false; } ));
 
 			//Lerp camera to Djakk (blocking)
-			AddStep(new Common::CameraLerp(*Globals::Game::camera, m_djakk, 1.0f, true));
+			AddStep(new Common::CameraLerp(*Globals::Game::camera, m_djakk, Constants::Effects::Camera::defaultLerpSpeed, true));
 
 			//Wait
 			AddStep(new Common::Delay(0.5f));
@@ -63,7 +65,7 @@ namespace Cutscenes
 				[&djakk](float dt) -> bool { return djakk.GetCurrentAnimType() && (*djakk.GetCurrentAnimType() == Animations::Djakk::roar); }));
 
 			//Lerp camera to player (non-blocking)
-			AddStep(new Common::CameraLerp(*Globals::Game::camera, m_player, 1.0f, false));
+			AddStep(new Common::CameraLerp(*Globals::Game::camera, m_player, Constants::Effects::Camera::defaultLerpSpeed, false));
 
 			//Restore controls
 			AddStep(new Cutscene::Step("RestoreMove",
