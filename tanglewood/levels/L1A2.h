@@ -13,6 +13,8 @@
 #include "framework/Level.h"
 #include "tanglewood/TriggerBox.h"
 
+#include "cutscenes/DjakkReveal.h"
+
 class L1A2 : public Level
 {
 public:
@@ -27,4 +29,7 @@ public:
 	void OnTriggerNight(const TriggerBox& triggerBox);
 	void OnTriggerDjakk(const TriggerBox& triggerBox);
 	void OnTriggerEndLevel(const TriggerBox& triggerBox);
+
+private:
+	Cutscenes::DjakkReveal* m_cutsceneDjakkReveal;
 };

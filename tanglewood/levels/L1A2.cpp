@@ -34,12 +34,12 @@ L1A2::~L1A2()
 
 void L1A2::Start()
 {
-
+	m_cutsceneDjakkReveal = new Cutscenes::DjakkReveal(*Globals::Players::player1, *Globals::Game::world->FindEntity<Djakk>("djakk"));
 }
 
 void L1A2::Update(float deltaTime)
 {
-
+	m_cutsceneDjakkReveal->Update(deltaTime);
 }
 
 void L1A2::End()
@@ -59,21 +59,7 @@ void L1A2::OnTriggerNight(const TriggerBox& triggerBox)
 
 void L1A2::OnTriggerDjakk(const TriggerBox& triggerBox)
 {
-	std::vector<Djakk*> djakks = Globals::Game::world->GetEntities<Djakk>();
-	
-	Djakk* djakk = nullptr;
-
-	for (int i = 0; i < djakks.size() && !djakk; i++)
-	{
-		if (ion::string::CompareNoCase(djakks[i]->m_name, "djakk"))
-		{
-			djakk = djakks[i];
-		}
-	}
-
-	ion::debug::Assert(djakk, "L1A2::OnTriggerDjakk() - Djakk not found");
-
-	djakk->BeginChase(true);
+	m_cutsceneDjakkReveal->Play();
 }
 
 void L1A2::OnTriggerEndLevel(const TriggerBox& triggerBox)

@@ -80,7 +80,8 @@ bool StateEndChapter::Update(float deltaTime, ion::input::Keyboard* keyboard, io
 	return true;
 }
 
-void StateEndChapter::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
+void StateEndChapter::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
-
+	//Render world
+	Globals::Game::world->Render(renderer, camera, viewport);
 }

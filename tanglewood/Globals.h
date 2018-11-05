@@ -1,13 +1,13 @@
 #pragma once
 
 #include <ion/io/Archive.h>
-#include <ion/renderer/Camera.h>
 #include <ion/renderer/Types.h>
 
 class LevelDescriptor;
 class Level;
 class World;
 class Player;
+class GameCamera;
 
 namespace Globals
 {
@@ -24,7 +24,7 @@ namespace Globals
 		extern int levelIdx;
 		extern Level* level;
 		extern World* world;
-		extern ion::render::Camera* camera;
+		extern GameCamera* camera;
 	}
 
 	namespace Rendering

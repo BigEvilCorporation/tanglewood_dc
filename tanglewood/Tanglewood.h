@@ -25,6 +25,8 @@
 #include "states/StateEndAct.h"
 #include "states/StateEndChapter.h"
 
+#include "framework/Camera.h"
+
 #include "Debug.h"
 
 #if defined ION_PLATFORM_WINDOWS
@@ -65,7 +67,6 @@ private:
 	ion::render::Window* m_window;
 	ion::render::Renderer* m_renderer;
 	ion::render::Viewport* m_viewport;
-	ion::render::Camera* m_camera;
 	ion::input::Keyboard* m_keyboard;
 	ion::input::Gamepad* m_gamepad;
 	ion::io::ResourceManager* m_resourceManager;
@@ -73,6 +74,8 @@ private:
 	ion::gamekit::StateManager* m_stateManager;
 
 	ion::Vector2i m_screenSize;
+
+	GameCamera* m_camera;
 
 	//Debugging
 	DebugUI* m_debugUI;

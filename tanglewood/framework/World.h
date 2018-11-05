@@ -58,7 +58,7 @@ public:
 
 	//Update/render
 	void Update(float deltaTime, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad);
-	void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv);
+	void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport);
 
 	//Set camera position, correcting for viewport size
 	void SetCameraPosition(const ion::Vector2& position);
@@ -101,7 +101,6 @@ private:
 
 	ion::Vector2 m_mapSizeFg;
 	ion::Vector2 m_mapSizeBg;
-	ion::Vector2 m_cameraPos;
 	ion::Vector2 m_scrollFg;
 
 	//TODO: Move to global assets

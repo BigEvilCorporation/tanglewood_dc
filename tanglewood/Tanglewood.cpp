@@ -51,8 +51,8 @@ bool Tanglewood::Initialise()
 	//Create window/renderer/camera/viewport
 	m_window = ion::render::Window::Create("Tanglewood", s_defaultWindowWidth, s_defaultWindowHeight, false);
 	m_renderer = ion::render::Renderer::Create(m_window->GetDeviceContext());
-	m_camera = new ion::render::Camera();
 	m_viewport = new ion::render::Viewport(s_defaultWindowWidth, s_defaultWindowHeight, ion::render::Viewport::eOrtho2DAbsolute);
+	m_camera = new GameCamera();
 
 	//Begin loading global resources
 	LoadGlobalResources();
@@ -171,10 +171,8 @@ void Tanglewood::Render()
 	m_renderer->SetAlphaBlending(ion::render::Renderer::eTranslucent);
 	m_renderer->SetFaceCulling(ion::render::Renderer::eNoCull);
 
-	ion::Matrix4 cameraInv = m_camera->GetTransform().GetInverse();
-
 	//Render gamestate
-	m_stateManager->Render(*m_renderer, *m_camera, *m_viewport);
+	m_stateManager->Render(*m_renderer, m_camera->GetRenderCamera(), *m_viewport);
 
 	//Render UI
 #if !defined ION_PLATFORM_DREAMCAST

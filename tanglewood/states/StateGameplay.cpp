@@ -83,8 +83,8 @@ bool StateGameplay::Update(float deltaTime, ion::input::Keyboard* keyboard, ion:
 	return true;
 }
 
-void StateGameplay::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
+void StateGameplay::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
 	//Render world
-	Globals::Game::world->Render(renderer, camera, viewport, camera.GetTransform().GetInverse());
+	Globals::Game::world->Render(renderer, camera, viewport);
 }

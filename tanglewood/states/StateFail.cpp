@@ -59,7 +59,8 @@ bool StateFail::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::inp
 	return true;
 }
 
-void StateFail::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
+void StateFail::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
-
+	//Render world
+	Globals::Game::world->Render(renderer, camera, viewport);
 }

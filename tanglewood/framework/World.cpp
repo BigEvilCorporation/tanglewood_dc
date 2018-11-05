@@ -14,6 +14,7 @@
 #include "Globals.h"
 #include "Palettes.h"
 #include "Shaders.h"
+#include "Camera.h"
 #include "ObjectFactory.h"
 
 #include <ion/core/debug/Debug.h>
@@ -334,6 +335,9 @@ bool World::CreateGameObjects()
 	{
 		Globals::Players::player1 = players[0];
 		m_playerController = new PlayerController(*players[0]);
+
+		//Set default camera target
+		Globals::Game::camera->SetTarget(Globals::Players::player1);
 	}
 	else
     {
@@ -404,30 +408,22 @@ void World::Update(float deltaTime, const ion::input::Keyboard& keyboard, const 
 		}
 	}
 
-	//Centre camera on player
-	if(m_playerController)
-	{
-		ion::Vector2 playerPos = m_playerController->GetCentre();
-		SetCameraPosition(ion::Vector2(playerPos.x, m_mapSizeFg.y - playerPos.y));
-	}
+	//Update camera
+	Globals::Game::camera->Update(deltaTime, m_mapSizeFg.y);
 
 	//Update background scroll
-	m_planeBg->m_scroll.x = m_cameraPos.x / 2.0f;
-	//m_planeBg->m_scroll.y = m_cameraPos.y / 2.0f;
+	m_planeBg->m_scroll.x = Globals::Game::camera->GetWorldPos().x / 2.0f;
+	//m_planeBg->m_scroll.y = Globals::Game::camera->GetWorldPos().y / 2.0f;
 
 	//Update effects
 	m_fader.Update(deltaTime);
 	UpdatePaletteLerp(deltaTime);
 }
 
-void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv)
+void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport)
 {
-	//Get camera bounds
-	Bounds cameraBounds;
-	cameraBounds.topLeft.x = camera.GetPosition().x;
-	cameraBounds.topLeft.y = m_mapSizeFg.y - camera.GetPosition().y - Constants::MegaDrive::screenHeight;
-	cameraBounds.bottomRight.x = camera.GetPosition().x + Constants::MegaDrive::screenWidth;
-	cameraBounds.bottomRight.y = m_mapSizeFg.y - camera.GetPosition().y;
+	//Get camera matrix
+	ion::Matrix4 cameraInv = camera.GetTransform().GetInverse();
 
 	//TODO: One plane per draw priority (store sprites on plane)
 	const std::vector<SpriteObj*>& sprites = GetEntities<SpriteObj>();
@@ -474,25 +470,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 
 void World::SetCameraPosition(const ion::Vector2& position)
 {
-	//Calc ratio of window to screen size
-	ion::Vector3 cameraZoom;
-	cameraZoom.x = (float)Globals::Rendering::windowWidth / (float)Globals::Rendering::gameCanvasWidth;
-	cameraZoom.y = (float)Globals::Rendering::windowHeight / (float)Globals::Rendering::gameCanvasHeight;
-	cameraZoom.z = 1.0f;
-
-	//Set camera zoom
-	Globals::Game::camera->SetZoom(cameraZoom);
-
-	//Compensate camera pos
-	ion::Vector3 cameraPos;
-	cameraPos.x = position.x - (float)Globals::Rendering::gameCanvasWidth / 2.0f;
-	cameraPos.y = position.y - (float)Globals::Rendering::gameCanvasHeight / 2.0f;
-	cameraPos.z = -0.1f;
-
-	//Set camera pos
-	Globals::Game::camera->SetPosition(cameraPos);
-
-	m_cameraPos = position;
+	Globals::Game::camera->SetWorldPos(position);
 }
 
 void World::PreStreamMap()
@@ -505,12 +483,12 @@ void World::PreStreamMap()
 
 		if (m_planeFg)
 		{
-			m_planeFg->PreStream(*Globals::Game::camera);
+			m_planeFg->PreStream(Globals::Game::camera->GetRenderCamera());
 		}
 
 		if (m_planeBg)
 		{
-			m_planeBg->PreStream(*Globals::Game::camera);
+			m_planeBg->PreStream(Globals::Game::camera->GetRenderCamera());
 		}
 	}
 }

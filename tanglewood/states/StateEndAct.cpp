@@ -59,7 +59,8 @@ bool StateEndAct::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::i
 	return false;
 }
 
-void StateEndAct::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
+void StateEndAct::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
-
+	//Render world
+	Globals::Game::world->Render(renderer, camera, viewport);
 }

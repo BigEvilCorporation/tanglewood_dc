@@ -42,12 +42,19 @@ local SRC =
 	Tanglewood.cpp
 	Tanglewood.h
 
+	cutscenes/Common.h
+	cutscenes/DjakkReveal.h
+
 	effects/Fader.cpp
 	effects/Fader.h
 
 	framework/Barrier.h
+	framework/Camera.cpp
+	framework/Camera.h
 	framework/Character.cpp
 	framework/Character.h
+	framework/Cutscene.cpp
+	framework/Cutscene.h
 	framework/Entity.cpp
 	framework/Entity.h
 	framework/Level.cpp

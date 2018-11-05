@@ -15,6 +15,7 @@
 #include "Djakk.h"
 
 #include "framework/World.h"
+#include "framework/Camera.h"
 
 Boulder::Boulder(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: PhysicsObj(world, gameObject, gameObjType, actor)
@@ -45,7 +46,7 @@ void Boulder::Update(float deltaTime)
 		//If smashed, respawn if of screen and out of respawn distance
 		if (m_smashed)
 		{
-			if (!m_drawnLastFrame && (Globals::Game::camera->GetPosition().xy() - m_worldPos).GetLength() > Constants::Boulder::respawnDistance)
+			if (!m_drawnLastFrame && (Globals::Game::camera->GetRenderCamera().GetPosition().xy() - m_worldPos).GetLength() > Constants::Boulder::respawnDistance)
 			{
 				Respawn();
 			}

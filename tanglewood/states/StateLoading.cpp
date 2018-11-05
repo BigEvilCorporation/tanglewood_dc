@@ -171,7 +171,7 @@ bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::
 	return true;
 }
 
-void StateLoading::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
+void StateLoading::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
 	//Render loading sprite
 	if (m_loadingSprite)
