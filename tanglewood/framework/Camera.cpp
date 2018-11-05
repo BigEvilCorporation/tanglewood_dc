@@ -12,6 +12,9 @@
 
 GameCamera::GameCamera()
 {
+	m_lerpSpeed = 0.0f;
+	m_lerpTime = 0.0f;
+
 	//Calc ratio of window to screen size
 	ion::Vector3 cameraZoom;
 	cameraZoom.x = (float)Globals::Rendering::windowWidth / (float)Globals::Rendering::gameCanvasWidth;
@@ -57,6 +60,11 @@ void GameCamera::Update(float deltaTime, float worldHeight)
 void GameCamera::SetTarget(const Entity* entity)
 {
 	m_targetEntity = entity;
+}
+
+const Entity* GameCamera::GetTarget() const
+{
+	return m_targetEntity;
 }
 
 void GameCamera::BeginLerp(const Entity* target, float speed)

@@ -198,9 +198,10 @@ int PhysicsWorld::FindCeiling(const ion::Vector2i& position, int maxSearchLength
 
 		while ((flags & eCollisionTileFlagSolid) == 0 && lengthSearched < maxSearchLength)
 		{
+			tilePos.y--;
+
 			if (tilePos.y >= 0 && tilePos.y < m_collisionMap.GetHeight())
 			{
-				tilePos.y--;
 				flags = m_collisionMap.GetCollisionTileFlags(tilePos.x, tilePos.y);
 			}
 
@@ -251,9 +252,10 @@ int PhysicsWorld::FindWall(const ion::Vector2i& position, int direction, int max
 
 		while ((flags & eCollisionTileFlagSolid) == 0 && lengthSearched < maxSearchLength)
 		{
+			tilePos.x += direction;
+
 			if (tilePos.x >= 0 && tilePos.x < m_collisionMap.GetWidth())
 			{
-				tilePos.x += direction;
 				flags = m_collisionMap.GetCollisionTileFlags(tilePos.x, tilePos.y);
 			}
 

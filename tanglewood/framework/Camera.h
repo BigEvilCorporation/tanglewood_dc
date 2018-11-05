@@ -19,6 +19,7 @@ public:
 	void Update(float deltaTime, float worldHeight);
 
 	void SetTarget(const Entity* entity);
+	const Entity* GetTarget() const;
 
 	void BeginLerp(const Entity* target, float speed);
 	bool IsLerping() const;

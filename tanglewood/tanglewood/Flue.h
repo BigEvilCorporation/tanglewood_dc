@@ -37,10 +37,12 @@ private:
 		{
 			object = &occupant;
 			occupiedTime = 0.0f;
+			cameraTarget = false;
 		}
 
 		Character* object;
 		float occupiedTime;
+		bool cameraTarget;
 
 		bool operator == (const Occupant& rhs) const { return object == rhs.object; }
 	};
@@ -48,7 +50,7 @@ private:
 	void ReadVars(const std::vector<GameObjectVariable>& vars);
 
 	bool CanHold(Character& object) const;
-	void AddOccupant(Character& object);
+	Occupant* AddOccupant(Character& object);
 	void EjectOccupant(Character& object);
 
 	static std::vector<Character*> s_potentialOccupants;

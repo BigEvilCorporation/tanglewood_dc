@@ -11,6 +11,8 @@
 #include "Flue.h"
 #include "Constants.h"
 #include "Globals.h"
+
+#include "framework/Camera.h"
 #include "framework/World.h"
 
 #include <ion/core/string/String.h>
@@ -46,14 +48,24 @@ void Flue::Update(float deltaTime)
 	{
 		Occupant& occupant = m_occupants[i];
 
-		occupant.occupiedTime += deltaTime;
-		if (occupant.occupiedTime >= m_ejectTime)
+		//Don't process eject timer if still lerping camera
+		if (!occupant.cameraTarget || !Globals::Game::camera->IsLerping())
 		{
-			//Removes from vector...
-			EjectOccupant(*occupant.object);
+			occupant.occupiedTime += deltaTime;
+			if (occupant.occupiedTime >= m_ejectTime)
+			{
+				//Restore camera target
+				if (occupant.cameraTarget)
+				{
+					Globals::Game::camera->SetTarget(occupant.object);
+				}
 
-			//...so increment
-			i++;
+				//Eject() removes from vector...
+				EjectOccupant(*occupant.object);
+
+				//...so increment
+				i++;
+			}
 		}
 	}
 
@@ -111,12 +123,15 @@ bool Flue::CanHold(Character& object) const
 	return false;
 }
 
-void Flue::AddOccupant(Character& object)
+Flue::Occupant* Flue::AddOccupant(Character& object)
 {
+	Occupant* occupant = nullptr;
+
 	if (m_linkedFlue.empty())
 	{
 		//Add to occupant list
 		m_occupants.push_back(Occupant(object));
+		occupant = &m_occupants.back();
 
 		//Stop updating/rendering
 		object.m_active = false;
@@ -147,6 +162,8 @@ void Flue::AddOccupant(Character& object)
 		//Pass to linked flue
 		outputFlue->TakeOccupant(object, *this);
 	}
+
+	return occupant;
 }
 
 void Flue::EjectOccupant(Character& object)
@@ -170,8 +187,19 @@ void Flue::EjectOccupant(Character& object)
 
 void Flue::TakeOccupant(Character& object, const Flue& originalFlue)
 {
-	//TODO: Camera lerp if player
-	AddOccupant(object);
+	//Add occupant
+	if (Occupant* occupant = AddOccupant(object))
+	{
+		//If this occupant is the current camera target
+		if (occupant->object == Globals::Game::camera->GetTarget())
+		{
+			//Lerp camera over here
+			Globals::Game::camera->BeginLerp(this, Constants::Effects::Camera::defaultLerpSpeed);
+
+			//Remember to restore as target
+			occupant->cameraTarget = true;
+		}
+	}
 }
 
 void Flue::RegisterPotentialOccupant(Character& occupant)
