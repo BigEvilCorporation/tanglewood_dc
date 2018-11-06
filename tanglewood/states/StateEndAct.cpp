@@ -31,6 +31,12 @@ void StateEndAct::OnEnterState()
 {
 	//Take player X velocity
 	Globals::Flow::levelTransitionVelX = Globals::Players::player1->m_velocity.x;
+
+	//Disable input
+	Globals::Players::player1->m_controlEnabled = false;
+
+	//Begin fade out
+	Globals::Game::world->BeginFade(-Constants::Flow::defaultFadeSpeed);
 }
 
 void StateEndAct::OnLeaveState()
@@ -53,13 +59,15 @@ bool StateEndAct::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::i
 	//Update world
 	Globals::Game::world->Update(deltaTime, *keyboard, *gamepad);
 
-	//TODO: Fade out
+	//Wait until fade finished
+	if (!Globals::Game::world->IsFading())
+	{
+		//Next level
+		LevelSystem::AdvanceLevel();
 
-	//Next level
-	LevelSystem::AdvanceLevel();
-
-	//Load it
-	m_stateManager.SwapState("loading");
+		//Load next
+		m_stateManager.SwapState("loading");
+	}
 
 	return false;
 }
