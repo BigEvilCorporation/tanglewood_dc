@@ -84,4 +84,26 @@ namespace Animations
 			static const AnimType bounce =		{ "mushroom_180",	"bounce",		0 };
 		}
 	}
+
+	namespace Scirus
+	{
+		namespace Friendly
+		{
+			static const AnimType idle =		{ "idle",			"idle",			AnimFlags::Loop };
+			static const AnimType walk =		{ "walk",			"walk",			AnimFlags::Loop };
+			static const AnimType run =			{ "run",			"run",			AnimFlags::Loop };
+			static const AnimType sleep =		{ "sleep",			"sleep",		AnimFlags::Loop };
+			static const AnimType awake =		{ "sleep",			"wake",			AnimFlags::FreezeMovementX };
+			static const AnimType hiss =		{ "warn",			"warn",			AnimFlags::Loop };
+		}
+
+		namespace Hostile
+		{
+			static const AnimType idle =		{ "idle_angry",		"idle_angry",	AnimFlags::Loop };
+			static const AnimType walk =		{ "walk_angry",		"walk_angry",	AnimFlags::Loop };
+			static const AnimType run =			{ "run_angry",		"run_angry",	AnimFlags::Loop };
+			static const AnimType hiss =		{ "warn_angry",		"warn_angry",	AnimFlags::Loop };
+			static const AnimType attack =		{ "attack",			"attack",		AnimFlags::FreezeMovementX };
+		}
+	}
 }

@@ -13,6 +13,7 @@
 #include "tanglewood/TriggerBox.h"
 #include "tanglewood/DeathBox.h"
 #include "tanglewood/Checkpoint.h"
+#include "tanglewood/Scirus.h"
 
 namespace ObjectFactory
 {
@@ -33,5 +34,6 @@ namespace ObjectFactory
 		{ REGISTER_OBJECT("TriggerBox",		"",				TriggerBox) },
 		{ REGISTER_OBJECT("Deathbox",		"",				DeathBox) },
 		{ REGISTER_OBJECT("Checkpoint",		"Checkpnt",		Checkpoint) },
+		{ REGISTER_OBJECT("Scirus",			"Scirus",		Scirus) },
 	};
 }

@@ -106,6 +106,8 @@ local SRC =
 	tanglewood/Player.h
 	tanglewood/PlayerController.cpp
 	tanglewood/PlayerController.h
+	tanglewood/Scirus.cpp
+	tanglewood/Scirus.h
 	tanglewood/Stone.cpp
 	tanglewood/Stone.h
 	tanglewood/TriggerBox.cpp

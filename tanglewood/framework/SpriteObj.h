@@ -57,6 +57,7 @@ public:
 	ion::Vector2 m_drawOffset;	//Sprite draw offset
 	bool m_flippedX;			//Sprite flip X
 	bool m_flippedY;			//Sprite flip Y
+	bool m_invertFlipX;			//X flipping inverted (if sprite sheet exported wrong way)
 	bool m_visible;				//Is visible
 	bool m_drawnLastFrame;		//Was sprite drawn last frame
 

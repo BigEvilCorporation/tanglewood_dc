@@ -41,6 +41,7 @@ SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjec
 
 	m_flippedX = false;
 	m_flippedY = false;
+	m_invertFlipX = false;
 	m_visible = true;
 	m_drawnLastFrame = false;
 
@@ -388,7 +389,8 @@ void SpriteObj::Render(ion::render::Renderer& renderer, const ion::render::Camer
 													Constants::Rendering::planePriorities[(int)m_planePriority]));
 
 			//Flip
-			ion::Vector3 scale(m_flippedX ? -1.0f : 1.0f, m_flippedY ? -1.0f : 1.0f, 1.0f);
+			const bool flippedX = (m_flippedX && !m_invertFlipX) || (!m_flippedX && m_invertFlipX);
+			ion::Vector3 scale(flippedX ? -1.0f : 1.0f, m_flippedY ? -1.0f : 1.0f, 1.0f);
 			transform.SetScale(scale);
 
 #if USE_PALETTE_TEXTURES

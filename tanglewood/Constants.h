@@ -249,4 +249,40 @@ namespace Constants
 		static const float impulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x0A0000);
 		static const float impulseDiag = SUBPIXELS_TO_PIXELS_PER_SEC(0x071100);
 	}
+
+	namespace Scirus
+	{
+		//Movement
+		namespace Friendly
+		{
+			static const ion::Vector2 accelerationWalking(SUBPIXELS_TO_ACCELERATION(0x001800), 0.0f);
+			static const ion::Vector2 accelerationRunning(SUBPIXELS_TO_ACCELERATION(0x003000), 0.0f);
+			static const ion::Vector2 decelerationIdle(SUBPIXELS_TO_ACCELERATION(0x001600), 0.0f);
+			static const ion::Vector2 decelerationForced(SUBPIXELS_TO_ACCELERATION(0x003200), 0.0f);
+
+			static const float maxVelocityXWalking = SUBPIXELS_TO_PIXELS_PER_SEC(0x012000);
+			static const float maxVelocityXRunning = SUBPIXELS_TO_PIXELS_PER_SEC(0x042000);
+
+			static const float minChaseDistance = 0x0060;
+			static const float maxChaseDistance = 0x0090;
+			static const float nervousDistance = 0x0040;	//If backed against a wall
+		}
+
+		namespace Hostile
+		{
+			static const ion::Vector2 accelerationWalking(SUBPIXELS_TO_ACCELERATION(0x000200), 0.0f);
+			static const ion::Vector2 accelerationRunning(SUBPIXELS_TO_ACCELERATION(0x001000), 0.0f);
+			static const ion::Vector2 decelerationIdle(SUBPIXELS_TO_ACCELERATION(0x002000), 0.0f);
+			static const ion::Vector2 decelerationForced(SUBPIXELS_TO_ACCELERATION(0x004000), 0.0f);
+
+			static const float maxVelocityXWalking = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
+			static const float maxVelocityXRunning = SUBPIXELS_TO_PIXELS_PER_SEC(0x030000);
+
+			static const float minChaseDistance = 0x0018;
+			static const float maxChaseDistance = 0x0090;
+		}
+
+		//Chase
+		static const float alertDistance = 0x0040;
+	}
 }
