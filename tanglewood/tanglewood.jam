@@ -82,6 +82,8 @@ local SRC =
 
 	tanglewood/Boulder.cpp
 	tanglewood/Boulder.h
+	tanglewood/Checkpoint.cpp
+	tanglewood/Checkpoint.h
 	tanglewood/DeathBox.cpp
 	tanglewood/DeathBox.h
 	tanglewood/Djakk.cpp
