@@ -12,8 +12,9 @@
 #include "StateLoading.h"
 
 #include "Globals.h"
-
 #include "LevelSystem.h"
+
+#include "tanglewood/Player.h"
 
 StateEndAct::StateEndAct(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
 	: ion::gamekit::State("endact", stateManager, resourceManager)
@@ -28,7 +29,8 @@ StateEndAct::~StateEndAct()
 
 void StateEndAct::OnEnterState()
 {
-
+	//Take player X velocity
+	Globals::Flow::levelTransitionVelX = Globals::Players::player1->m_velocity.x;
 }
 
 void StateEndAct::OnLeaveState()

@@ -29,6 +29,11 @@ namespace Globals
 		extern GameCamera* camera;
 	}
 
+	namespace Flow
+	{
+		extern float levelTransitionVelX;
+	}
+
 	namespace Rendering
 	{
 		extern int windowWidth;

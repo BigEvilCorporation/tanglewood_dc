@@ -31,6 +31,10 @@ void StateGameplay::OnEnterState()
 
 	//Begin fade up
 	Globals::Game::world->BeginFade(Constants::Flow::defaultFadeSpeed);
+
+	//Restore player X velocity
+	Globals::Players::player1->m_velocity.x = Globals::Flow::levelTransitionVelX;
+	Globals::Flow::levelTransitionVelX = 0.0f;
 }
 
 void StateGameplay::OnLeaveState()

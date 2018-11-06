@@ -19,10 +19,15 @@ namespace Globals
 
 	namespace Game
 	{
-		int levelIdx = (int)Constants::Levels::l1a1_Harlequin_Act1;
+		int levelIdx = (int)Constants::Levels::l1a2_Harlequin_Act2;
 		World* world = nullptr;
 		Level* level = nullptr;
 		GameCamera* camera = nullptr;
+	}
+
+	namespace Flow
+	{
+		float levelTransitionVelX = 0.0f;
 	}
 
 	namespace Rendering
