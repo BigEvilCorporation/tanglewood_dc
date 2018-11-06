@@ -102,7 +102,7 @@ namespace Animations
 			static const AnimType idle =		{ "idle_angry",		"idle_angry",	AnimFlags::Loop };
 			static const AnimType walk =		{ "walk_angry",		"walk_angry",	AnimFlags::Loop };
 			static const AnimType run =			{ "run_angry",		"run_angry",	AnimFlags::Loop };
-			static const AnimType hiss =		{ "warn_angry",		"warn_angry",	AnimFlags::Loop };
+			static const AnimType hiss =		{ "warn_angry",		"warn_angry",	AnimFlags::FreezeMovementX };
 			static const AnimType attack =		{ "attack",			"attack",		AnimFlags::FreezeMovementX };
 		}
 	}

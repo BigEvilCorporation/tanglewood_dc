@@ -21,8 +21,8 @@ class Project;
 
 enum class CollisionFlags
 {
-	HitWallLeft,
-	HitWallRight
+	HitWallLeft		= (1<<0),
+	HitWallRight	= (1<<1)
 };
 
 class PhysicsWorld

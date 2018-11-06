@@ -265,18 +265,20 @@ namespace Constants
 
 			static const float minChaseDistance = 0x0060;
 			static const float maxChaseDistance = 0x0090;
-			static const float nervousDistance = 0x0040;	//If backed against a wall
+
+			static const float nervousDistance = 0x0090;	//If backed against a wall
+			static const float hostileDistance = 0x0040;
 		}
 
 		namespace Hostile
 		{
-			static const ion::Vector2 accelerationWalking(SUBPIXELS_TO_ACCELERATION(0x000200), 0.0f);
-			static const ion::Vector2 accelerationRunning(SUBPIXELS_TO_ACCELERATION(0x001000), 0.0f);
+			static const ion::Vector2 accelerationWalking(SUBPIXELS_TO_ACCELERATION(0x000600), 0.0f);
+			static const ion::Vector2 accelerationRunning(SUBPIXELS_TO_ACCELERATION(0x001400), 0.0f);
 			static const ion::Vector2 decelerationIdle(SUBPIXELS_TO_ACCELERATION(0x002000), 0.0f);
 			static const ion::Vector2 decelerationForced(SUBPIXELS_TO_ACCELERATION(0x004000), 0.0f);
 
-			static const float maxVelocityXWalking = SUBPIXELS_TO_PIXELS_PER_SEC(0x010000);
-			static const float maxVelocityXRunning = SUBPIXELS_TO_PIXELS_PER_SEC(0x030000);
+			static const float maxVelocityXWalking = SUBPIXELS_TO_PIXELS_PER_SEC(0x014000);
+			static const float maxVelocityXRunning = SUBPIXELS_TO_PIXELS_PER_SEC(0x034000);
 
 			static const float minChaseDistance = 0x0018;
 			static const float maxChaseDistance = 0x0090;

@@ -81,6 +81,7 @@ void Scirus::StateFriendly::OnEnterState()
 	m_scirus.m_decelerationForced = Constants::Scirus::Friendly::decelerationForced;
 
 	//Setup animations
+	m_scirus.m_manualAnimation = false;
 	m_scirus.m_characterAnimations[(int)CharacterAnimations::Idle] = std::make_pair("idle", Animations::Scirus::Friendly::idle);
 	m_scirus.m_characterAnimations[(int)CharacterAnimations::Walk] = std::make_pair("walk", Animations::Scirus::Friendly::walk);
 	m_scirus.m_characterAnimations[(int)CharacterAnimations::Run] = std::make_pair("run", Animations::Scirus::Friendly::run);
@@ -88,27 +89,49 @@ void Scirus::StateFriendly::OnEnterState()
 
 void Scirus::StateFriendly::OnUpdateState(float deltaTime)
 {
-	//Follow player, but not too close
+	//Get distance to player
 	const ion::Vector2& playerPos = Globals::Players::player1->GetWorldCentre();
 	const ion::Vector2& scirusPos = m_scirus.GetWorldCentre();
 	const float distance = playerPos.x - scirusPos.x;
 
-	const bool tooFarLeft = (distance < 0.0f) && (distance < -Constants::Scirus::Friendly::maxChaseDistance);
-	const bool tooFarRight = (distance > 0.0f) && (distance > Constants::Scirus::Friendly::maxChaseDistance);
-	const bool tooCloseLeft = (distance < 0.0f) && (distance > -Constants::Scirus::Friendly::minChaseDistance);
-	const bool tooCloseRight = (distance > 0.0f) && (distance < Constants::Scirus::Friendly::minChaseDistance);
+	//If backed against a wall
+	if((m_scirus.CheckCollision((int)CollisionFlags::HitWallLeft) && (distance > 0.0f) && (distance < Constants::Scirus::Friendly::nervousDistance))
+		|| (m_scirus.CheckCollision((int)CollisionFlags::HitWallRight) && (distance < 0.0f) && (distance > -Constants::Scirus::Friendly::nervousDistance)))
+	{
+		//Warn player off
+		m_scirus.m_manualAnimation = true;
+		m_scirus.PlayAnimation(Animations::Scirus::Friendly::hiss);
+		m_scirus.m_flippedX = (distance < 0.0f);
 
-	if (tooFarRight || tooCloseLeft)
-	{
-		m_scirus.Move(1.0f);
-	}
-	else if (tooFarLeft || tooCloseRight)
-	{
-		m_scirus.Move(-1.0f);
+		//If too close
+		if (ion::maths::Abs(distance) < Constants::Scirus::Friendly::hostileDistance)
+		{
+			//Get nasty
+			m_stateMachine->SetState("hostile");
+		}
 	}
 	else
 	{
-		m_scirus.Move(0.0f);
+		m_scirus.m_manualAnimation = false;
+
+		//Follow player, but not too close
+		const bool tooFarLeft = (distance < 0.0f) && (distance < -Constants::Scirus::Friendly::maxChaseDistance);
+		const bool tooFarRight = (distance > 0.0f) && (distance > Constants::Scirus::Friendly::maxChaseDistance);
+		const bool tooCloseLeft = (distance < 0.0f) && (distance > -Constants::Scirus::Friendly::minChaseDistance);
+		const bool tooCloseRight = (distance > 0.0f) && (distance < Constants::Scirus::Friendly::minChaseDistance);
+
+		if (tooFarRight || tooCloseLeft)
+		{
+			m_scirus.Move(1.0f);
+		}
+		else if (tooFarLeft || tooCloseRight)
+		{
+			m_scirus.Move(-1.0f);
+		}
+		else
+		{
+			m_scirus.Move(0.0f);
+		}
 	}
 }
 
@@ -125,11 +148,12 @@ void Scirus::StateHostile::OnEnterState()
 	m_scirus.m_decelerationForced = Constants::Scirus::Hostile::decelerationForced;
 
 	//Setup animations
+	m_scirus.m_manualAnimation = false;
 	m_scirus.m_characterAnimations[(int)CharacterAnimations::Idle] = std::make_pair("idle", Animations::Scirus::Hostile::idle);
 	m_scirus.m_characterAnimations[(int)CharacterAnimations::Walk] = std::make_pair("walk", Animations::Scirus::Hostile::walk);
 	m_scirus.m_characterAnimations[(int)CharacterAnimations::Run] = std::make_pair("run", Animations::Scirus::Hostile::run);
 
-	//Play transition animation, queue stuck
+	//Play transition animation
 	m_scirus.PlayAnimation(Animations::Scirus::Hostile::hiss);
 }
 
@@ -147,6 +171,7 @@ void Scirus::StateHostile::OnUpdateState(float deltaTime)
 		//Run towards player
 		const ion::Vector2& playerPos = Globals::Players::player1->GetWorldCentre();
 		const ion::Vector2& scirusPos = m_scirus.GetWorldCentre();
+		const float distance = playerPos.x - scirusPos.x;
 
 		if (playerPos.x > (scirusPos.x + Constants::Scirus::Hostile::minChaseDistance))
 		{
@@ -159,6 +184,12 @@ void Scirus::StateHostile::OnUpdateState(float deltaTime)
 		else
 		{
 			m_scirus.Move(0.0f);
+		}
+
+		//If too far away, return to friendly state
+		if (ion::maths::Abs(distance) > Constants::Scirus::Hostile::maxChaseDistance)
+		{
+			m_stateMachine->SetState("friendly");
 		}
 	}
 }
