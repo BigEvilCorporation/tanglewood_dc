@@ -261,8 +261,10 @@ bool World::LoadActData(const LevelDescriptor& level)
 	m_currentPalette = Assets::Palettes::World::day;
 	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(m_currentPalette);
 
+#if USE_PALETTE_TEXTURES
 	m_planeFg->SetPaletteTexture(Assets::Palettes::World::shared);
 	m_planeBg->SetPaletteTexture(Assets::Palettes::World::shared);
+#endif
 
 	//Get bg colour
 	const Colour& bgColour = m_palettes[0].GetColour(0);
