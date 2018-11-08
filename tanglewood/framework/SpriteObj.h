@@ -86,6 +86,8 @@ private:
 		std::map<std::string, SpriteAnimation*> m_animations;
 	};
 
+	static const std::vector<ion::render::VertexBuffer::Element> s_vertexLayout;
+
 	std::map<std::string, Sheet> m_sheets;
 	Sheet* m_currentSheet;
 	SpriteAnimation* m_currentAnim;

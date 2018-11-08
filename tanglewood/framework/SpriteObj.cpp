@@ -25,6 +25,12 @@
 #include <ion/core/string/String.h>
 #include <ion/maths/Geometry.h>
 
+const std::vector<ion::render::VertexBuffer::Element> SpriteObj::s_vertexLayout =
+{
+	ion::render::VertexBuffer::Element({ ion::render::VertexBuffer::ePosition, ion::render::VertexBuffer::eFloat, 3 }),
+	ion::render::VertexBuffer::Element({ ion::render::VertexBuffer::eTexCoord, ion::render::VertexBuffer::eFloat, 2 }),
+};
+
 SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Entity(world, gameObject, gameObjType, actor)
 {
@@ -123,7 +129,7 @@ void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
 	u32 textureSize = textureWidth * textureHeight * bytesPerPixel;
 
 	//Create primitive
-	sheet.m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2((float)spriteSheet.GetWidthTiles() * (tileWidth / 2.0f), (float)spriteSheet.GetHeightTiles() * (tileHeight / 2.0f)));
+	sheet.m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2((float)spriteSheet.GetWidthTiles() * (tileWidth / 2.0f), (float)spriteSheet.GetHeightTiles() * (tileHeight / 2.0f)), s_vertexLayout);
 
 	//Set UV coords
 	ion::render::TexCoord coords[4];
