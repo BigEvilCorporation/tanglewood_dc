@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////
 
 #include "StateLoading.h"
+#include "Constants.h"
 #include "Globals.h"
 #include "Palettes.h"
 #include "Animations.h"
@@ -146,11 +147,13 @@ bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::
 			if (!m_fader.IsFading())
 			{
 				//Done with loading thread
+#if THREADED_LOADING
 				if (m_loadingThread)
 				{
 					delete m_loadingThread;
 					m_loadingThread = nullptr;
 				}
+#endif
 
 				//Done with loading world
 
@@ -297,6 +300,9 @@ void StateLoading::LoadingThread::LoadGlobalPalettes()
 			}
 		}
 
+#if USE_PALETTE_TEXTURES
+		ion::debug::Log("Creating shared player palette texture");
 		Assets::Palettes::Player::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::Player::red);
+#endif
 	}
 }

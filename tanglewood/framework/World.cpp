@@ -172,6 +172,7 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 #endif
 
 	//Load tileset
+	ion::debug::log << "Loading " << level.tilesetName << ion::debug::end;
 	ion::io::File tilesetFile(level.tilesetName , ion::io::File::eOpenRead);
 	if (tilesetFile.IsOpen())
 	{
@@ -180,8 +181,13 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 		m_tileset.Serialise(archive);
 		tilesetFile.Close();
 	}
+	else
+	{
+		ion::debug::log << "Failed to load " << level.tilesetName << ion::debug::end;
+	}
 
 	//Load palettes
+	ion::debug::log << "Loading " << level.palettesName << ion::debug::end;
 	ion::io::File palettesFile(level.palettesName, ion::io::File::eOpenRead);
 	if (palettesFile.IsOpen())
 	{
@@ -190,8 +196,13 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 		archive.Serialise(m_palettes, "palettes");
 		palettesFile.Close();
 	}
+	else
+	{
+		ion::debug::log << "Failed to load " << level.palettesName << ion::debug::end;
+	}
 
 	//Load collision tileset
+	ion::debug::log << "Loading " << level.collisionTilesName << ion::debug::end;
 	m_physicsWorld->LoadCollisionTileset(level.collisionTilesName);
 
 #if USE_PALETTE_TEXTURES
@@ -209,6 +220,7 @@ bool World::LoadActData(const LevelDescriptor& level)
 	//TODO: Shared tileset texture
 
 	//Load fg map
+	ion::debug::log << "Loading " << level.tileMapFgName << ion::debug::end;
 	ion::io::File mapFileFg(level.tileMapFgName, ion::io::File::eOpenRead);
 	if (mapFileFg.IsOpen())
 	{
@@ -222,8 +234,13 @@ bool World::LoadActData(const LevelDescriptor& level)
 		//Create fg plane from map
 		m_planeFg = new Plane(m_tileset, m_tileMapFg, m_mapSizeTilesFg, ion::Vector2i(Constants::MegaDrive::planeWidthTiles, Constants::MegaDrive::planeHeightTiles), m_palettes[0]);
 	}
+	else
+	{
+		ion::debug::log << "Failed to load " << level.tileMapFgName << ion::debug::end;
+	}
 
 	//Load bg map
+	ion::debug::log << "Loading " << level.tileMapBgName << ion::debug::end;
 	ion::io::File mapFileBg(level.tileMapBgName, ion::io::File::eOpenRead);
 	if (mapFileBg.IsOpen())
 	{
@@ -237,8 +254,13 @@ bool World::LoadActData(const LevelDescriptor& level)
 		//Create fg plane from map
 		m_planeBg = new Plane(m_tileset, m_tileMapBg, m_mapSizeTilesBg, ion::Vector2i(Constants::MegaDrive::planeWidthTiles, Constants::MegaDrive::planeHeightTiles), m_palettes[0]);
 	}
+	else
+	{
+		ion::debug::log << "Failed to load " << level.tileMapBgName << ion::debug::end;
+	}
 
 	//Load game objects
+	ion::debug::log << "Loading " << level.gameObjectsName << ion::debug::end;
 	ion::io::File gameObjMapFile(level.gameObjectsName, ion::io::File::eOpenRead);
 	if (gameObjMapFile.IsOpen())
 	{
@@ -246,10 +268,14 @@ bool World::LoadActData(const LevelDescriptor& level)
 		archive.SetContentType(ion::io::Archive::Content::Minimal);
 		archive.Serialise(m_gameObjects, "gameObjects");
 	}
+	else
+	{
+		ion::debug::log << "Failed to load " << level.gameObjectsName << ion::debug::end;
+	}
 
 	//Load physics map
+	ion::debug::log << "Loading " << level.collisionMapName << ion::debug::end;
 	m_physicsWorld->LoadCollisionMap(level.collisionMapName);
-
 
 	//Get map size
 	m_mapSizeFg.x = m_mapSizeTilesFg.x * 8;
@@ -259,9 +285,10 @@ bool World::LoadActData(const LevelDescriptor& level)
 
 	//Set plane palettes
 	m_currentPalette = Assets::Palettes::World::day;
-	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(m_currentPalette);
 
 #if USE_PALETTE_TEXTURES
+	Assets::Palettes::World::shared = PaletteTools::CreatePaletteTexture(m_currentPalette);
+
 	m_planeFg->SetPaletteTexture(Assets::Palettes::World::shared);
 	m_planeBg->SetPaletteTexture(Assets::Palettes::World::shared);
 #endif
@@ -282,6 +309,7 @@ bool World::LoadActData(const LevelDescriptor& level)
 
 bool World::LoadGameObjectTypes(const std::string& name)
 {
+	ion::debug::log << "Loading " << name << ion::debug::end;
 	ion::io::File file(name, ion::io::File::eOpenRead);
 	if (file.IsOpen())
 	{
@@ -290,6 +318,8 @@ bool World::LoadGameObjectTypes(const std::string& name)
 		archive.Serialise(m_gameObjectTypes, "gameObjectTypes");
 		return true;
 	}
+
+	ion::debug::log << "Failed to load " << name << ion::debug::end;
 	
 	return false;
 }
@@ -450,8 +480,8 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	}
 
 	//Draw planes (high prio)
-	m_planeBg->Render(renderer, nullptr, PlanePriority::PlaneBHigh);
-	m_planeFg->Render(renderer, &camera, PlanePriority::PlaneAHigh);
+	//m_planeBg->Render(renderer, nullptr, PlanePriority::PlaneBHigh);
+	//m_planeFg->Render(renderer, &camera, PlanePriority::PlaneAHigh);
 
 	//Draw sprites
 	for (int i = 0; i < sprites.size(); i++)
