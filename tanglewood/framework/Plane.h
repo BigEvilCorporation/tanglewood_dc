@@ -25,6 +25,15 @@
 #include "Constants.h"
 #include "PlanePriority.h"
 
+class PlanePrimitive : public ion::render::Primitive
+{
+public:
+	PlanePrimitive(const ion::Vector2& halfExtents, int widthCells, int heightCells);
+
+private:
+	static const std::vector<ion::render::VertexBuffer::Element> s_vertexLayout;
+};
+
 class Plane
 {
 public:
@@ -50,10 +59,10 @@ public:
 	ion::Vector2 m_drawOffset;
 
 private:
-	struct RenderTile
+	struct CachedTile
 	{
-		ion::render::TexCoord coords[4];
-		float z;
+		TileId id;
+		u32 flags;
 	};
 
 	void CreateTilesetTexture(const Tileset& tileset, const Palette& palette);
@@ -69,15 +78,20 @@ private:
 	EdgeBehaviour m_edgeBehaviourY;
 
 	const std::vector<Map::TileDesc>& m_tileMap;
-	std::vector<RenderTile> m_renderTiles;
+	std::vector<CachedTile> m_tileCache;
 
 	ion::render::Texture* m_tilesetTexture;
-	ion::render::Chessboard* m_canvasPrimitive;
+	PlanePrimitive* m_canvasPrimitive;
 	ion::render::Material* m_material;
 
 #if USE_PALETTE_TEXTURES
 	ion::render::Texture* m_paletteTexture;
 #endif
+
+	u8* m_vertexBufferPtr;
+	u32 m_vertexStride;
+	u32 m_vertexOffsetPosition;
+	u32 m_vertexOffsetTexCoord;
 
 	ion::Vector2i m_mapSizeTiles;
 	ion::Vector2i m_canvasSizeTiles;

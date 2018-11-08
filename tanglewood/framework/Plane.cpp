@@ -16,6 +16,12 @@
 
 #include <ion/renderer/imageformats/BMPReader.h>
 
+const std::vector<ion::render::VertexBuffer::Element> PlanePrimitive::s_vertexLayout =
+{
+	ion::render::VertexBuffer::Element({ ion::render::VertexBuffer::ePosition, ion::render::VertexBuffer::eFloat, 3 }),
+	ion::render::VertexBuffer::Element({ ion::render::VertexBuffer::eTexCoord, ion::render::VertexBuffer::eFloat, 2 }),
+};
+
 Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, const ion::Vector2i& mapSizeTiles, const ion::Vector2i& canvasSizeTiles, const Palette& palette)
 	: m_tileMap(tileMap)
 {
@@ -30,13 +36,19 @@ Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, 
 	m_canvasSizeTiles = canvasSizeTiles + ion::Vector2i(4, 4);
 	m_mapSizeTiles = mapSizeTiles;
 
-	//Alloc render tile buffer
-	m_renderTiles.resize(m_canvasSizeTiles.x * m_canvasSizeTiles.y);
+	//Alloc cache
+	m_tileCache.resize(m_canvasSizeTiles.x * m_canvasSizeTiles.y);
 
 	//Create render canvases
 	const int tileWidth = Constants::MegaDrive::tileWidth;
 	const int tileHeight = Constants::MegaDrive::tileHeight;
-	m_canvasPrimitive = new ion::render::Chessboard(ion::render::Chessboard::xy, ion::Vector2((float)m_canvasSizeTiles.x * (tileWidth / 2.0f), (float)m_canvasSizeTiles.y * (tileHeight / 2.0f)), m_canvasSizeTiles.x, m_canvasSizeTiles.y, true);
+	m_canvasPrimitive = new PlanePrimitive(ion::Vector2((float)m_canvasSizeTiles.x * (tileWidth / 2.0f), (float)m_canvasSizeTiles.y * (tileHeight / 2.0f)), m_canvasSizeTiles.x, m_canvasSizeTiles.y);
+
+	//Get vertex buffer
+	m_vertexBufferPtr = m_canvasPrimitive->GetVertexBuffer().GetData().data();
+	m_vertexStride = m_canvasPrimitive->GetVertexBuffer().GetStrideBytes();
+	m_vertexOffsetPosition = m_canvasPrimitive->GetVertexBuffer().GetElementByteOffset(ion::render::VertexBuffer::ePosition);
+	m_vertexOffsetTexCoord = m_canvasPrimitive->GetVertexBuffer().GetElementByteOffset(ion::render::VertexBuffer::eTexCoord);
 
 	//Create and draw tileset
 	CreateTilesetTexture(tileset, palette);
@@ -92,12 +104,6 @@ void Plane::PreStream(const ion::render::Camera& camera)
 		}
 	}
 
-	//Copy render tiles to canvas
-	for (int i = 0; i < m_renderTiles.size(); i++)
-	{
-		m_canvasPrimitive->SetTexCoords(i, m_renderTiles[i].coords, m_renderTiles[i].z);
-	}
-
 	m_lastStreamedX = streamColumnX;
 	m_lastStreamedY = streamColumnY;
 }
@@ -136,8 +142,6 @@ void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera* c
 	int streamRow = ion::maths::Floor(cameraPos.y / Constants::MegaDrive::tileHeight);
 	int streamRowInv = m_mapSizeTiles.y - streamRow - m_canvasSizeTiles.y;
 
-	bool redraw = false;
-
 	while (streamColumn != m_lastStreamedX || streamRowInv != m_lastStreamedY)
 	{
 		int streamDirectionX = 0;
@@ -174,36 +178,12 @@ void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera* c
 		{
 			StreamRow(nextColumn, nextRow, streamDirectionY);
 			m_lastStreamedY += streamDirectionY;
-			redraw = true;
 		}
 
 		if (streamDirectionX)
 		{
 			StreamColumn(nextColumn, nextRow, streamDirectionX);
 			m_lastStreamedX += streamDirectionX;
-			redraw = true;
-		}
-	}
-
-	if (redraw)
-	{
-		//Blit to canvas
-		std::vector<u8>& data = m_canvasPrimitive->GetVertexBuffer().GetData();
-		u32 offset = m_canvasPrimitive->GetVertexBuffer().GetElementByteOffset(ion::render::VertexBuffer::eTexCoord);
-		u32 stride = m_canvasPrimitive->GetVertexBuffer().GetStrideBytes();
-
-		u8* ptr = data.data() + offset;
-
-		for (int i = 0; i < m_renderTiles.size(); i++)
-		{
-			//(cellIndex * 4) + i
-			//m_canvasPrimitive->SetTexCoords(i, m_renderTiles[i].coords, m_renderTiles[i].z);
-
-			for (int j = 0; j < 4; j++)
-			{
-				ion::memory::MemCopy(ptr, (u8*)&m_renderTiles[i].coords[j], sizeof(ion::render::TexCoord));
-				ptr += stride;
-			}
 		}
 	}
 
@@ -324,11 +304,27 @@ void Plane::PaintTile(TileId tileId, int x, int y, u32 tileFlags)
 
 	//Set texture coords for cell
 	ion::render::TexCoord coords[4];
-	ion::render::TexCoord coordsZero[4] = { ion::render::TexCoord(0.0f, 0.0f) };
-	GetTileTexCoords(tileId, m_renderTiles[index].coords, tileFlags);
+	GetTileTexCoords(tileId, coords, tileFlags);
 
-	//Set z
-	m_renderTiles[index].z = (tileFlags & Map::eHighPlane) ? Constants::Rendering::planePriorities[(int)PlanePriority::PlaneAHigh] : Constants::Rendering::planePriorities[(int)PlanePriority::PlaneALow];
+	const float z = (tileFlags & Map::eHighPlane) ? Constants::Rendering::planePriorities[(int)PlanePriority::PlaneAHigh] : Constants::Rendering::planePriorities[(int)PlanePriority::PlaneALow];
+
+	//4 verts per tile
+	u8* ptr = m_vertexBufferPtr + (m_vertexStride * index * 4);
+
+	for (int i = 0; i < 4; i++)
+	{
+		ion::Vector3* position = (ion::Vector3*)(ptr + m_vertexOffsetPosition);
+		ion::render::TexCoord* texcoord = (ion::render::TexCoord*)(ptr + m_vertexOffsetTexCoord);
+
+		*texcoord = coords[i];
+		position->z = z;
+
+		ptr += m_vertexStride;
+	}
+
+	//Cache
+	m_tileCache[index].id = tileId;
+	m_tileCache[index].flags = tileFlags;
 }
 
 void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], u32 flipFlags) const
@@ -406,10 +402,8 @@ void Plane::ShiftMapX(int direction)
 	{
 		for (int y = 0; y < m_canvasSizeTiles.y; y++)
 		{
-			int indexSrc = (y * m_canvasSizeTiles.x) + x + incrementX;
-			int indexDst = (y * m_canvasSizeTiles.x) + x;
-
-			m_renderTiles[indexDst] = m_renderTiles[indexSrc];
+			int index = (y * m_canvasSizeTiles.x) + x + incrementX;
+			PaintTile(m_tileCache[index].id, x, y, m_tileCache[index].flags);
 		}
 	}
 }
@@ -434,10 +428,8 @@ void Plane::ShiftMapY(int direction)
 	{
 		for (int x = 0; x < m_canvasSizeTiles.x; x++)
 		{
-			int indexSrc = ((y + incrementY) * m_canvasSizeTiles.x) + x;
-			int indexDst = (y * m_canvasSizeTiles.x) + x;
-
-			m_renderTiles[indexDst] = m_renderTiles[indexSrc];
+			int index = ((y + incrementY) * m_canvasSizeTiles.x) + x;
+			PaintTile(m_tileCache[index].id, x, y, m_tileCache[index].flags);
 		}
 	}
 }
@@ -527,5 +519,30 @@ void Plane::StreamRow(int x, int y, int direction)
 
 		//Next source X
 		srcX++;
+	}
+}
+
+PlanePrimitive::PlanePrimitive(const ion::Vector2& halfExtents, int widthCells, int heightCells)
+	: ion::render::Primitive(ion::render::VertexBuffer::eTriangles, s_vertexLayout)
+{
+	ion::Vector2 cellSize((halfExtents.x * 2.0f) / (float)widthCells, (halfExtents.y * 2.0f) / (float)heightCells);
+
+	int vertexCount = 0;
+	for (int y = 0; y < heightCells; y++)
+	{
+		for (int x = 0; x < widthCells; x++)
+		{
+				//Create quad per cell
+				ion::Vector2 cellPos((cellSize.x * x) - halfExtents.x, (cellSize.y * y) - halfExtents.y);
+				m_vertexBuffer.AddVertex(ion::Vector3(cellPos.x, cellPos.y + cellSize.y, 0.0f),				ion::Vector3(0.0f, 0.0f, 1.0f), ion::Colour(1.0f, 1.0f, 1.0f, 1.0f), ion::render::TexCoord(0.0f, 1.0f));
+				m_vertexBuffer.AddVertex(ion::Vector3(cellPos.x, cellPos.y, 0.0f),							ion::Vector3(0.0f, 0.0f, 1.0f), ion::Colour(1.0f, 1.0f, 1.0f, 1.0f), ion::render::TexCoord(1.0f, 1.0f));
+				m_vertexBuffer.AddVertex(ion::Vector3(cellPos.x + cellSize.x, cellPos.y, 0.0f),				ion::Vector3(0.0f, 0.0f, 1.0f), ion::Colour(1.0f, 1.0f, 1.0f, 1.0f), ion::render::TexCoord(1.0f, 0.0f));
+				m_vertexBuffer.AddVertex(ion::Vector3(cellPos.x + cellSize.x, cellPos.y + cellSize.y, 0.0f),ion::Vector3(0.0f, 0.0f, 1.0f), ion::Colour(1.0f, 1.0f, 1.0f, 1.0f), ion::render::TexCoord(0.0f, 0.0f));
+
+				m_indexBuffer.Add(vertexCount, vertexCount + 1, vertexCount + 2);
+				m_indexBuffer.Add(vertexCount, vertexCount + 2, vertexCount + 3);
+
+				vertexCount += 4;
+		}
 	}
 }
