@@ -82,6 +82,8 @@ private:
 	ion::Vector2i m_mapSizeTiles;
 	ion::Vector2i m_canvasSizeTiles;
 	u32 m_tilesetSizeSq;
+	u32 m_textureSizeSq;
+	float m_pixelSizeTexSpace;
 	float m_cellSizeTexSpaceSq;
 
 	int m_lastStreamedX;

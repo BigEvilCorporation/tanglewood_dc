@@ -229,14 +229,15 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 
 	u32 numTiles = tileset.GetCount();
 	m_tilesetSizeSq = ion::maths::Max(1, (int)ion::maths::Ceil(ion::maths::Sqrt((float)numTiles)));
-	u32 textureWidth = m_tilesetSizeSq * tileWidthBordered;
-	u32 textureHeight = m_tilesetSizeSq * tileHeightBordered;
+	m_textureSizeSq = ion::maths::NextPowerOfTwo(m_tilesetSizeSq * tileWidthBordered);
 	u32 bytesPerPixel = 3;
-	u32 textureSize = textureWidth * textureHeight * bytesPerPixel;
-	m_cellSizeTexSpaceSq = 1.0f / (float)m_tilesetSizeSq;
+	u32 textureBytes = m_textureSizeSq * m_textureSizeSq * bytesPerPixel;
 
-	u8* data = new u8[textureSize];
-	ion::memory::MemSet(data, 255, textureSize);
+	m_pixelSizeTexSpace = 1.0f / m_textureSizeSq;
+	m_cellSizeTexSpaceSq = m_pixelSizeTexSpace * tileWidthBordered;
+
+	u8* data = new u8[textureBytes];
+	ion::memory::MemSet(data, 255, textureBytes);
 
 	for (int i = 0; i < tileset.GetCount(); i++)
 	{
@@ -263,9 +264,9 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 				{
 					int destPixelX = (x * tileWidthBordered) + pixelX;
 					int destPixelY = (y * tileHeightBordered) + pixelY;
-					u32 pixelIdx = (destPixelY * textureWidth) + destPixelX;
+					u32 pixelIdx = (destPixelY * m_textureSizeSq) + destPixelX;
 					u32 dataOffset = pixelIdx * bytesPerPixel;
-					ion::debug::Assert(dataOffset + 2 < textureSize, "eOut of bounds");
+					ion::debug::Assert(dataOffset + 2 < textureBytes, "eOut of bounds");
 
 #if USE_PALETTE_TEXTURES
 					data[dataOffset] = colourIdx;
@@ -280,7 +281,7 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 		}
 	}
 
-	m_tilesetTexture = ion::render::Texture::Create(textureWidth, textureHeight, ion::render::Texture::eRGB, ion::render::Texture::eRGB, ion::render::Texture::eBPP24, false, false, data);
+	m_tilesetTexture = ion::render::Texture::Create(m_textureSizeSq, m_textureSizeSq, ion::render::Texture::eRGB, ion::render::Texture::eRGB, ion::render::Texture::eBPP24, false, false, data);
 	m_tilesetTexture->SetMinifyFilter(ion::render::Texture::eFilterNearest);
 	m_tilesetTexture->SetMagnifyFilter(ion::render::Texture::eFilterNearest);
 	m_tilesetTexture->SetWrapping(ion::render::Texture::eWrapClamp);
@@ -328,11 +329,8 @@ void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], 
 	const int tileWidthBordered = tileWidth + (tileBorderX * 2);
 	const int tileHeightBordered = tileHeight + (tileBorderY * 2);
 
-	const float onePixelTexSpaceX = m_cellSizeTexSpaceSq / tileWidth;
-	const float onePixelTexSpaceY = m_cellSizeTexSpaceSq / tileHeight;
-
-	const float tilePixelBorderX = onePixelTexSpaceX * tileBorderX;
-	const float tilePixelBorderY = onePixelTexSpaceY * tileBorderY;
+	const float tilePixelBorderX = m_pixelSizeTexSpace * tileBorderX;
+	const float tilePixelBorderY = m_pixelSizeTexSpace * tileBorderY;
 
 	if (tileId == InvalidTileId)
 	{
@@ -348,12 +346,12 @@ void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], 
 		texCoords[0].y = 0.0f;
 		//Bottom left
 		texCoords[1].x = 0.0f;
-		texCoords[1].y = onePixelTexSpaceY;
+		texCoords[1].y = m_pixelSizeTexSpace;
 		//Bottom right
-		texCoords[2].x = onePixelTexSpaceX;
-		texCoords[2].y = onePixelTexSpaceY;
+		texCoords[2].x = m_pixelSizeTexSpace;
+		texCoords[2].y = m_pixelSizeTexSpace;
 		//Top right
-		texCoords[3].x = onePixelTexSpaceX;
+		texCoords[3].x = m_pixelSizeTexSpace;
 		texCoords[3].y = 0.0f;
 	}
 	else
