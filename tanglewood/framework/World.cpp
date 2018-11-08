@@ -467,7 +467,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	const std::vector<SpriteObj*>& sprites = GetEntities<SpriteObj>();
 
 	//Draw planes (low prio)
-	m_planeBg->Render(renderer, nullptr, PlanePriority::PlaneBLow);
+	//m_planeBg->Render(renderer, nullptr, PlanePriority::PlaneBLow);
 	m_planeFg->Render(renderer, &camera, PlanePriority::PlaneALow);
 
 	//Draw sprites

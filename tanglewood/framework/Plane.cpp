@@ -188,9 +188,22 @@ void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera* c
 	if (redraw)
 	{
 		//Blit to canvas
+		std::vector<u8>& data = m_canvasPrimitive->GetVertexBuffer().GetData();
+		u32 offset = m_canvasPrimitive->GetVertexBuffer().GetElementByteOffset(ion::render::VertexBuffer::eTexCoord);
+		u32 stride = m_canvasPrimitive->GetVertexBuffer().GetStrideBytes();
+
+		u8* ptr = data.data() + offset;
+
 		for (int i = 0; i < m_renderTiles.size(); i++)
 		{
-			m_canvasPrimitive->SetTexCoords(i, m_renderTiles[i].coords, m_renderTiles[i].z);
+			//(cellIndex * 4) + i
+			//m_canvasPrimitive->SetTexCoords(i, m_renderTiles[i].coords, m_renderTiles[i].z);
+
+			for (int j = 0; j < 4; j++)
+			{
+				ion::memory::MemCopy(ptr, (u8*)&m_renderTiles[i].coords[j], sizeof(ion::render::TexCoord));
+				ptr += stride;
+			}
 		}
 	}
 
@@ -320,18 +333,6 @@ void Plane::PaintTile(TileId tileId, int x, int y, u32 tileFlags)
 
 void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], u32 flipFlags) const
 {
-	const int tileWidth = Constants::MegaDrive::tileWidth;
-	const int tileHeight = Constants::MegaDrive::tileHeight;
-
-	const int tileBorderX = 1;
-	const int tileBorderY = 1;
-
-	const int tileWidthBordered = tileWidth + (tileBorderX * 2);
-	const int tileHeightBordered = tileHeight + (tileBorderY * 2);
-
-	const float tilePixelBorderX = m_pixelSizeTexSpace * tileBorderX;
-	const float tilePixelBorderY = m_pixelSizeTexSpace * tileBorderY;
-
 	if (tileId == InvalidTileId)
 	{
 		tileId = 0;
@@ -359,8 +360,8 @@ void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], 
 		//Map tile to X/Y on tileset texture
 		int tilesetX = (tileId % m_tilesetSizeSq);
 		int tilesetY = (tileId / m_tilesetSizeSq);
-		ion::Vector2 textureBottomLeft((m_cellSizeTexSpaceSq * tilesetX) + tilePixelBorderX, (m_cellSizeTexSpaceSq * tilesetY) + tilePixelBorderY);
-		ion::Vector2 textureTopRight((m_cellSizeTexSpaceSq * (tilesetX + 1)) - tilePixelBorderX, (m_cellSizeTexSpaceSq * (tilesetY + 1)) - tilePixelBorderY);
+		ion::Vector2 textureBottomLeft((m_cellSizeTexSpaceSq * tilesetX) + m_pixelSizeTexSpace, (m_cellSizeTexSpaceSq * tilesetY) + m_pixelSizeTexSpace);
+		ion::Vector2 textureTopRight((m_cellSizeTexSpaceSq * (tilesetX + 1)) - m_pixelSizeTexSpace, (m_cellSizeTexSpaceSq * (tilesetY + 1)) - m_pixelSizeTexSpace);
 
 		bool flipX = (flipFlags & Map::eFlipX) != 0;
 		bool flipY = (flipFlags & Map::eFlipY) != 0;
