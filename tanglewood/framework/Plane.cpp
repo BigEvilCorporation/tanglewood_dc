@@ -51,7 +51,17 @@ Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, 
 	m_vertexOffsetTexCoord = m_canvasPrimitive->GetVertexBuffer().GetElementByteOffset(ion::render::VertexBuffer::eTexCoord);
 
 	//Create and draw tileset
+	u32 texMemBefore = ion::render::Texture::GetTextureMemoryUsed();
+	ion::debug::log << "Loading plane "
+		<< " : texture memory used: " << texMemBefore
+		<< " (" << (float)texMemBefore / 1024.0f << "kb)" << ion::debug::end;
+
 	CreateTilesetTexture(tileset, palette);
+
+	u32 texMemAfter = ion::render::Texture::GetTextureMemoryUsed();
+	ion::debug::log << "Loaded plane "
+		<< " (" << (float)texMemAfter / 1024.0f << "kb)"
+		<< " cost " << (texMemAfter - texMemBefore) << " (" << (float)(texMemAfter - texMemBefore) / 1024.0f << "kb)" << ion::debug::end;
 }
 
 Plane::~Plane()
@@ -223,7 +233,13 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 	u32 numTiles = tileset.GetCount();
 	m_tilesetSizeSq = ion::maths::Max(1, (int)ion::maths::Ceil(ion::maths::Sqrt((float)numTiles)));
 	m_textureSizeSq = ion::maths::NextPowerOfTwo(m_tilesetSizeSq * tileWidthBordered);
+
+#if USE_PALETTE_TEXTURES
+	u32 bytesPerPixel = 1;
+#else
 	u32 bytesPerPixel = 3;
+#endif
+
 	u32 textureBytes = m_textureSizeSq * m_textureSizeSq * bytesPerPixel;
 
 	m_pixelSizeTexSpace = 1.0f / m_textureSizeSq;
@@ -259,7 +275,7 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 					int destPixelY = (y * tileHeightBordered) + pixelY;
 					u32 pixelIdx = (destPixelY * m_textureSizeSq) + destPixelX;
 					u32 dataOffset = pixelIdx * bytesPerPixel;
-					ion::debug::Assert(dataOffset + 2 < textureBytes, "eOut of bounds");
+					ion::debug::Assert(dataOffset + bytesPerPixel <= textureBytes, "eOut of bounds");
 
 #if USE_PALETTE_TEXTURES
 					data[dataOffset] = colourIdx;
@@ -274,10 +290,18 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 		}
 	}
 
-	m_tilesetTexture = ion::render::Texture::Create(m_textureSizeSq, m_textureSizeSq, ion::render::Texture::eRGB, ion::render::Texture::eRGB, ion::render::Texture::eBPP24, false, false, data);
-	m_tilesetTexture->SetMinifyFilter(ion::render::Texture::eFilterNearest);
-	m_tilesetTexture->SetMagnifyFilter(ion::render::Texture::eFilterNearest);
-	m_tilesetTexture->SetWrapping(ion::render::Texture::eWrapClamp);
+#if USE_PALETTE_TEXTURES
+	ion::render::Texture::Format format = ion::render::Texture::Format::R;
+	ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP8;
+#else
+	ion::render::Texture::Format format = ion::render::Texture::Format::RGB;
+	ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP24;
+#endif
+
+	m_tilesetTexture = ion::render::Texture::Create(m_textureSizeSq, m_textureSizeSq, format, format, bpp, false, false, data);
+	m_tilesetTexture->SetMinifyFilter(ion::render::Texture::Filter::Nearest);
+	m_tilesetTexture->SetMagnifyFilter(ion::render::Texture::Filter::Nearest);
+	m_tilesetTexture->SetWrapping(ion::render::Texture::Wrapping::Clamp);
 
 	delete data;
 
