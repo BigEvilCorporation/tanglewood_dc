@@ -72,6 +72,8 @@ local SRC =
 	framework/PhysicsObj.h
 	framework/Plane.cpp
 	framework/Plane.h
+	framework/Sprite.cpp
+	framework/Sprite.h
 	framework/SpriteObj.cpp
 	framework/SpriteObj.h
 	framework/State.cpp

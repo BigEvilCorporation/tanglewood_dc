@@ -4,7 +4,7 @@
 // File:		SpriteObj.cpp
 // Date:		12th January 2017
 // Authors:		Matt Phillips
-// Description:	Sprite sheet loading, animation and rendering
+// Description:	Sprite object, animation and rendering
 //				(loosely mirrors Mega Drive framework)
 ///////////////////////////////////////////////////////////////
 
@@ -25,24 +25,19 @@
 #include <ion/core/string/String.h>
 #include <ion/maths/Geometry.h>
 
-const std::vector<ion::render::VertexBuffer::Element> SpriteObj::s_vertexLayout =
-{
-	ion::render::VertexBuffer::Element({ ion::render::VertexBuffer::ePosition, ion::render::VertexBuffer::eFloat, 3 }),
-	ion::render::VertexBuffer::Element({ ion::render::VertexBuffer::eTexCoord, ion::render::VertexBuffer::eFloat, 2 }),
-};
-
 SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjectType& gameObjType, Actor* actor)
 	: Entity(world, gameObject, gameObjType, actor)
 {
 	m_world.AddEntity<SpriteObj>(*this);
 
-	m_currentSheet = NULL;
-	m_currentAnim = NULL;
-	m_currentAnimType = NULL;
+	m_sprite = nullptr;
+	m_currentSheet = nullptr;
+	m_currentAnim = nullptr;
+	m_currentAnimType = nullptr;
 
 #if USE_PALETTE_TEXTURES
-	m_paletteTexture = NULL;
-	m_paletteTextureDefault = NULL;
+	m_paletteTexture = nullptr;
+	m_paletteTextureDefault = nullptr;
 #endif
 
 	m_flippedX = false;
@@ -53,33 +48,27 @@ SpriteObj::SpriteObj(World& world, const GameObject& gameObject, const GameObjec
 
 	m_planePriority = PlanePriority::SpriteLow;
 
-	if(actor)
-	{
-		LoadActor(*actor);
-		
-		if (m_sheets.size() > 0)
-		{
-			m_currentSheet = &m_sheets.begin()->second;
-		}
-	}
-
 	ReadVars(gameObject.GetVariables());
+
+	m_sprite = m_world.FindSprite(actor->GetName());
+
+	if (m_sprite)
+	{
+		const SpriteSheet& spriteSheet = actor->GetSpriteSheets().begin()->second;
+
+		m_currentSheet = m_sprite->FindSheet(spriteSheet.GetName());
+
+#if USE_PALETTE_TEXTURES
+		//Create palette texture
+		m_paletteTextureDefault = PaletteTools::CreatePaletteTexture(spriteSheet.GetPalette());
+		m_paletteTexture = m_paletteTextureDefault;
+#endif
+	}
 }
 
 SpriteObj::~SpriteObj()
 {
 	m_world.RemoveEntity<SpriteObj>(*this);
-
-	for(std::map<std::string, Sheet>::iterator it = m_sheets.begin(), end = m_sheets.end(); it != end; it++)
-	{
-		for(int i = 0; i < it->second.m_frames.size(); i++)
-		{
-			delete it->second.m_frames[i].material;
-			delete it->second.m_frames[i].texture;
-		}
-
-		delete it->second.m_primitive;
-	}
 
 #if USE_PALETTE_TEXTURES
 	if (m_paletteTextureDefault)
@@ -103,186 +92,11 @@ void SpriteObj::ReadVars(const std::vector<GameObjectVariable>& vars)
 	}
 }
 
-void SpriteObj::LoadActor(Actor& actor)
-{
-	for(TSpriteSheetMap::iterator it = actor.SpriteSheetsBegin(), end = actor.SpriteSheetsEnd(); it != end; ++it)
-	{
-		LoadSheet(it->second);
-	}
-}
-
-void SpriteObj::LoadSheet(SpriteSheet& spriteSheet)
-{
-	const int tileWidth = 8;
-	const int tileHeight = 8;
-
-	//Add to map
-	Sheet& sheet = m_sheets[spriteSheet.GetName()];
-
-	u32 widthTiles = spriteSheet.GetWidthTiles();
-	u32 heightTiles = spriteSheet.GetHeightTiles();
-	u32 quadWidth = widthTiles * tileWidth;
-	u32 quadHeight = heightTiles * tileHeight;
-	u32 textureWidth = ion::maths::NextPowerOfTwo(quadWidth);
-	u32 textureHeight = ion::maths::NextPowerOfTwo(quadHeight);
-	u32 bytesPerPixel = 4;
-	u32 textureSize = textureWidth * textureHeight * bytesPerPixel;
-
-	//Create primitive
-	sheet.m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2((float)spriteSheet.GetWidthTiles() * (tileWidth / 2.0f), (float)spriteSheet.GetHeightTiles() * (tileHeight / 2.0f)), s_vertexLayout);
-
-	//Set UV coords
-	ion::render::TexCoord coords[4];
-
-	const float top = (float)quadHeight / (float)textureHeight;
-	const float left = 0.0f;
-	const float bottom = 0.0f;
-	const float right = (float)quadWidth / (float)textureWidth;
-
-	//Top left
-	coords[0].x = left;
-	coords[0].y = top;
-	//Bottom left
-	coords[1].x = left;
-	coords[1].y = bottom;
-	//Bottom right
-	coords[2].x = right;
-	coords[2].y = bottom;
-	//Top right
-	coords[3].x = right;
-	coords[3].y = top;
-
-	sheet.m_primitive->SetTexCoords(coords);
-
-	//Create all render frame textures
-	for (int i = 0; i < spriteSheet.GetNumFrames(); i++)
-	{
-		//Create new render frame
-		Sheet::Frame renderFrame;
-
-		//Create tileset texture for frame
-		renderFrame.texture = ion::render::Texture::Create(textureWidth, textureHeight);
-
-		//Create material
-		renderFrame.material = new ion::render::Material();
-		renderFrame.material->AddDiffuseMap(renderFrame.texture);
-		renderFrame.material->SetDiffuseColour(ion::Colour(1.0f, 1.0f, 1.0f, 1.0f));
-
-#if defined ION_RENDERER_SHADER
-#if USE_PALETTE_TEXTURES
-		renderFrame.material->SetVertexShader(Assets::Shaders::IndexTexture::vertexShader.Get());
-		renderFrame.material->SetPixelShader(Assets::Shaders::IndexTexture::pixelShader.Get());
-#else
-		renderFrame.material->SetVertexShader(Assets::Shaders::FlatTextured::vertexShader.Get());
-		renderFrame.material->SetPixelShader(Assets::Shaders::FlatTextured::pixelShader.Get());
-#endif
-#endif
-
-		//Insert frame
-		sheet.m_frames.push_back(renderFrame);
-
-		//Enumerate anims
-		for (TSpriteAnimMap::iterator it = spriteSheet.AnimationsBegin(), end = spriteSheet.AnimationsEnd(); it != end; ++it)
-		{
-			sheet.m_animations[it->second.GetName()] = &it->second;
-		}
-	}
-
-#if USE_PALETTE_TEXTURES
-	//Create palette texture
-	m_paletteTextureDefault = PaletteTools::CreatePaletteTexture(spriteSheet.GetPalette());
-	m_paletteTexture = m_paletteTextureDefault;
-#endif
-
-	//Paint sprite sheet
-	PaintSheet(spriteSheet, spriteSheet.GetPalette());
-}
-
-void SpriteObj::PaintSheet(SpriteSheet& spriteSheet, const Palette& palette)
-{
-	Sheet& sheet = m_sheets[spriteSheet.GetName()];
-
-	const int tileWidth = 8;
-	const int tileHeight = 8;
-	u32 widthTiles = spriteSheet.GetWidthTiles();
-	u32 heightTiles = spriteSheet.GetHeightTiles();
-
-	for (int i = 0; i < spriteSheet.GetNumFrames(); i++)
-	{
-		//Get spriteSheet frame
-		const SpriteSheetFrame& spriteSheetFrame = spriteSheet.GetFrame(i);
-
-		//Get render frame
-		Sheet::Frame& renderFrame = sheet.m_frames[i];
-
-		u32 bytesPerPixel = 4;
-		u32 textureWidth = renderFrame.texture->GetWidth();
-		u32 textureHeight = renderFrame.texture->GetHeight();
-		u32 textureSize = textureWidth * textureHeight * bytesPerPixel;
-
-		u8* data = new u8[textureSize];
-		ion::memory::MemSet(data, 0, textureSize);
-
-		for (int tileX = 0; tileX < spriteSheet.GetWidthTiles(); tileX++)
-		{
-			for (int tileY = 0; tileY < spriteSheet.GetHeightTiles(); tileY++)
-			{
-				//Genesis spriteSheet order = column major
-				const Tile& tile = spriteSheetFrame[(tileX * heightTiles) + tileY];
-
-				//Invert Y for OpenGL
-				int tileY_inv = spriteSheet.GetHeightTiles() - 1 - tileY;
-
-				//Paint tile to texture
-				for (int pixelY = 0; pixelY < tileHeight; pixelY++)
-				{
-					for (int pixelX = 0; pixelX < tileWidth; pixelX++)
-					{
-						//Invert Y for OpenGL
-						int pixelY_OGL = tileHeight - 1 - pixelY;
-
-						u8 colourIdx = tile.GetPixelColour(pixelX, pixelY_OGL);
-
-						int destPixelX = (tileX * tileWidth) + pixelX;
-						int destPixelY = (tileY_inv * tileHeight) + pixelY;
-						u32 pixelIdx = (destPixelY * textureWidth) + destPixelX;
-						u32 dataOffset = pixelIdx * bytesPerPixel;
-						ion::debug::Assert(dataOffset + 2 < textureSize, "eOut of bounds");
-
-#if USE_PALETTE_TEXTURES
-						data[dataOffset] = colourIdx;
-#else
-						const Colour& colour = palette.GetColour(colourIdx);
-						data[dataOffset] = colour.GetRed();
-						data[dataOffset + 1] = colour.GetGreen();
-						data[dataOffset + 2] = colour.GetBlue();
-						data[dataOffset + 3] = colourIdx > 0 ? 255 : 0;
-#endif
-					}
-				}
-			}
-		}
-
-		//Load texture data
-		renderFrame.texture->Load(textureWidth, textureHeight, ion::render::Texture::eRGBA, ion::render::Texture::eRGBA, ion::render::Texture::eBPP24, false, false, data);
-
-		//Reset filter
-		renderFrame.texture->SetMinifyFilter(ion::render::Texture::eFilterNearest);
-		renderFrame.texture->SetMagnifyFilter(ion::render::Texture::eFilterNearest);
-		renderFrame.texture->SetWrapping(ion::render::Texture::eWrapClamp);
-
-		delete[] data;
-	}
-}
-
 void SpriteObj::SetSpriteSheet(const std::string& sheetName)
 {
-	std::map<std::string, Sheet>::iterator sheetIt = m_sheets.find(sheetName);
-	if (sheetIt != m_sheets.end())
-	{
-		m_currentSheet = &sheetIt->second;
-	}
-	else
+	m_currentSheet = m_sprite->FindSheet(sheetName);
+
+	if (!m_currentSheet)
 	{
 		ion::debug::error << "Could not find sprite sheet " << sheetName << ion::debug::end;
 	}
@@ -290,17 +104,17 @@ void SpriteObj::SetSpriteSheet(const std::string& sheetName)
 
 void SpriteObj::PlayAnimation(const AnimType& animation)
 {
-	if (!m_currentAnimType || *m_currentAnimType != animation)
+	if (m_sprite && (!m_currentAnimType || *m_currentAnimType != animation))
 	{
-		std::map<std::string, Sheet>::iterator sheetIt = m_sheets.find(animation.sheetName);
-		if (sheetIt != m_sheets.end())
+		const Sprite::Sheet* sheet = m_sprite->FindSheet(animation.sheetName);
+		if (sheet)
 		{
-			std::map<std::string, SpriteAnimation*>::iterator animIt = sheetIt->second.m_animations.find(animation.animName);
-			if (animIt != sheetIt->second.m_animations.end())
+			std::map<std::string, const SpriteAnimation*>::const_iterator animIt = sheet->m_animations.find(animation.animName);
+			if (animIt != sheet->m_animations.end())
 			{
 				if (m_currentAnim != animIt->second)
 				{
-					m_currentSheet = &sheetIt->second;
+					m_currentSheet = sheet;
 
 					if (!m_currentAnim || m_currentAnim->GetName() != animIt->second->GetName())
 					{

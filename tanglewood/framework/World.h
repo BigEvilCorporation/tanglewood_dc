@@ -22,6 +22,7 @@
 #include "Plane.h"
 #include "Physics.h"
 #include "Level.h"
+#include "Sprite.h"
 
 #include "effects/Fader.h"
 
@@ -75,6 +76,9 @@ public:
 	//Find sprite actor
 	const Actor* FindActor(const std::string& name) const;
 
+	//Find sprite
+	const Sprite* FindSprite(const std::string& name) const;
+
 	//Physics world
 	PhysicsWorld& GetPhysicsWorld() { return *m_physicsWorld; }
 
@@ -99,6 +103,7 @@ private:
 
 	//TODO: Move to global assets
 	std::map<std::string, Actor> m_actors;
+	std::map<std::string, Sprite*> m_sprites;
 
 	TGameObjectTypeMap m_gameObjectTypes;
 

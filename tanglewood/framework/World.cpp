@@ -112,10 +112,14 @@ bool World::LoadSprites()
 		}
 	}
 
-	//Dump unused actors
+	//Dump unused actors and sprites
 	for (std::set<std::string>::const_iterator it = unusedActors.begin(), end = unusedActors.end(); it != end; ++it)
 	{
 		m_actors.erase(*it);
+
+		std::map<std::string, Sprite*>::iterator spriteIt = m_sprites.find(*it);
+		delete spriteIt->second;
+		m_sprites.erase(spriteIt);
 	}
 
 	//Load used actors
@@ -130,7 +134,7 @@ bool World::LoadSprites()
 
 bool World::LoadSprite(const std::string& name)
 {
-	//If not already loaded
+	//If actor not already loaded
 	if (!FindActor(name))
 	{
 		//TODO: move to constants
@@ -143,12 +147,15 @@ bool World::LoadSprite(const std::string& name)
 		if (file.IsOpen())
 		{
 			//New actor
-			Actor& actor = m_actors.insert(std::make_pair(ion::string::ToLower(name), Actor())).first->second;
+			Actor& actor = m_actors.emplace(std::make_pair(ion::string::ToLower(name), Actor())).first->second;
 
 			//Serialise
 			ion::io::Archive archive(file, ion::io::Archive::Direction::In);
 			archive.SetContentType(ion::io::Archive::Content::Minimal);
 			archive.Serialise(actor, "actor");
+
+			//Create sprite
+			m_sprites.emplace(std::make_pair(ion::string::ToLower(name), new Sprite(actor))).first->second;
 
 			return true;
 		}
@@ -537,6 +544,17 @@ const Actor* World::FindActor(const std::string& name) const
 	if (it != m_actors.end())
 	{
 		return &it->second;
+	}
+
+	return nullptr;
+}
+
+const Sprite* World::FindSprite(const std::string& name) const
+{
+	std::map<std::string, Sprite*>::const_iterator it = m_sprites.find(ion::string::ToLower(name));
+	if (it != m_sprites.end())
+	{
+		return it->second;
 	}
 
 	return nullptr;

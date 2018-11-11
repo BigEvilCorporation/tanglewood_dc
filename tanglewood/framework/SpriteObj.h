@@ -4,7 +4,7 @@
 // File:		SpriteObj.h
 // Date:		12th January 2017
 // Authors:		Matt Phillips
-// Description:	Sprite sheet loading, animation and rendering
+// Description:	Sprite object, animation and rendering
 //				(loosely mirrors Mega Drive framework)
 ///////////////////////////////////////////////////////////////
 
@@ -24,6 +24,7 @@
 #include "Constants.h"
 #include "Animation.h"
 #include "PlanePriority.h"
+#include "Sprite.h"
 
 class SpriteObj : public Entity
 {
@@ -45,9 +46,6 @@ public:
 	virtual void Update(float deltaTime);
 	virtual void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv, const ion::Vector2& mapSize);
 
-	//Draw sprite sheet to texture with specified palette
-	void PaintSheet(SpriteSheet& spriteSheet, const Palette& palette);
-
 #if USE_PALETTE_TEXTURES
 	//Palette swap
 	void SetPaletteTexture(ion::render::Texture* texture) { m_paletteTexture = texture; }
@@ -67,29 +65,8 @@ private:
 	//Read object vars
 	void ReadVars(const std::vector<GameObjectVariable>& vars);
 
-	//Load actor from Beehive data
-	void LoadActor(Actor& actor);
-
-	//Load sprite sheet from Beehive data
-	void LoadSheet(SpriteSheet& spriteSheet);
-
-	struct Sheet
-	{
-		struct Frame
-		{
-			ion::render::Texture* texture;
-			ion::render::Material* material;
-		};
-
-		ion::render::Quad* m_primitive;
-		std::vector<Frame> m_frames;
-		std::map<std::string, SpriteAnimation*> m_animations;
-	};
-
-	static const std::vector<ion::render::VertexBuffer::Element> s_vertexLayout;
-
-	std::map<std::string, Sheet> m_sheets;
-	Sheet* m_currentSheet;
+	const Sprite* m_sprite;
+	const Sprite::Sheet* m_currentSheet;
 	SpriteAnimation* m_currentAnim;
 	const AnimType* m_currentAnimType;
 	std::vector<AnimType> m_animQueue;
