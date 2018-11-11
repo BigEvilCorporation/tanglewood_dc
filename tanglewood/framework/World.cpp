@@ -147,7 +147,7 @@ bool World::LoadSprite(const std::string& name)
 		if (file.IsOpen())
 		{
 			//New actor
-			Actor& actor = m_actors.emplace(std::make_pair(ion::string::ToLower(name), Actor())).first->second;
+			Actor& actor = m_actors.insert(std::make_pair(ion::string::ToLower(name), Actor())).first->second;
 
 			//Serialise
 			ion::io::Archive archive(file, ion::io::Archive::Direction::In);
@@ -155,7 +155,7 @@ bool World::LoadSprite(const std::string& name)
 			archive.Serialise(actor, "actor");
 
 			//Create sprite
-			m_sprites.emplace(std::make_pair(ion::string::ToLower(name), new Sprite(actor))).first->second;
+			m_sprites.insert(std::make_pair(ion::string::ToLower(name), new Sprite(actor))).first->second;
 
 			return true;
 		}
