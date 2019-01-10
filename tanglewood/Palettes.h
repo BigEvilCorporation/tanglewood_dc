@@ -1,11 +1,14 @@
 #pragma once
 
 #include "framework/PaletteTools.h"
+#include "Constants.h"
 
 namespace Assets
 {
 	namespace Palettes
 	{
+		extern Palette active[Constants::MegaDrive::maxPalettes];
+
 		namespace World
 		{
 			extern ion::render::Texture* shared;

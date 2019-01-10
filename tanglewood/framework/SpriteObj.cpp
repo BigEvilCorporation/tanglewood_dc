@@ -213,9 +213,11 @@ void SpriteObj::Render(ion::render::Renderer& renderer, const ion::render::Camer
 			ion::Vector3 scale(flippedX ? -1.0f : 1.0f, m_flippedY ? -1.0f : 1.0f, 1.0f);
 			transform.SetScale(scale);
 
+#if defined ION_RENDERER_SHADER
 #if USE_PALETTE_TEXTURES
 			Assets::Shaders::IndexTexture::Params::indexedTexture.SetValue(*m_currentSheet->m_frames[spriteFrame].texture);
 			Assets::Shaders::IndexTexture::Params::paletteTexture.SetValue(*m_paletteTexture);
+#endif
 #endif
 
 			//Bind material

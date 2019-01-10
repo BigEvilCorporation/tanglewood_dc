@@ -212,8 +212,15 @@ void Sprite::PaintSheet(const SpriteSheet& spriteSheet, const Palette& palette)
 		}
 
 #if USE_PALETTE_TEXTURES
+#if defined ION_RENDERER_SHADER
+		//Palette textures using shaders
 		ion::render::Texture::Format format = ion::render::Texture::Format::R;
 		ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP8;
+#else
+		//Palette textures using fixed function
+		ion::render::Texture::Format format = ion::render::Texture::Format::RGBA_Indexed;
+		ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP8;
+#endif
 #else
 		ion::render::Texture::Format format = ion::render::Texture::Format::RGBA;
 		ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP24;
@@ -242,4 +249,15 @@ const Sprite::Sheet* Sprite::FindSheet(const std::string& name) const
 	}
 
 	return sheet;
+}
+
+void Sprite::SetPalette(int paletteIdx)
+{
+	for (std::map<std::string, Sheet>::iterator it = m_sheets.begin(), end = m_sheets.end(); it != end; ++it)
+	{
+		for (int i = 0; i < it->second.m_frames.size(); i++)
+		{
+			it->second.m_frames[i].texture->SetColourPalette(paletteIdx);
+		}
+	}
 }

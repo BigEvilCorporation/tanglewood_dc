@@ -18,7 +18,7 @@
 #if defined ION_PLATFORM_WINDOWS
 #define USE_PALETTE_TEXTURES 1
 #else
-#define USE_PALETTE_TEXTURES 0
+#define USE_PALETTE_TEXTURES 1
 #endif
 
 #define SUBPIXELS_TO_PIXELS(val) (float)((float)(val>>16)+((float)(val&0xFFFF)/Constants::MegaDrive::subPixelsPerPixel))
@@ -44,6 +44,8 @@ namespace Constants
 
 		static const int planeWidthTiles = 40;
 		static const int planeHeightTiles = 40;
+
+		static const int maxPalettes = 4;
 	}
 
 	namespace Rendering
@@ -59,6 +61,14 @@ namespace Constants
 			-0.1f, // SpriteHigh
 			 0.0f  // Debug
 		};
+	}
+
+	namespace Palettes
+	{
+		static const int palIndexWorld = 0;
+		static const int palIndexFuzzl = 1;
+		static const int palIndexPlayer = 2;
+		static const int palIndexEnemies = 3;
 	}
 
 	namespace Effects

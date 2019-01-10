@@ -53,6 +53,9 @@ public:
 	//Find sprite sheet by name
 	const Sheet* FindSheet(const std::string& name) const;
 
+	//Set palette index
+	void SetPalette(int paletteIdx);
+
 private:
 	static const std::vector<ion::render::VertexBuffer::Element> s_vertexLayout;
 

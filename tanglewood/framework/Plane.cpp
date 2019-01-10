@@ -204,7 +204,7 @@ void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera* c
 	ion::Matrix4 transform;
 	transform.SetTranslation(ion::Vector3((m_canvasSizeTiles.x * Constants::MegaDrive::tileWidth) / 2.0f, (m_canvasSizeTiles.y * Constants::MegaDrive::tileHeight) / 2.0f, Constants::Rendering::planePriorities[(int)priority]));
 
-#if USE_PALETTE_TEXTURES
+#if USE_PALETTE_TEXTURES && defined ION_RENDERER_SHADER
 	Assets::Shaders::IndexTexture::Params::indexedTexture.SetValue(*m_tilesetTexture);
 	Assets::Shaders::IndexTexture::Params::paletteTexture.SetValue(*m_paletteTexture);
 #endif
@@ -291,17 +291,28 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 	}
 
 #if USE_PALETTE_TEXTURES
+#if defined ION_RENDERER_SHADER
+	//Palette textures using shaders
 	ion::render::Texture::Format format = ion::render::Texture::Format::R;
 	ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP8;
+#else
+	//Palette textures using fixed function
+	ion::render::Texture::Format format = ion::render::Texture::Format::RGBA_Indexed;
+	ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP8;
+#endif
 #else
 	ion::render::Texture::Format format = ion::render::Texture::Format::RGB;
 	ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP24;
 #endif
 
 	m_tilesetTexture = ion::render::Texture::Create(m_textureSizeSq, m_textureSizeSq, format, format, bpp, false, false, data);
+
 	m_tilesetTexture->SetMinifyFilter(ion::render::Texture::Filter::Nearest);
 	m_tilesetTexture->SetMagnifyFilter(ion::render::Texture::Filter::Nearest);
 	m_tilesetTexture->SetWrapping(ion::render::Texture::Wrapping::Clamp);
+
+	//Set default palette index
+	m_tilesetTexture->SetColourPalette(Constants::Palettes::palIndexWorld);
 
 	delete data;
 

@@ -250,9 +250,11 @@ void StateLoading::LoadingThread::Entry()
 	Globals::Game::world->CreateGameObjects();
 
 	//Pre-stream map
+	ion::debug::Log("Pre-streaming map");
 	Globals::Game::world->PreStreamMap();
 
 	//Done
+	ion::debug::Log("Loading complete");
 	m_running = false;
 }
 

@@ -219,6 +219,12 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 	Assets::Palettes::World::night = m_palettes[2];
 #endif
 
+	//Set default active palettes
+	Assets::Palettes::active[0] = Assets::Palettes::World::day;
+	Assets::Palettes::active[1] = Assets::Palettes::Player::red;
+	Assets::Palettes::active[2] = Assets::Palettes::Player::red;
+	Assets::Palettes::active[3] = Assets::Palettes::Player::red;
+
 	return true;
 }
 
@@ -467,6 +473,24 @@ void World::Update(float deltaTime, const ion::input::Keyboard& keyboard, const 
 
 void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport)
 {
+	//Apply all palettes
+	std::vector<ion::Colour> palette;
+	palette.resize(Palette::coloursPerPalette);
+
+	for (int i = 0; i < Constants::MegaDrive::maxPalettes; i++)
+	{
+		for (int j = 0; j < Palette::coloursPerPalette; j++)
+		{
+			if (Assets::Palettes::active[i].IsColourUsed(j))
+			{
+				const Colour& colour = Assets::Palettes::active[i].GetColour(j);
+				palette[j] = ion::Colour(colour.GetRed(), colour.GetGreen(), colour.GetBlue());
+			}
+		}
+
+		renderer.SetColourPalette(i, palette);
+	}
+
 	//Get camera matrix
 	ion::Matrix4 cameraInv = camera.GetTransform().GetInverse();
 
