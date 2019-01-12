@@ -102,6 +102,11 @@ void SpriteObj::SetSpriteSheet(const std::string& sheetName)
 	}
 }
 
+void SpriteObj::SetColourPalette(int paletteIdx)
+{
+	m_sprite->SetPalette(paletteIdx);
+}
+
 void SpriteObj::PlayAnimation(const AnimType& animation)
 {
 	if (m_sprite && (!m_currentAnimType || *m_currentAnimType != animation))

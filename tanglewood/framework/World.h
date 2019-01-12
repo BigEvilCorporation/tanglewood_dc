@@ -78,6 +78,7 @@ public:
 
 	//Find sprite
 	const Sprite* FindSprite(const std::string& name) const;
+	Sprite* FindSprite(const std::string& name);
 
 	//Physics world
 	PhysicsWorld& GetPhysicsWorld() { return *m_physicsWorld; }

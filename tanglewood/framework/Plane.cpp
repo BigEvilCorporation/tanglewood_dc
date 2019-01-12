@@ -124,6 +124,11 @@ void Plane::SetEdgeBehaviour(EdgeBehaviour x, EdgeBehaviour y)
 	m_edgeBehaviourY = y;
 }
 
+void Plane::SetColourPalette(int paletteIdx)
+{
+	m_tilesetTexture->SetColourPalette(paletteIdx);
+}
+
 void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera* camera, PlanePriority priority)
 {
 	//Get camera pos

@@ -52,6 +52,8 @@ public:
 	ion::render::Texture* GetPaletteTexture() { return m_paletteTexture; }
 #endif
 
+	void SetColourPalette(int paletteIdx);
+
 	ion::Vector2 m_drawOffset;	//Sprite draw offset
 	bool m_flippedX;			//Sprite flip X
 	bool m_flippedY;			//Sprite flip Y
@@ -65,7 +67,7 @@ private:
 	//Read object vars
 	void ReadVars(const std::vector<GameObjectVariable>& vars);
 
-	const Sprite* m_sprite;
+	Sprite* m_sprite;
 	const Sprite::Sheet* m_currentSheet;
 	SpriteAnimation* m_currentAnim;
 	const AnimType* m_currentAnimType;

@@ -306,6 +306,9 @@ bool World::LoadActData(const LevelDescriptor& level)
 	m_planeBg->SetPaletteTexture(Assets::Palettes::World::shared);
 #endif
 
+	m_planeFg->SetColourPalette(Constants::Palettes::palIndexWorld);
+	m_planeBg->SetColourPalette(Constants::Palettes::palIndexWorld);
+
 	//Get bg colour
 	const Colour& bgColour = m_palettes[0].GetColour(0);
 	m_bgColour.r = bgColour.GetRed() / 255.0f;
@@ -479,16 +482,19 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 
 	for (int i = 0; i < Constants::MegaDrive::maxPalettes; i++)
 	{
-		for (int j = 0; j < Palette::coloursPerPalette; j++)
+		//Colour 0 is transparency
+		palette[0] = ion::Colour((u8)0, 0, 0, 255);
+
+		for (int j = 1; j < Palette::coloursPerPalette; j++)
 		{
 			if (Assets::Palettes::active[i].IsColourUsed(j))
 			{
 				const Colour& colour = Assets::Palettes::active[i].GetColour(j);
-				palette[j] = ion::Colour(colour.GetRed(), colour.GetGreen(), colour.GetBlue());
+				palette[j] = ion::Colour(colour.GetRed(), colour.GetGreen(), colour.GetBlue(), 255);
 			}
 		}
 
-		renderer.SetColourPalette(i, palette);
+		renderer.LoadColourPalette(i, palette);
 	}
 
 	//Get camera matrix
@@ -576,6 +582,17 @@ const Actor* World::FindActor(const std::string& name) const
 const Sprite* World::FindSprite(const std::string& name) const
 {
 	std::map<std::string, Sprite*>::const_iterator it = m_sprites.find(ion::string::ToLower(name));
+	if (it != m_sprites.end())
+	{
+		return it->second;
+	}
+
+	return nullptr;
+}
+
+Sprite* World::FindSprite(const std::string& name)
+{
+	std::map<std::string, Sprite*>::iterator it = m_sprites.find(ion::string::ToLower(name));
 	if (it != m_sprites.end())
 	{
 		return it->second;

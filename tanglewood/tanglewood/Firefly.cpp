@@ -17,6 +17,8 @@ Firefly::Firefly(World& world, const GameObject& gameObject, const GameObjectTyp
 {
 	world.AddEntity<Firefly>(*this);
 
+	SetColourPalette(Constants::Palettes::palIndexPlayer);
+
 	//Setup animation
 	PlayAnimation(Animations::Firefly::idle);
 }

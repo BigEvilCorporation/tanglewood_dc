@@ -55,6 +55,8 @@ public:
 	void SetPaletteTexture(ion::render::Texture* texture) { m_paletteTexture = texture; }
 #endif
 
+	void SetColourPalette(int paletteIdx);
+
 	ion::Vector2 m_scroll;
 	ion::Vector2 m_drawOffset;
 
