@@ -196,9 +196,11 @@ void Player::UpdatePaletteLerp(float deltaTime)
 			m_paletteLerpSpeed = 0.0f;
 		}
 
-#if USE_PALETTE_TEXTURES
 		Palette palette;
 		PaletteTools::BlendPalettes(m_sourcePalette, m_destPalette, palette, m_paletteLerpTimer);
+		Assets::Palettes::active[Constants::Palettes::palIndexPlayer] = palette;
+
+#if USE_PALETTE_TEXTURES
 		PaletteTools::WritePaletteTexture(palette, Assets::Palettes::Player::shared);
 #endif
 	}

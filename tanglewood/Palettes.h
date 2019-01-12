@@ -28,5 +28,19 @@ namespace Assets
 			extern Palette yellow;
 			extern Palette white;
 		}
+
+		namespace Fuzzl
+		{
+			extern ion::render::Texture* shared;
+
+			extern Palette fuzzl;
+		}
+
+		namespace Djakk
+		{
+			extern ion::render::Texture* shared;
+
+			extern Palette djakk;
+		}
 	}
 }

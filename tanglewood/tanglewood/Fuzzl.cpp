@@ -32,6 +32,9 @@ Fuzzl::Fuzzl(World& world, const GameObject& gameObject, const GameObjectType& g
 {
 	m_world.AddEntity<Fuzzl>(*this);
 
+	//Set palette
+	SetColourPalette(Constants::Palettes::palIndexFuzzl);
+
 	//Physics
 	m_stepHeight = Constants::Fuzzl::stepHeight;
 	m_maxVelocityX = Constants::Fuzzl::maxVelocityX;

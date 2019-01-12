@@ -220,10 +220,10 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 #endif
 
 	//Set default active palettes
-	Assets::Palettes::active[0] = Assets::Palettes::World::day;
-	Assets::Palettes::active[1] = Assets::Palettes::Player::red;
-	Assets::Palettes::active[2] = Assets::Palettes::Player::red;
-	Assets::Palettes::active[3] = Assets::Palettes::Player::red;
+	Assets::Palettes::active[Constants::Palettes::palIndexWorld] = Assets::Palettes::World::day;
+	Assets::Palettes::active[Constants::Palettes::palIndexFuzzl] = Assets::Palettes::Fuzzl::fuzzl;
+	Assets::Palettes::active[Constants::Palettes::palIndexPlayer] = Assets::Palettes::Player::red;
+	Assets::Palettes::active[Constants::Palettes::palIndexEnemies] = Assets::Palettes::Djakk::djakk;
 
 	return true;
 }
@@ -637,7 +637,6 @@ void World::BeginPaletteLerp(const Palette& dest, float speed)
 
 void World::UpdatePaletteLerp(float deltaTime)
 {
-#if USE_PALETTE_TEXTURES
 	if (m_paletteLerpSpeed > 0.0f)
 	{
 		m_paletteLerpTimer += m_paletteLerpSpeed * deltaTime;
@@ -650,7 +649,10 @@ void World::UpdatePaletteLerp(float deltaTime)
 
 		Palette palette;
 		PaletteTools::BlendPalettes(m_sourcePalette, m_currentPalette, palette, m_paletteLerpTimer);
+		Assets::Palettes::active[Constants::Palettes::palIndexWorld] = palette;
+
+#if USE_PALETTE_TEXTURES
 		PaletteTools::WritePaletteTexture(palette, Assets::Palettes::World::shared);
-	}
 #endif
+	}
 }

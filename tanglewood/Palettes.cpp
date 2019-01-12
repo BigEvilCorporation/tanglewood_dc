@@ -25,5 +25,19 @@ namespace Assets
 			Palette yellow;
 			Palette white;
 		}
+
+		namespace Fuzzl
+		{
+			ion::render::Texture* shared = nullptr;
+
+			Palette fuzzl;
+		}
+
+		namespace Djakk
+		{
+			ion::render::Texture* shared = nullptr;
+
+			Palette djakk;
+		}
 	}
 }

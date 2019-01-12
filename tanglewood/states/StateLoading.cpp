@@ -302,9 +302,35 @@ void StateLoading::LoadingThread::LoadGlobalPalettes()
 			}
 		}
 
+		if (Globals::Game::world->LoadSprite("nymn_pal_white"))
+		{
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_white"))
+			{
+				Assets::Palettes::Player::white = *actor->GetMasterPalette();
+			}
+		}
+
+		if (Globals::Game::world->LoadSprite("fuzzl"))
+		{
+			if (const Actor* actor = Globals::Game::world->FindActor("fuzzl"))
+			{
+				Assets::Palettes::Fuzzl::fuzzl = *actor->GetMasterPalette();
+			}
+		}
+
+		if (Globals::Game::world->LoadSprite("djakk"))
+		{
+			if (const Actor* actor = Globals::Game::world->FindActor("djakk"))
+			{
+				Assets::Palettes::Djakk::djakk = *actor->GetMasterPalette();
+			}
+		}
+
 #if USE_PALETTE_TEXTURES
-		ion::debug::Log("Creating shared player palette texture");
+		ion::debug::Log("Creating shared palette textures");
 		Assets::Palettes::Player::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::Player::red);
+		Assets::Palettes::Fuzzl::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::Fuzzl::fuzzl);
+		Assets::Palettes::Djakk::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::Djakk::djakk);
 #endif
 	}
 }

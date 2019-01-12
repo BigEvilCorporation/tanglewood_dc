@@ -20,6 +20,9 @@ Djakk::Djakk(World& world, const GameObject& gameObject, const GameObjectType& g
 {
 	world.AddEntity<Djakk>(*this);
 
+	//Set palette
+	SetColourPalette(Constants::Palettes::palIndexEnemies);
+
 	m_maxVelocityX = Constants::Djakk::maxVelocityXWalking;
 	m_deceleration = Constants::Djakk::decelerationIdle;
 
