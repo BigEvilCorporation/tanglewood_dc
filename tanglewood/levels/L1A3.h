@@ -20,7 +20,8 @@ public:
 	virtual ~L1A3();
 
 	virtual void Start();
-	virtual void Update(float deltaTime);
+	virtual void Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad);
+	virtual void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport);
 	virtual void End();
 
 	void OnTriggerDjakk(const TriggerBox& triggerBox);

@@ -18,6 +18,7 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 	world.GetPhysicsWorld().AddObject(*this);
 
 	m_floorProbeOffset = ion::Vector2(m_size.x / 2.0f, m_size.y - Constants::MegaDrive::tileHeight);
+	m_ceilingProbeOffset = ion::Vector2(m_size.x / 2.0f, 0.0f);
 
 	m_maxVelocityX = 100.0f;
 	m_maxVelocityXAir = 100.0f;
@@ -35,6 +36,10 @@ PhysicsObj::PhysicsObj(World& world, const GameObject& gameObject, const GameObj
 	m_onFloor = false;
 	m_closeToFloor = false;
 	m_hitWall = false;
+	m_collisionFlags = 0;
+
+	m_canPush = false;
+	m_canPull = false;
 }
 
 PhysicsObj::~PhysicsObj()
@@ -120,10 +125,20 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 			velocitySlice = velocitySlice / (float)numTimeSteps;
 		}
 
-		//Clear floor/wall flags
-		m_onFloor = false;
-		m_closeToFloor = false;
-		m_hitWall = false;
+		//Clear wall flags
+		if (!ion::maths::IsZero(m_velocity.x))
+		{
+			m_hitWall = false;
+			m_collisionFlags &= ~(int)CollisionFlags::HitWallLeft;
+			m_collisionFlags &= ~(int)CollisionFlags::HitWallRight;
+		}
+
+		//Clear floor flags
+		if (!ion::maths::IsZero(m_velocity.y))
+		{
+			m_onFloor = false;
+			m_closeToFloor = false;
+		}
 
 		for (int i = 0; i < numTimeSteps; i++)
 		{
@@ -165,8 +180,9 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 				m_acceleration.x = 0.0f;
 				velocitySlice.x = 0.0f;
 
-				//Hit wall
+				//Hit wall to right
 				m_hitWall = true;
+				m_collisionFlags |= (int)CollisionFlags::HitWallRight;
 			}
 			else if (wallPos >= 0.0f && velocitySlice.x < 0.0f && wallPos > boundsTopLeft.x)
 			{
@@ -181,14 +197,15 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 				m_acceleration.x = 0.0f;
 				velocitySlice.x = 0.0f;
 
-				//Hit wall
+				//Hit wall to left
 				m_hitWall = true;
+				m_collisionFlags |= (int)CollisionFlags::HitWallLeft;
 			}
 
 			if (m_velocity.y < 0.0f)
 			{
 				//Find terrain
-				ion::Vector2 floorProbe(m_worldPos.x + m_floorProbeOffset.x, m_worldPos.y + m_floorProbeOffset.y);
+				ion::Vector2 floorProbe = m_worldPos + m_floorProbeOffset;
 				const float objectBottom = m_worldPos.y + m_size.y;
 
 				u16 floorFlags = 0;
@@ -231,6 +248,24 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 					}
 				}
 			}
+			else if (m_velocity.y > 0.0f)
+			{
+				//Find ceiling
+				ion::Vector2 ceilingProbe = m_worldPos + m_ceilingProbeOffset;
+
+				float ceilingHeight = (float)physicsWorld.FindCeiling(ion::Vector2i((int)ceilingProbe.x, (int)ceilingProbe.y), Constants::World::ceilingSearchDist);
+
+				if (ceilingHeight >= 0.0f && ceilingHeight < m_worldPos.y)
+				{
+					//Collision with ceiling, adjust position
+					m_worldPos.y = ceilingHeight;
+
+					//Kill Y velocity/acceleration
+					m_velocity.y = 0.0f;
+					m_acceleration.y = 0.0f;
+					velocitySlice.y = 0.0f;
+				}
+			}
 		}
 	}
 }
@@ -238,4 +273,9 @@ void PhysicsObj::PhysicsStep(float deltaTime, const PhysicsWorld& physicsWorld)
 void PhysicsObj::AddImpulse(const ion::Vector2& impulse)
 {
 	m_impulse += impulse;
+}
+
+bool PhysicsObj::CheckCollision(int collisionFlags)
+{
+	return m_collisionFlags & collisionFlags;
 }

@@ -21,8 +21,8 @@ namespace Constants
 			"assets/levels/l1/terraintileset.bee",
 			"assets/levels/l1/l1a1/collisionmap.bee",
 			"assets/levels/l1/l1a1/gameobjects.bee",
-			"assets/levels/l1/l1a1/stampmap.bee",
-			"assets/levels/l1/l1bg/stampmap.bee",
+			"assets/levels/l1/l1a1/tilemap.bee",
+			"assets/levels/l1/l1bg/tilemap.bee",
 			[]() { return new L1A1(); }
 		},
 
@@ -33,8 +33,8 @@ namespace Constants
 			"assets/levels/l1/terraintileset.bee",
 			"assets/levels/l1/l1a2/collisionmap.bee",
 			"assets/levels/l1/l1a2/gameobjects.bee",
-			"assets/levels/l1/l1a2/stampmap.bee",
-			"assets/levels/l1/l1bg/stampmap.bee",
+			"assets/levels/l1/l1a2/tilemap.bee",
+			"assets/levels/l1/l1bg/tilemap.bee",
 			[]() { return new L1A2(); }
 		},
 
@@ -45,8 +45,8 @@ namespace Constants
 			"assets/levels/l1/terraintileset.bee",
 			"assets/levels/l1/l1a3/collisionmap.bee",
 			"assets/levels/l1/l1a3/gameobjects.bee",
-			"assets/levels/l1/l1a3/stampmap.bee",
-			"assets/levels/l1/l1bg/stampmap.bee",
+			"assets/levels/l1/l1a3/tilemap.bee",
+			"assets/levels/l1/l1bg/tilemap.bee",
 			[]() { return new L1A3(); }
 		},
 
@@ -57,8 +57,8 @@ namespace Constants
 			"assets/levels/l1/terraintileset.bee",
 			"assets/levels/l1/l1a4/collisionmap.bee",
 			"assets/levels/l1/l1a4/gameobjects.bee",
-			"assets/levels/l1/l1a4/stampmap.bee",
-			"assets/levels/l1/l1bg/stampmap.bee",
+			"assets/levels/l1/l1a4/tilemap.bee",
+			"assets/levels/l1/l1bg/tilemap.bee",
 			[]() { return new L1A4(); }
 		},
 
@@ -72,8 +72,8 @@ namespace Constants
 			"assets/levels/l2/terraintileset.bee",
 			"assets/levels/l2/l2a1/collisionmap.bee",
 			"assets/levels/l2/l2a1/gameobjects.bee",
-			"assets/levels/l2/l2a1/stampmap.bee",
-			"assets/levels/l2/l2bg/stampmap.bee",
+			"assets/levels/l2/l2a1/tilemap.bee",
+			"assets/levels/l2/l2bg/tilemap.bee",
 			[]() { return new L1A1(); }
 		},
 	};
@@ -81,9 +81,9 @@ namespace Constants
 	enum class Levels
 	{
 		l1a1_Harlequin_Act1,
-		l1a1_Harlequin_Act2,
-		l1a1_Harlequin_Act3,
-		l1a1_Harlequin_Act4,
+		l1a2_Harlequin_Act2,
+		l1a3_Harlequin_Act3,
+		l1a4_Harlequin_Act4,
 		l2a1_StormWarning_Act1,
 	};
 }

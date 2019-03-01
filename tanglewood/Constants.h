@@ -18,7 +18,7 @@
 #if defined ION_PLATFORM_WINDOWS
 #define USE_PALETTE_TEXTURES 1
 #else
-#define USE_PALETTE_TEXTURES 0
+#define USE_PALETTE_TEXTURES 1
 #endif
 
 #define SUBPIXELS_TO_PIXELS(val) (float)((float)(val>>16)+((float)(val&0xFFFF)/Constants::MegaDrive::subPixelsPerPixel))
@@ -41,6 +41,11 @@ namespace Constants
 
 		static const float screenWidth = 320.0f;
 		static const float screenHeight = 240.0f;
+
+		static const int planeWidthTiles = 40;
+		static const int planeHeightTiles = 40;
+
+		static const int maxPalettes = 4;
 	}
 
 	namespace Rendering
@@ -58,10 +63,33 @@ namespace Constants
 		};
 	}
 
+	namespace Palettes
+	{
+		static const int palIndexWorld = 0;
+		static const int palIndexFuzzl = 1;
+		static const int palIndexPlayer = 2;
+		static const int palIndexEnemies = 3;
+	}
+
+	namespace Effects
+	{
+		namespace Letterbox
+		{
+			static const float barHeight = 75.0f;
+			static const float moveSpeed = 1.0f * barHeight; // 1 second
+		}
+
+		namespace Camera
+		{
+			static const float defaultLerpSpeed = 1.0f;
+		}
+	}
+
 	namespace World
 	{
 		static const float defaultGravity = SUBPIXELS_TO_ACCELERATION(0x3000);
 		static const float floorSearchDist = MegaDrive::tileHeight * 2;
+		static const float ceilingSearchDist = MegaDrive::tileHeight * 2;
 		static const float wallSearchDist = MegaDrive::tileWidth * 2;
 		static const float paletteLerpSpeed = 0.5f;
 	}
@@ -150,9 +178,13 @@ namespace Constants
 
 		//Collision
 		static const float minWallHeight = 0x11;
+		static const float ceilingProbeOffsetY = 0x08;
 
 		//Pushing
 		static const float heavyPushObjectHeight = 0x0010;
+		static const float pushBoundsOuter = 0x08;
+		static const float pushAnimSpeedScaleLight = 0.15f;
+		static const float pushAnimSpeedScaleHeavy = 0.1f;
 
 		//Colour ability
 		static const float colourAbilityMaxTime = FRAMES_TO_SECONDS(0x0600);
@@ -226,5 +258,43 @@ namespace Constants
 	{
 		static const float impulse = SUBPIXELS_TO_PIXELS_PER_SEC(0x0A0000);
 		static const float impulseDiag = SUBPIXELS_TO_PIXELS_PER_SEC(0x071100);
+	}
+
+	namespace Scirus
+	{
+		//Movement
+		namespace Friendly
+		{
+			static const ion::Vector2 accelerationWalking(SUBPIXELS_TO_ACCELERATION(0x001800), 0.0f);
+			static const ion::Vector2 accelerationRunning(SUBPIXELS_TO_ACCELERATION(0x003000), 0.0f);
+			static const ion::Vector2 decelerationIdle(SUBPIXELS_TO_ACCELERATION(0x001600), 0.0f);
+			static const ion::Vector2 decelerationForced(SUBPIXELS_TO_ACCELERATION(0x003200), 0.0f);
+
+			static const float maxVelocityXWalking = SUBPIXELS_TO_PIXELS_PER_SEC(0x012000);
+			static const float maxVelocityXRunning = SUBPIXELS_TO_PIXELS_PER_SEC(0x042000);
+
+			static const float minChaseDistance = 0x0060;
+			static const float maxChaseDistance = 0x0090;
+
+			static const float nervousDistance = 0x0090;	//If backed against a wall
+			static const float hostileDistance = 0x0040;
+		}
+
+		namespace Hostile
+		{
+			static const ion::Vector2 accelerationWalking(SUBPIXELS_TO_ACCELERATION(0x000600), 0.0f);
+			static const ion::Vector2 accelerationRunning(SUBPIXELS_TO_ACCELERATION(0x001400), 0.0f);
+			static const ion::Vector2 decelerationIdle(SUBPIXELS_TO_ACCELERATION(0x002000), 0.0f);
+			static const ion::Vector2 decelerationForced(SUBPIXELS_TO_ACCELERATION(0x004000), 0.0f);
+
+			static const float maxVelocityXWalking = SUBPIXELS_TO_PIXELS_PER_SEC(0x014000);
+			static const float maxVelocityXRunning = SUBPIXELS_TO_PIXELS_PER_SEC(0x034000);
+
+			static const float minChaseDistance = 0x0018;
+			static const float maxChaseDistance = 0x0090;
+		}
+
+		//Chase
+		static const float alertDistance = 0x0040;
 	}
 }

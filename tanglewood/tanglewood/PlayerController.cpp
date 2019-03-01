@@ -65,39 +65,39 @@ void PlayerController::Update(float deltaTime, const ion::input::Keyboard& keybo
 	else
 #endif
 	{
+		//Update input
+		m_moveSpeed = gamepad.GetLeftStick().x;
+
+		if (keyboard.KeyDown(ion::input::Keycode::LEFT))
+		{
+			m_moveSpeed = -1.0f;
+		}
+		else if (keyboard.KeyDown(ion::input::Keycode::RIGHT))
+		{
+			m_moveSpeed = 1.0f;
+		}
+
+		bool interact = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_X)
+			|| keyboard.KeyDown(ion::input::Keycode::A);
+
+		bool interactThisFrame = gamepad.ButtonPressedThisFrame(ion::input::GamepadButtons::BUTTON_X)
+			|| keyboard.KeyPressedThisFrame(ion::input::Keycode::A);
+
+		bool ability = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_A)
+			|| keyboard.KeyDown(ion::input::Keycode::S);
+
+		bool abilityThisFrame = gamepad.ButtonPressedThisFrame(ion::input::GamepadButtons::BUTTON_A)
+			|| keyboard.KeyPressedThisFrame(ion::input::Keycode::S);
+
+		bool jump = gamepad.ButtonPressedThisFrame(ion::input::GamepadButtons::BUTTON_B)
+			|| keyboard.KeyPressedThisFrame(ion::input::Keycode::D);
+
+		bool cancelJump = gamepad.ButtonReleasedThisFrame(ion::input::GamepadButtons::BUTTON_B)
+			|| keyboard.KeyReleasedThisFrame(ion::input::Keycode::D);
+
 		if (m_player.m_controlEnabled)
 		{
-			//Update input
-			float moveSpeed = gamepad.GetLeftStick().x;
-
-			if (keyboard.KeyDown(ion::input::Keycode::LEFT))
-			{
-				moveSpeed = -1.0f;
-			}
-			else if (keyboard.KeyDown(ion::input::Keycode::RIGHT))
-			{
-				moveSpeed = 1.0f;
-			}
-
-			bool interact = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_X)
-				|| keyboard.KeyDown(ion::input::Keycode::A);
-
-			bool interactThisFrame = gamepad.ButtonPressedThisFrame(ion::input::GamepadButtons::BUTTON_X)
-				|| keyboard.KeyPressedThisFrame(ion::input::Keycode::A);
-
-			bool ability = gamepad.ButtonDown(ion::input::GamepadButtons::BUTTON_A)
-				|| keyboard.KeyDown(ion::input::Keycode::S);
-
-			bool abilityThisFrame = gamepad.ButtonPressedThisFrame(ion::input::GamepadButtons::BUTTON_A)
-				|| keyboard.KeyPressedThisFrame(ion::input::Keycode::S);
-
-			bool jump = gamepad.ButtonPressedThisFrame(ion::input::GamepadButtons::BUTTON_B)
-				|| keyboard.KeyPressedThisFrame(ion::input::Keycode::D);
-
-			bool cancelJump = gamepad.ButtonReleasedThisFrame(ion::input::GamepadButtons::BUTTON_B)
-				|| keyboard.KeyReleasedThisFrame(ion::input::Keycode::D);
-
-			m_player.Move(moveSpeed);
+			m_player.Move(m_moveSpeed);
 
 			if (jump)
 			{
@@ -124,4 +124,9 @@ void PlayerController::Update(float deltaTime, const ion::input::Keyboard& keybo
 ion::Vector2 PlayerController::GetCentre() const
 {
 	return m_player.GetWorldCentre();
+}
+
+float PlayerController::GetMoveSpeed() const
+{
+	return m_moveSpeed;
 }

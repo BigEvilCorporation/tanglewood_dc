@@ -184,6 +184,41 @@ int PhysicsWorld::FindFloor(const ion::Vector2i& position, int maxSearchLength, 
 	}
 }
 
+int PhysicsWorld::FindCeiling(const ion::Vector2i& position, int maxSearchLength) const
+{
+	//Position to starting tile
+	ion::Vector2i tilePos(position.x / Constants::MegaDrive::tileWidth, position.y / Constants::MegaDrive::tileHeight);
+
+	u32 flags = 0;
+
+	if (tilePos.x >= 0 && tilePos.x < m_collisionMap.GetWidth())
+	{
+		flags = m_collisionMap.GetCollisionTileFlags(tilePos.x, tilePos.y);
+		int lengthSearched = 0;
+
+		while ((flags & eCollisionTileFlagSolid) == 0 && lengthSearched < maxSearchLength)
+		{
+			tilePos.y--;
+
+			if (tilePos.y >= 0 && tilePos.y < m_collisionMap.GetHeight())
+			{
+				flags = m_collisionMap.GetCollisionTileFlags(tilePos.x, tilePos.y);
+			}
+
+			lengthSearched += Constants::MegaDrive::tileHeight;
+		}
+	}
+
+	if ((flags & eCollisionTileFlagSolid) != 0)
+	{
+		return tilePos.y * Constants::MegaDrive::tileHeight;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
 int PhysicsWorld::FindPlatform(const ion::Vector2i& position, int maxSearchLength) const
 {
 	for (int i = 0; i < m_platforms.size(); i++)
@@ -217,9 +252,10 @@ int PhysicsWorld::FindWall(const ion::Vector2i& position, int direction, int max
 
 		while ((flags & eCollisionTileFlagSolid) == 0 && lengthSearched < maxSearchLength)
 		{
+			tilePos.x += direction;
+
 			if (tilePos.x >= 0 && tilePos.x < m_collisionMap.GetWidth())
 			{
-				tilePos.x += direction;
 				flags = m_collisionMap.GetCollisionTileFlags(tilePos.x, tilePos.y);
 			}
 

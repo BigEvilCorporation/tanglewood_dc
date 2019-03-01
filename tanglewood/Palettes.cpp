@@ -4,6 +4,8 @@ namespace Assets
 {
 	namespace Palettes
 	{
+		Palette active[Constants::MegaDrive::maxPalettes];
+
 		namespace World
 		{
 			ion::render::Texture* shared = nullptr;
@@ -22,6 +24,20 @@ namespace Assets
 			Palette blue;
 			Palette yellow;
 			Palette white;
+		}
+
+		namespace Fuzzl
+		{
+			ion::render::Texture* shared = nullptr;
+
+			Palette fuzzl;
+		}
+
+		namespace Djakk
+		{
+			ion::render::Texture* shared = nullptr;
+
+			Palette djakk;
 		}
 	}
 }

@@ -12,11 +12,14 @@
 #include "tanglewood/Stone.h"
 #include "tanglewood/TriggerBox.h"
 #include "tanglewood/DeathBox.h"
+#include "tanglewood/Checkpoint.h"
+#include "tanglewood/Scirus.h"
 
 namespace ObjectFactory
 {
 	const std::vector<ObjectRegistryEntry> objectRegistry =
 	{
+		//                Name              SpriteActor     Class
 		{ REGISTER_OBJECT("Nest",			"",				Nest) },
 		{ REGISTER_OBJECT("Nymn",			"Nymn",			Player) },
 		{ REGISTER_OBJECT("Echo",			"Echo",			Player) },
@@ -30,5 +33,7 @@ namespace ObjectFactory
 		{ REGISTER_OBJECT("Stone",			"Stone",		Stone) },
 		{ REGISTER_OBJECT("TriggerBox",		"",				TriggerBox) },
 		{ REGISTER_OBJECT("Deathbox",		"",				DeathBox) },
+		{ REGISTER_OBJECT("Checkpoint",		"Checkpnt",		Checkpoint) },
+		{ REGISTER_OBJECT("Scirus",			"Scirus",		Scirus) },
 	};
 }

@@ -13,6 +13,8 @@
 #include "Globals.h"
 #include "Animations.h"
 #include "Palettes.h"
+
+#include "framework/Camera.h"
 #include "framework/World.h"
 
 #include "Flue.h"
@@ -21,6 +23,7 @@
 #include "Djakk.h"
 #include "TriggerBox.h"
 #include "DeathBox.h"
+#include "Firefly.h"
 
 const Palette* Player::s_colourPalettes[(int)ColourAbility::Count] =
 {
@@ -44,14 +47,13 @@ Player::Player(World& world, const GameObject& gameObject, const GameObjectType&
 	m_boundsBottomRight.y = m_boundsTopLeft.y + Constants::Player::boundsHeight;
 
 	m_minWallHeight = Constants::Player::minWallHeight;
+	m_ceilingProbeOffset.y = Constants::Player::ceilingProbeOffsetY;
 
 	//Initial colour
 	m_colour = ColourAbility::Red;
 
-	//Use shared player palette
-#if USE_PALETTE_TEXTURES
-	SetPaletteTexture(Assets::Palettes::Player::shared);
-#endif
+	//Use player palette
+	SetColourPalette(Constants::Palettes::palIndexPlayer);
 
 	m_activeInteraction = InteractionType::None;
 	m_activeAbility = nullptr;
@@ -105,7 +107,7 @@ void Player::Update(float deltaTime)
 	switch (m_activeInteraction)
 	{
 	case InteractionType::Push:
-		UpdatePushable();
+		UpdatePushable(deltaTime);
 		break;
 	}
 
@@ -133,6 +135,9 @@ void Player::Update(float deltaTime)
 		m_worldPos = m_currentMount->m_worldPos + m_mountSaddlePos;
 		m_flippedX = m_currentMount->m_flippedX;
 	}
+
+	//Query pickups
+	PickupTestFirefly();
 }
 
 void Player::Move(float speed)
@@ -193,7 +198,11 @@ void Player::UpdatePaletteLerp(float deltaTime)
 
 		Palette palette;
 		PaletteTools::BlendPalettes(m_sourcePalette, m_destPalette, palette, m_paletteLerpTimer);
+		Assets::Palettes::active[Constants::Palettes::palIndexPlayer] = palette;
+
+#if USE_PALETTE_TEXTURES
 		PaletteTools::WritePaletteTexture(palette, Assets::Palettes::Player::shared);
+#endif
 	}
 }
 
@@ -232,6 +241,7 @@ void Player::EndInteract()
 	m_currentPushable = nullptr;
 	m_pushingLight = false;
 	m_pushingHeavy = false;
+	m_lockFlipDirection = false;
 }
 
 void Player::BeginAbility(bool debounce)
@@ -309,11 +319,24 @@ bool Player::TryInteractPushable()
 	//Find intersecting pushable obj
 	for (int i = 0; i < pushableObjs.size() && !m_currentPushable; i++)
 	{
-		if (Intersects(*pushableObjs[i]))
+		if (pushableObjs[i]->m_canPush || pushableObjs[i]->m_canPull)
 		{
-			//TODO: Check facing right direction
+			if (Intersects(*pushableObjs[i]))
+			{
+				//If facing right direction
+				float playerCentre = GetWorldCentre().x;
+				float pushableCentre = pushableObjs[i]->GetWorldCentre().x;
 
-			m_currentPushable = pushableObjs[i];
+				if (pushableObjs[i]->m_canPull
+					|| (!m_flippedX && (pushableCentre > playerCentre))
+					|| (m_flippedX && (pushableCentre < playerCentre)))
+				{
+					m_currentPushable = pushableObjs[i];
+
+					//If object can be pulled, lock flipping
+					m_lockFlipDirection = m_currentPushable->m_canPull;
+				}
+			}
 		}
 	}
 
@@ -342,13 +365,18 @@ bool Player::TryInteractFuzzl()
 	return false;
 }
 
-void Player::UpdatePushable()
+void Player::UpdatePushable(float deltaTime)
 {
 	if (m_currentPushable)
 	{
-		//Check still intersects
-		//TODO: Check still facing right direction
-		if (!Intersects(*m_currentPushable))
+		//Check still intersects (use outer push bounds)
+		ion::Vector2 topLeft;
+		ion::Vector2 bottomRight;
+		m_currentPushable->GetWorldBounds(topLeft, bottomRight);
+		topLeft.x -= Constants::Player::pushBoundsOuter;
+		bottomRight.x += Constants::Player::pushBoundsOuter;
+
+		if (!Intersects(topLeft, bottomRight))
 		{
 			EndInteract();
 		}
@@ -357,8 +385,9 @@ void Player::UpdatePushable()
 			float playerCentre = GetWorldCentre().x;
 			float pushableCentre = m_currentPushable->GetWorldCentre().x;
 
-			//If facing right direction
-			if ((!m_flippedX && (pushableCentre > playerCentre))
+			//Check still facing right direction
+			if (m_currentPushable->m_canPull
+				|| (!m_flippedX && (pushableCentre > playerCentre))
 				|| (m_flippedX && (pushableCentre < playerCentre)))
 			{
 				//Get bounding boxes
@@ -370,18 +399,52 @@ void Player::UpdatePushable()
 				GetWorldBounds(playerTopLeft, playerBottomRight);
 				m_currentPushable->GetWorldBounds(pushableTopLeft, pushableBottomRight);
 
-				//Snap to edge
-				if (m_flippedX && (pushableBottomRight.x > playerTopLeft.x))
+				//Check not hitting wall
+				if (m_currentPushable->m_canPull
+					|| ((!m_flippedX || !m_currentPushable->CheckCollision((int)CollisionFlags::HitWallLeft))
+					&& (m_flippedX || !m_currentPushable->CheckCollision((int)CollisionFlags::HitWallRight))))
 				{
-					pushableBottomRight.x = playerTopLeft.x;
-				}
-				else if (!m_flippedX && (playerBottomRight.x > pushableTopLeft.x))
-				{
-					pushableTopLeft.x = playerBottomRight.x;
-				}
+					//Snap to edge
+					if (m_flippedX && (m_currentPushable->m_canPull || (pushableBottomRight.x > playerTopLeft.x)))
+					{
+						m_currentPushable->AddImpulse(ion::Vector2((playerTopLeft.x - pushableBottomRight.x) / deltaTime, 0.0f));
+					}
+					else if (!m_flippedX && (m_currentPushable->m_canPull || (pushableTopLeft.x < playerBottomRight.x)))
+					{
+						m_currentPushable->AddImpulse(ion::Vector2((playerBottomRight.x - pushableTopLeft.x) / deltaTime, 0.0f));
+					}
 
-				//Match velocity
-				m_currentPushable->m_velocity.x = m_velocity.x;
+					//Match velocity
+					m_currentPushable->m_velocity.x = m_velocity.x;
+
+					//Scale anim speed based on velocity
+					if (SpriteAnimation* anim = GetCurrentAnimation())
+					{
+						float speedScale = m_pushingHeavy ? Constants::Player::pushAnimSpeedScaleHeavy : Constants::Player::pushAnimSpeedScaleLight;
+						anim->SetPlaybackSpeed(ion::maths::Abs(m_velocity.x) * speedScale);
+					}
+				}
+			}
+			else
+			{
+				//Not facing right direction
+				EndInteract();
+			}
+		}
+	}
+}
+
+void Player::PickupTestFirefly()
+{
+	const std::vector<Firefly*>& fireflies = m_world.GetEntities<Firefly>();
+
+	for (int i = 0; i < fireflies.size(); i++)
+	{
+		if (fireflies[i]->m_active)
+		{
+			if (Intersects(*fireflies[i]))
+			{
+				fireflies[i]->Pickup();
 			}
 		}
 	}
@@ -511,6 +574,9 @@ void Player::AbilityBeastTame::OnUpdateState(float deltaTime)
 		//Waiting for mount anim to finish
 		if (!m_player.GetCurrentAnimation() || m_player.GetCurrentAnimation()->GetState() == ion::render::Animation::eStopped)
 		{
+			//Lerp camera up to player
+			Globals::Game::camera->BeginLerp(&m_player, Constants::Effects::Camera::defaultLerpSpeed);
+
 			//Forward all controls to pet
 			m_player.m_currentMount = m_beast;
 			m_player.m_mountSaddlePos = Constants::Djakk::saddleOffset;

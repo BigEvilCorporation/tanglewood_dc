@@ -23,8 +23,11 @@ public:
 
 	Player& GetPlayer() const { return m_player; }
 
+	float GetMoveSpeed() const;
+
 	bool m_debugMove;
 
 private:
     Player& m_player;
+	float m_moveSpeed;
 };

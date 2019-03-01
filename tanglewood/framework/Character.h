@@ -56,6 +56,7 @@ public:
 
 	bool m_controlEnabled;
 	bool m_manualAnimation;
+	bool m_lockFlipDirection;
 
 	float m_walktoRunVelocity;
 	float m_maxVelocityXWalking;

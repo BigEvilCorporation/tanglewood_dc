@@ -45,6 +45,8 @@ public:
 
 	void GoToSleep();
 
+	void PickupTestFirefly();
+
 	ColourAbility m_colour;
 
 private:
@@ -130,7 +132,7 @@ private:
 	bool TryInteractPushable();
 	bool TryInteractFuzzl();
 
-	void UpdatePushable();
+	void UpdatePushable(float deltaTime);
 
 	InteractionType m_activeInteraction;
 

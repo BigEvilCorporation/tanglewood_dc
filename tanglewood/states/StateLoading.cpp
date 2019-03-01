@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////
 
 #include "StateLoading.h"
+#include "Constants.h"
 #include "Globals.h"
 #include "Palettes.h"
 #include "Animations.h"
@@ -146,11 +147,13 @@ bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::
 			if (!m_fader.IsFading())
 			{
 				//Done with loading thread
+#if THREADED_LOADING
 				if (m_loadingThread)
 				{
 					delete m_loadingThread;
 					m_loadingThread = nullptr;
 				}
+#endif
 
 				//Done with loading world
 
@@ -171,7 +174,7 @@ bool StateLoading::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::
 	return true;
 }
 
-void StateLoading::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
+void StateLoading::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
 	//Render loading sprite
 	if (m_loadingSprite)
@@ -222,10 +225,6 @@ void StateLoading::LoadingThread::Entry()
 		ion::debug::Log("Loading gameobj types");
 		Globals::Game::world->LoadGameObjectTypes("assets/gameobjtypes.bee");
 
-		//Load sprite data from Beehive project file
-		ion::debug::Log("Loading sprites");
-		Globals::Game::world->LoadSprites("assets/sprites.bee_sprites");
-
 		//Load global palettes
 		ion::debug::Log("Loading palettes");
 		LoadGlobalPalettes();
@@ -242,11 +241,20 @@ void StateLoading::LoadingThread::Entry()
 		Globals::Game::world->LoadActData(levelDesc);
 	}
 
+	//Load sprite data
+	ion::debug::Log("Loading sprites");
+	Globals::Game::world->LoadSprites();
+
 	//Create game objects
 	ion::debug::Log("Creating game objects");
 	Globals::Game::world->CreateGameObjects();
 
+	//Pre-stream map
+	ion::debug::Log("Pre-streaming map");
+	Globals::Game::world->PreStreamMap();
+
 	//Done
+	ion::debug::Log("Loading complete");
 	m_running = false;
 }
 
@@ -254,31 +262,75 @@ void StateLoading::LoadingThread::LoadGlobalPalettes()
 {
 	if (!Assets::Palettes::Player::shared)
 	{
-		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_red"))
+		if (Globals::Game::world->LoadSprite("nymn_pal_red"))
 		{
-			Assets::Palettes::Player::red = *actor->GetMasterPalette();
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_red"))
+			{
+				Assets::Palettes::Player::red = *actor->GetMasterPalette();
+			}
 		}
 
-		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_green"))
+		if (Globals::Game::world->LoadSprite("nymn_pal_green"))
 		{
-			Assets::Palettes::Player::green = *actor->GetMasterPalette();
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_green"))
+			{
+				Assets::Palettes::Player::green = *actor->GetMasterPalette();
+			}
 		}
 
-		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_blue"))
+		if (Globals::Game::world->LoadSprite("nymn_pal_blue"))
 		{
-			Assets::Palettes::Player::blue = *actor->GetMasterPalette();
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_blue"))
+			{
+				Assets::Palettes::Player::blue = *actor->GetMasterPalette();
+			}
 		}
 
-		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_yellow"))
+		if (Globals::Game::world->LoadSprite("nymn_pal_yellow"))
 		{
-			Assets::Palettes::Player::yellow = *actor->GetMasterPalette();
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_yellow"))
+			{
+				Assets::Palettes::Player::yellow = *actor->GetMasterPalette();
+			}
 		}
 
-		if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_white"))
+		if (Globals::Game::world->LoadSprite("nymn_pal_white"))
 		{
-			Assets::Palettes::Player::white = *actor->GetMasterPalette();
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_white"))
+			{
+				Assets::Palettes::Player::white = *actor->GetMasterPalette();
+			}
 		}
 
+		if (Globals::Game::world->LoadSprite("nymn_pal_white"))
+		{
+			if (const Actor* actor = Globals::Game::world->FindActor("nymn_pal_white"))
+			{
+				Assets::Palettes::Player::white = *actor->GetMasterPalette();
+			}
+		}
+
+		if (Globals::Game::world->LoadSprite("fuzzl"))
+		{
+			if (const Actor* actor = Globals::Game::world->FindActor("fuzzl"))
+			{
+				Assets::Palettes::Fuzzl::fuzzl = *actor->GetMasterPalette();
+			}
+		}
+
+		if (Globals::Game::world->LoadSprite("djakk"))
+		{
+			if (const Actor* actor = Globals::Game::world->FindActor("djakk"))
+			{
+				Assets::Palettes::Djakk::djakk = *actor->GetMasterPalette();
+			}
+		}
+
+#if USE_PALETTE_TEXTURES
+		ion::debug::Log("Creating shared palette textures");
 		Assets::Palettes::Player::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::Player::red);
+		Assets::Palettes::Fuzzl::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::Fuzzl::fuzzl);
+		Assets::Palettes::Djakk::shared = PaletteTools::CreatePaletteTexture(Assets::Palettes::Djakk::djakk);
+#endif
 	}
 }

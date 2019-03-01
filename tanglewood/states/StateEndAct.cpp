@@ -12,8 +12,9 @@
 #include "StateLoading.h"
 
 #include "Globals.h"
-
 #include "LevelSystem.h"
+
+#include "tanglewood/Player.h"
 
 StateEndAct::StateEndAct(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
 	: ion::gamekit::State("endact", stateManager, resourceManager)
@@ -28,7 +29,14 @@ StateEndAct::~StateEndAct()
 
 void StateEndAct::OnEnterState()
 {
+	//Take player X velocity
+	Globals::Flow::levelTransitionVelX = Globals::Players::player1->m_velocity.x;
 
+	//Disable input
+	Globals::Players::player1->m_controlEnabled = false;
+
+	//Begin fade out
+	Globals::Game::world->BeginFade(-Constants::Flow::defaultFadeSpeed);
 }
 
 void StateEndAct::OnLeaveState()
@@ -48,18 +56,24 @@ void StateEndAct::OnResumeState()
 
 bool StateEndAct::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
-	//TODO: Fade out
+	//Update world
+	Globals::Game::world->Update(deltaTime, *keyboard, *gamepad);
 
-	//Next level
-	LevelSystem::AdvanceLevel();
+	//Wait until fade finished
+	if (!Globals::Game::world->IsFading())
+	{
+		//Next level
+		LevelSystem::AdvanceLevel();
 
-	//Load it
-	m_stateManager.SwapState("loading");
+		//Load next
+		m_stateManager.SwapState("loading");
+	}
 
 	return false;
 }
 
-void StateEndAct::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
+void StateEndAct::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
-
+	//Render world
+	Globals::Game::world->Render(renderer, camera, viewport);
 }

@@ -16,23 +16,21 @@
 
 namespace ObjectFactory
 {
-	Actor* FindActor(TActorMap& actors, const std::string& actorName)
+	Actor* FindActor(std::map<std::string, Actor>& actors, const std::string& actorName)
 	{
 		//Find actor in sprite data
 		Actor* actor = nullptr;
 
-		for (TActorMap::iterator it = actors.begin(), end = actors.end(); it != end && !actor; ++it)
+		std::map<std::string, Actor>::iterator it = actors.find(ion::string::ToLower(actorName));
+		if (it != actors.end())
 		{
-			if (ion::string::CompareNoCase(it->second.GetName(), actorName))
-			{
-				actor = &it->second;
-			}
+			actor = &it->second;
 		}
 
 		return actor;
 	}
 
-	Entity* Create(World& world, TActorMap& actors, const GameObject& gameObject, const GameObjectType& gameObjType)
+	Entity* Create(World& world, std::map<std::string, Actor>& actors, const GameObject& gameObject, const GameObjectType& gameObjType)
 	{
 		Entity* entity = NULL;
 		

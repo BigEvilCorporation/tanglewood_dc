@@ -18,9 +18,9 @@ namespace PaletteTools
 			}
 		}
 
-		ion::render::Texture* texture = ion::render::Texture::Create(Palette::coloursPerPalette, 1, ion::render::Texture::eRGBA, ion::render::Texture::eRGBA, ion::render::Texture::eBPP24, false, false, paletteData);
-		texture->SetMinifyFilter(ion::render::Texture::eFilterNearest);
-		texture->SetMagnifyFilter(ion::render::Texture::eFilterNearest);
+		ion::render::Texture* texture = ion::render::Texture::Create(Palette::coloursPerPalette, 1, ion::render::Texture::Format::RGBA, ion::render::Texture::Format::RGBA, ion::render::Texture::BitsPerPixel::BPP24, false, false, paletteData);
+		texture->SetMinifyFilter(ion::render::Texture::Filter::Nearest);
+		texture->SetMagnifyFilter(ion::render::Texture::Filter::Nearest);
 
 		return texture;
 	}
@@ -41,7 +41,7 @@ namespace PaletteTools
 			}
 		}
 
-		texture->SetPixels(ion::render::Texture::eRGBA, false, paletteData);
+		texture->SetPixels(ion::render::Texture::Format::RGBA, false, paletteData);
 	}
 
 	void BlendPalettes(const Palette& paletteA, const Palette& paletteB, Palette& paletteOut, float blend)

@@ -30,16 +30,23 @@ L1A2::~L1A2()
 	TriggerBox::UnregisterTriggerFunc("L1A2_Trigger_Night");
 	TriggerBox::UnregisterTriggerFunc("L1A2_Trigger_Djakk");
 	TriggerBox::UnregisterTriggerFunc("L1A2_Trigger_End");
+
+	delete m_cutsceneDjakkReveal;
 }
 
 void L1A2::Start()
 {
-
+	m_cutsceneDjakkReveal = new Cutscenes::DjakkReveal(*Globals::Players::player1, *Globals::Game::world->FindEntity<Djakk>("djakk"));
 }
 
-void L1A2::Update(float deltaTime)
+void L1A2::Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad)
 {
+	m_cutsceneDjakkReveal->Update(deltaTime);
+}
 
+void L1A2::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
+{
+	m_cutsceneDjakkReveal->Render(renderer, camera, viewport);
 }
 
 void L1A2::End()
@@ -59,21 +66,7 @@ void L1A2::OnTriggerNight(const TriggerBox& triggerBox)
 
 void L1A2::OnTriggerDjakk(const TriggerBox& triggerBox)
 {
-	std::vector<Djakk*> djakks = Globals::Game::world->GetEntities<Djakk>();
-	
-	Djakk* djakk = nullptr;
-
-	for (int i = 0; i < djakks.size() && !djakk; i++)
-	{
-		if (ion::string::CompareNoCase(djakks[i]->m_name, "djakk"))
-		{
-			djakk = djakks[i];
-		}
-	}
-
-	ion::debug::Assert(djakk, "L1A2::OnTriggerDjakk() - Djakk not found");
-
-	djakk->BeginChase(true);
+	m_cutsceneDjakkReveal->Play();
 }
 
 void L1A2::OnTriggerEndLevel(const TriggerBox& triggerBox)

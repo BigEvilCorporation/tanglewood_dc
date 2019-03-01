@@ -10,6 +10,14 @@
 
 #pragma once
 
+#include <ion/renderer/Renderer.h>
+#include <ion/renderer/Camera.h>
+#include <ion/renderer/Viewport.h>
+
+#include <ion/input/Keyboard.h>
+#include <ion/input/Mouse.h>
+#include <ion/input/Gamepad.h>
+
 #include <string>
 #include <functional>
 
@@ -25,8 +33,8 @@ struct LevelDescriptor
 	std::string collisionTilesName;
 	std::string collisionMapName;
 	std::string gameObjectsName;
-	std::string stampMapFgName;
-	std::string stampMapBgName;
+	std::string tileMapFgName;
+	std::string tileMapBgName;
 	LevelFactory levelfactory;
 };
 
@@ -44,7 +52,8 @@ public:
 	virtual ~Level() {}
 
 	virtual void Start() = 0;
-	virtual void Update(float deltaTime) = 0;
+	virtual void Update(float deltaTime, ion::input::Keyboard* keyboard, ion::input::Mouse* mouse, ion::input::Gamepad* gamepad) = 0;
+	virtual void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport) = 0;
 	virtual void End() = 0;
 
 	State GetState() const { return m_state; }

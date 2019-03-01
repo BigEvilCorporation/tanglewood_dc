@@ -19,6 +19,12 @@
 class PhysicsObj;
 class Project;
 
+enum class CollisionFlags
+{
+	HitWallLeft		= (1<<0),
+	HitWallRight	= (1<<1)
+};
+
 class PhysicsWorld
 {
 public:
@@ -53,6 +59,7 @@ public:
 
 	//Collision queries
 	int FindFloor(const ion::Vector2i& position, int maxSearchLength, u16& tileFlags) const;
+	int FindCeiling(const ion::Vector2i& position, int maxSearchLength) const;
 	int FindPlatform(const ion::Vector2i& position, int maxSearchLength) const;
 	int FindWall(const ion::Vector2i& position, int direction, int maxSearchLength) const;
 	int FindBarrier(const ion::Vector2i& position, int direction, int maxSearchLength, int minBarrierHeight) const;

@@ -40,8 +40,10 @@ bool Tanglewood::Initialise()
 #endif
 
 	//Create resource manager
+#if !defined ION_PLATFORM_DREAMCAST
 	m_resourceManager = new ion::io::ResourceManager();
 	m_resourceManager->SetResourceDirectory<ion::render::Shader>("assets/shaders", ".ion.shader");
+#endif
 
 	Globals::Rendering::windowWidth = s_defaultWindowWidth;
 	Globals::Rendering::windowHeight = s_defaultWindowHeight;
@@ -51,10 +53,11 @@ bool Tanglewood::Initialise()
 	//Create window/renderer/camera/viewport
 	m_window = ion::render::Window::Create("Tanglewood", s_defaultWindowWidth, s_defaultWindowHeight, false);
 	m_renderer = ion::render::Renderer::Create(m_window->GetDeviceContext());
-	m_camera = new ion::render::Camera();
 	m_viewport = new ion::render::Viewport(s_defaultWindowWidth, s_defaultWindowHeight, ion::render::Viewport::eOrtho2DAbsolute);
+	m_camera = new GameCamera();
 
 	//Begin loading global resources
+	ion::debug::Log("Loading global resources");
 	LoadGlobalResources();
 
 	//Clear screen
@@ -66,26 +69,36 @@ bool Tanglewood::Initialise()
 	m_renderer->EndFrame();
 
 	//Create input devices
+	ion::debug::Log("Init input devices");
 	m_keyboard = new ion::input::Keyboard();
 	m_gamepad = new ion::input::Gamepad();
 
 	//Create state manager
+	ion::debug::Log("Init state manager");
 	m_stateManager = new ion::gamekit::StateManager();
 
 	//Create GUI
+#if !defined ION_PLATFORM_DREAMCAST
+	//TODO: KGL not happy about some of the OpenGL calls in here
+	ion::debug::Log("Init GUI");
 	m_gui = new ion::gui::GUI(ion::Vector2i(s_defaultWindowWidth, s_defaultWindowHeight));
 	m_debugUI = new DebugUI(*m_gui, ion::Vector2i(), ion::Vector2i());
 	//m_gui->AddWindow(*m_debugUI);
+#endif
 
 	//Wait for resource loading
+#if !defined ION_PLATFORM_DREAMCAST
 	while (m_resourceManager->GetNumResourcesWaiting())
 	{
 		ion::thread::Sleep(5);
 	}
+#endif
 
+	ion::debug::Log("Post-loading global resources");
 	PostLoadGlobalResources();
 
 	//Begin gameplay
+	ion::debug::Log("Beginning gameplay state");
 	BeginGameplay();
 
 	return true;
@@ -149,7 +162,10 @@ bool Tanglewood::Update(float deltaTime)
 	m_stateManager->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
 
 	//Update UI
+#if !defined ION_PLATFORM_DREAMCAST
+	//TODO: KGL not happy about some of the OpenGL calls in here
 	m_gui->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
+#endif
 
 	//Update FPS counter
 	m_fpsCounter.Update();
@@ -171,10 +187,8 @@ void Tanglewood::Render()
 	m_renderer->SetAlphaBlending(ion::render::Renderer::eTranslucent);
 	m_renderer->SetFaceCulling(ion::render::Renderer::eNoCull);
 
-	ion::Matrix4 cameraInv = m_camera->GetTransform().GetInverse();
-
 	//Render gamestate
-	m_stateManager->Render(*m_renderer, *m_camera, *m_viewport);
+	m_stateManager->Render(*m_renderer, m_camera->GetRenderCamera(), *m_viewport);
 
 	//Render UI
 #if !defined ION_PLATFORM_DREAMCAST
@@ -225,6 +239,7 @@ void Tanglewood::BeginGameplay()
 	Globals::Game::camera = m_camera;
 
 	//Create game states
+	ion::debug::Log("Create all states");
 	new StateFail(*m_stateManager, *m_resourceManager);
 	new StateEndAct(*m_stateManager, *m_resourceManager);
 	new StateEndChapter(*m_stateManager, *m_resourceManager);
@@ -232,6 +247,7 @@ void Tanglewood::BeginGameplay()
 	new StateLoading(*m_stateManager, *m_resourceManager);
 
 	//Begin loading state
+	ion::debug::Log("Beginning loading state");
 	m_stateManager->PushState("loading");
 }
 

@@ -42,12 +42,21 @@ local SRC =
 	Tanglewood.cpp
 	Tanglewood.h
 
+	cutscenes/Common.h
+	cutscenes/DjakkReveal.h
+
 	effects/Fader.cpp
 	effects/Fader.h
+	effects/Letterbox.cpp
+	effects/Letterbox.h
 
 	framework/Barrier.h
+	framework/Camera.cpp
+	framework/Camera.h
 	framework/Character.cpp
 	framework/Character.h
+	framework/Cutscene.cpp
+	framework/Cutscene.h
 	framework/Entity.cpp
 	framework/Entity.h
 	framework/Level.cpp
@@ -63,10 +72,10 @@ local SRC =
 	framework/PhysicsObj.h
 	framework/Plane.cpp
 	framework/Plane.h
+	framework/Sprite.cpp
+	framework/Sprite.h
 	framework/SpriteObj.cpp
 	framework/SpriteObj.h
-	framework/Stamp.cpp
-	framework/Stamp.h
 	framework/State.cpp
 	framework/State.h
 	framework/Types.h
@@ -75,6 +84,8 @@ local SRC =
 
 	tanglewood/Boulder.cpp
 	tanglewood/Boulder.h
+	tanglewood/Checkpoint.cpp
+	tanglewood/Checkpoint.h
 	tanglewood/DeathBox.cpp
 	tanglewood/DeathBox.h
 	tanglewood/Djakk.cpp
@@ -97,6 +108,8 @@ local SRC =
 	tanglewood/Player.h
 	tanglewood/PlayerController.cpp
 	tanglewood/PlayerController.h
+	tanglewood/Scirus.cpp
+	tanglewood/Scirus.h
 	tanglewood/Stone.cpp
 	tanglewood/Stone.h
 	tanglewood/TriggerBox.cpp

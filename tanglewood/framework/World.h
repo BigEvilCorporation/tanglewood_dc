@@ -18,15 +18,13 @@
 #include <ion/core/utils/STL.h>
 #include <ion/core/string/String.h>
 
-#include "Stamp.h"
+#include "Entity.h"
 #include "Plane.h"
 #include "Physics.h"
 #include "Level.h"
+#include "Sprite.h"
 
 #include "effects/Fader.h"
-
-//TODO: Doesn't belong in framework
-#include "tanglewood/PlayerController.h"
 
 #include <vector>
 #include <map>
@@ -38,7 +36,6 @@ public:
 	~World();
 
 	//Load global data
-	bool LoadSprites(const std::string& name);
 	bool LoadGameObjectTypes(const std::string& name);
 
 	//Load per-chapter data
@@ -46,6 +43,8 @@ public:
 
 	//Load per-act data
 	bool LoadActData(const LevelDescriptor& level);
+	bool LoadSprites();
+	bool LoadSprite(const std::string& filename);
 
 	//Create game objects
 	bool CreateGameObjects();
@@ -58,10 +57,13 @@ public:
 
 	//Update/render
 	void Update(float deltaTime, const ion::input::Keyboard& keyboard, const ion::input::Gamepad& gamepad);
-	void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport, const ion::Matrix4& cameraInv);
+	void Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport);
 
 	//Set camera position, correcting for viewport size
 	void SetCameraPosition(const ion::Vector2& position);
+
+	//Pre-stream map
+	void PreStreamMap();
 
 	//Entity map
 	template <typename T> void AddEntity(T& entity);
@@ -74,12 +76,12 @@ public:
 	//Find sprite actor
 	const Actor* FindActor(const std::string& name) const;
 
+	//Find sprite
+	const Sprite* FindSprite(const std::string& name) const;
+	Sprite* FindSprite(const std::string& name);
+
 	//Physics world
 	PhysicsWorld& GetPhysicsWorld() { return *m_physicsWorld; }
-
-	//Player(s)
-	//TODO: Doesn't belong in framework
-	PlayerController* GetPlayerController() const { return m_playerController; }
 
 	//Effects
 	void ResetFader();
@@ -98,33 +100,28 @@ private:
 
 	ion::Vector2 m_mapSizeFg;
 	ion::Vector2 m_mapSizeBg;
-	ion::Vector2 m_cameraPos;
+	ion::Vector2 m_scrollFg;
 
 	//TODO: Move to global assets
-	std::map<ActorId, Actor> m_actors;
+	std::map<std::string, Actor> m_actors;
+	std::map<std::string, Sprite*> m_sprites;
 
 	TGameObjectTypeMap m_gameObjectTypes;
 
 	//Current tileset
 	Tileset m_tileset;
 
-	//Current stamp set
-	TStampMap m_stamps;
-
-	//Current stamp maps
+	//Current maps
 	ion::Vector2i m_mapSizeTilesFg;
 	ion::Vector2i m_mapSizeTilesBg;
-	TStampPosMap m_stampMapFg;
-	TStampPosMap m_stampMapBg;
+	std::vector<Map::TileDesc> m_tileMapFg;
+	std::vector<Map::TileDesc> m_tileMapBg;
 
 	//Current palettes
 	std::vector<Palette> m_palettes;
 
 	//Curent game objects
 	TGameObjectPosMap m_gameObjects;
-
-	//Current stamp set
-	StampSet* m_stampSet;
 
 	//Current planes
 	Plane* m_planeFg;
@@ -139,10 +136,6 @@ private:
     //Entities
     std::vector<Entity*> m_entities;
 	std::map<std::string, std::vector<Entity*>> m_entitiesByType;
-    
-    //Player controller
-	//TODO: Doesn't belong in framework
-    PlayerController* m_playerController;
 
 	//Effects
 	Fader m_fader;

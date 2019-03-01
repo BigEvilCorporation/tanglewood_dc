@@ -11,6 +11,7 @@
 #include "StateGameplay.h"
 
 #include "Globals.h"
+#include "tanglewood/Player.h"
 
 StateGameplay::StateGameplay(ion::gamekit::StateManager& stateManager, ion::io::ResourceManager& resourceManager)
 	: ion::gamekit::State("gameplay", stateManager, resourceManager)
@@ -30,6 +31,10 @@ void StateGameplay::OnEnterState()
 
 	//Begin fade up
 	Globals::Game::world->BeginFade(Constants::Flow::defaultFadeSpeed);
+
+	//Restore player X velocity
+	Globals::Players::player1->m_velocity.x = Globals::Flow::levelTransitionVelX;
+	Globals::Flow::levelTransitionVelX = 0.0f;
 }
 
 void StateGameplay::OnLeaveState()
@@ -53,7 +58,7 @@ bool StateGameplay::Update(float deltaTime, ion::input::Keyboard* keyboard, ion:
 	Globals::Game::world->Update(deltaTime, *keyboard, *gamepad);
 
 	//Update level logic
-	Globals::Game::level->Update(deltaTime);
+	Globals::Game::level->Update(deltaTime, keyboard, mouse, gamepad);
 
 	//Check level ended
 	if (!Globals::Game::level->IsRunning())
@@ -83,8 +88,11 @@ bool StateGameplay::Update(float deltaTime, ion::input::Keyboard* keyboard, ion:
 	return true;
 }
 
-void StateGameplay::Render(ion::render::Renderer& renderer, ion::render::Camera& camera, ion::render::Viewport& viewport)
+void StateGameplay::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, ion::render::Viewport& viewport)
 {
 	//Render world
-	Globals::Game::world->Render(renderer, camera, viewport, camera.GetTransform().GetInverse());
+	Globals::Game::world->Render(renderer, camera, viewport);
+
+	//Render level
+	Globals::Game::level->Render(renderer, camera, viewport);
 }
