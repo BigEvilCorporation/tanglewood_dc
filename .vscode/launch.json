@@ -15,7 +15,6 @@
             "environment": [],
             "externalConsole": true,
             "MIMode": "gdb",
-            "miDebuggerServerAddress": "localhost:24690",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -24,6 +23,11 @@
                 }],
             "windows": {
                 "miDebuggerPath": "C:/msys32/opt/toolchains/dc/sh-elf/bin/sh-elf-gdb.exe",
+                "miDebuggerServerAddress": "localhost:24690",
+            },
+            "linux": {
+                "miDebuggerPath": "/opt/toolchains/dc/sh-elf/bin/sh-elf-gdb",
+                "miDebuggerServerAddress": "localhost:2159",
             }
         },
         {
@@ -46,6 +50,11 @@
                 }],
             "windows": {
                 "miDebuggerPath": "C:/msys32/opt/toolchains/dc/sh-elf/bin/sh-elf-gdb.exe",
+                "miDebuggerServerAddress": "localhost:24690",
+            },
+            "linux": {
+                "miDebuggerPath": "/opt/toolchains/dc/sh-elf/bin/sh-elf-gdb",
+                "miDebuggerServerAddress": "localhost:2159",
             }
         }
     ]

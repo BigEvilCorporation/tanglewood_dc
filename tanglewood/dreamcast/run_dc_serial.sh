@@ -1,0 +1,1 @@
+sudo /opt/toolchains/dc/bin/dc-tool-ser -q -g -b 115200 -e -i temp/data.iso -x temp/boot.bin
