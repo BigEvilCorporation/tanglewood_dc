@@ -239,7 +239,7 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 	m_tilesetSizeSq = ion::maths::Max(1, (int)ion::maths::Ceil(ion::maths::Sqrt((float)numTiles)));
 	m_textureSizeSq = ion::maths::NextPowerOfTwo(m_tilesetSizeSq * tileWidthBordered);
 
-#if USE_PALETTE_TEXTURES
+#if USE_PALETTES
 	u32 bytesPerPixel = 1;
 #else
 	u32 bytesPerPixel = 3;
@@ -282,7 +282,7 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 					u32 dataOffset = pixelIdx * bytesPerPixel;
 					ion::debug::Assert(dataOffset + bytesPerPixel <= textureBytes, "eOut of bounds");
 
-#if USE_PALETTE_TEXTURES
+#if USE_PALETTES
 					data[dataOffset] = colourIdx;
 #else
 					const Colour& colour = palette.GetColour(colourIdx);
@@ -295,13 +295,13 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 		}
 	}
 
-#if USE_PALETTE_TEXTURES
+#if USE_PALETTES
 #if defined ION_RENDERER_SHADER
-	//Palette textures using shaders
+	//Palettes using shaders
 	ion::render::Texture::Format format = ion::render::Texture::Format::R;
 	ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP8;
 #else
-	//Palette textures using fixed function
+	//Palettes using fixed function
 	ion::render::Texture::Format format = ion::render::Texture::Format::RGBA_Indexed;
 	ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP8;
 #endif
@@ -319,7 +319,7 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 	//Set default palette index
 	m_tilesetTexture->SetColourPalette(Constants::Palettes::palIndexWorld);
 
-	delete data;
+	delete [] data;
 
 	//Create material
 	m_material = new ion::render::Material();
@@ -327,7 +327,7 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 	m_material->SetDiffuseColour(ion::Colour(1.0f, 1.0f, 1.0f));
 
 #if defined ION_RENDERER_SHADER
-#if USE_PALETTE_TEXTURES
+#if USE_PALETTES
 	m_material->SetVertexShader(Assets::Shaders::IndexTexture::vertexShader.Get());
 	m_material->SetPixelShader(Assets::Shaders::IndexTexture::pixelShader.Get());
 #else

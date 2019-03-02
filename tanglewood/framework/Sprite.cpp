@@ -158,7 +158,7 @@ void Sprite::PaintSheet(const SpriteSheet& spriteSheet, const Palette& palette)
 		//Get render frame
 		Sheet::Frame& renderFrame = sheet.m_frames[i];
 
-#if USE_PALETTE_TEXTURES
+#if USE_PALETTES
 		u32 bytesPerPixel = 1;
 #else
 		u32 bytesPerPixel = 4;
@@ -197,7 +197,7 @@ void Sprite::PaintSheet(const SpriteSheet& spriteSheet, const Palette& palette)
 						u32 dataOffset = pixelIdx * bytesPerPixel;
 						ion::debug::Assert(dataOffset + bytesPerPixel <= textureSize, "eOut of bounds");
 
-#if USE_PALETTE_TEXTURES
+#if USE_PALETTES
 						data[dataOffset] = colourIdx;
 #else
 						const Colour& colour = palette.GetColour(colourIdx);
@@ -211,13 +211,13 @@ void Sprite::PaintSheet(const SpriteSheet& spriteSheet, const Palette& palette)
 			}
 		}
 
-#if USE_PALETTE_TEXTURES
+#if USE_PALETTES
 #if defined ION_RENDERER_SHADER
-		//Palette textures using shaders
+		//Palettes using shaders
 		ion::render::Texture::Format format = ion::render::Texture::Format::R;
 		ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP8;
 #else
-		//Palette textures using fixed function
+		//Palettes using fixed function
 		ion::render::Texture::Format format = ion::render::Texture::Format::RGBA_Indexed;
 		ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP8;
 #endif

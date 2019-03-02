@@ -12,6 +12,7 @@
 #include "Constants.h"
 #include "Globals.h"
 #include "World.h"
+#include "Log.h"
 
 #if defined ION_RENDERER_SHADER
 #include "Shaders.h"
@@ -226,12 +227,15 @@ void SpriteObj::Render(ion::render::Renderer& renderer, const ion::render::Camer
 #endif
 
 			//Bind material
+			DBG_LOG_LV3("SpriteObj::Render() - " << m_name << " - m_currentSheet->m_frames[spriteFrame].material->Bind");
 			m_currentSheet->m_frames[spriteFrame].material->Bind(transform, cameraInv, renderer.GetProjectionMatrix());
 
 			//Draw vertex buffer
+			DBG_LOG_LV3("SpriteObj::Render() - " << m_name << " - renderer.DrawVertexBuffer");
 			renderer.DrawVertexBuffer(m_currentSheet->m_primitive->GetVertexBuffer(), m_currentSheet->m_primitive->GetIndexBuffer());
 
 			//Unbind material
+			DBG_LOG_LV3("SpriteObj::Render() - " << m_name << " - m_currentSheet->m_frames[spriteFrame].material->Unbind");
 			m_currentSheet->m_frames[spriteFrame].material->Unbind();
 		}
 	}
