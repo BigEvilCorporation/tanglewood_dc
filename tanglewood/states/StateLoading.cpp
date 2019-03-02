@@ -226,8 +226,10 @@ void StateLoading::LoadingThread::Entry()
 		Globals::Game::world->LoadGameObjectTypes("assets/gameobjtypes.bee");
 
 		//Load global palettes
+		#if USE_PALETTES
 		ion::debug::Log("Loading palettes");
 		LoadGlobalPalettes();
+		#endif
 
 		////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////

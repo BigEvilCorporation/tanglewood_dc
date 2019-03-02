@@ -175,7 +175,10 @@ template <typename T> void World::RemoveEntity(T& entity)
 template <typename T> const std::vector<T*>& World::GetEntities() const
 {
 	std::map<std::string, std::vector<Entity*>>::const_iterator it = m_entitiesByType.find(typeid(T).name());
-	ion::debug::Assert(it != m_entitiesByType.end(), "World::GetEntities<T>() - Invalid type");
+	if (it == m_entitiesByType.end())
+	{
+		ion::debug::error << "World::GetEntities<T>() - Invalid type: " << typeid(T).name() << ion::debug::end;
+	}
 	return (std::vector<T*>&)it->second;
 }
 

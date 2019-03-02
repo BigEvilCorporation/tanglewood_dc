@@ -16,6 +16,7 @@
 #include "Shaders.h"
 #include "Camera.h"
 #include "ObjectFactory.h"
+#include "Log.h"
 
 #include <ion/core/debug/Debug.h>
 #include <ion/core/string/String.h>
@@ -193,6 +194,7 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 		ion::debug::log << "Failed to load " << level.tilesetName << ion::debug::end;
 	}
 
+	#if USE_PALETTES
 	//Load palettes
 	ion::debug::log << "Loading " << level.palettesName << ion::debug::end;
 	ion::io::File palettesFile(level.palettesName, ion::io::File::eOpenRead);
@@ -207,12 +209,13 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 	{
 		ion::debug::log << "Failed to load " << level.palettesName << ion::debug::end;
 	}
+	#endif
 
 	//Load collision tileset
 	ion::debug::log << "Loading " << level.collisionTilesName << ion::debug::end;
 	m_physicsWorld->LoadCollisionTileset(level.collisionTilesName);
 
-#if USE_PALETTE_TEXTURES
+#if USE_PALETTES
 	//Get time of day palettes
 	Assets::Palettes::World::day = m_palettes[0];
 	Assets::Palettes::World::dusk = m_palettes[1];
@@ -384,6 +387,7 @@ bool World::CreateGameObjects()
 		Globals::Players::playerController1 = nullptr;
 	}
 
+	//ion::debug::Log("Player");
 	std::vector<Player*> players = GetEntities<Player>();
 	if (!players.empty())
 	{
@@ -444,12 +448,14 @@ void World::Update(float deltaTime, const ion::input::Keyboard& keyboard, const 
     //Update player controller
     if(Globals::Players::playerController1)
     {
+		DBG_LOG_LV2("World::Update() - Globals::Players::playerController1->Update");
 		Globals::Players::playerController1->Update(deltaTime, keyboard, gamepad);
     }
 
 	if (!Globals::Players::playerController1 || !Globals::Players::playerController1->m_debugMove)
 	{
 		//Step physics world
+		DBG_LOG_LV2("World::Update() - m_physicsWorld->Step");
 		m_physicsWorld->Step(deltaTime);
 
 		//Update game objects
@@ -463,6 +469,7 @@ void World::Update(float deltaTime, const ion::input::Keyboard& keyboard, const 
 	}
 
 	//Update camera
+	DBG_LOG_LV2("World::Update() - Globals::Game::camera->Update");
 	Globals::Game::camera->Update(deltaTime, m_mapSizeFg.y);
 
 	//Update background scroll
@@ -470,7 +477,10 @@ void World::Update(float deltaTime, const ion::input::Keyboard& keyboard, const 
 	//m_planeBg->m_scroll.y = Globals::Game::camera->GetWorldPos().y / 2.0f;
 
 	//Update effects
+	DBG_LOG_LV2("World::Update() - m_fader.Update");
 	m_fader.Update(deltaTime);
+
+	DBG_LOG_LV2("World::Update() - UpdatePaletteLerp");
 	UpdatePaletteLerp(deltaTime);
 }
 
@@ -494,6 +504,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 			}
 		}
 
+		DBG_LOG_LV2("World::Render() - renderer.LoadColourPalette");
 		renderer.LoadColourPalette(i, palette);
 	}
 
@@ -504,10 +515,13 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	const std::vector<SpriteObj*>& sprites = GetEntities<SpriteObj>();
 
 	//Draw planes (low prio)
+	DBG_LOG_LV2("World::Render() - m_planeBg->Render");
 	//m_planeBg->Render(renderer, nullptr, PlanePriority::PlaneBLow);
+	DBG_LOG_LV2("World::Render() - m_planeFg->Render");
 	m_planeFg->Render(renderer, &camera, PlanePriority::PlaneALow);
 
 	//Draw sprites
+	DBG_LOG_LV2("World::Render() - Render sprites (low)");
 	for (int i = 0; i < sprites.size(); i++)
 	{
 		if (sprites[i]->m_planePriority == PlanePriority::SpriteLow)
@@ -521,6 +535,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	//m_planeFg->Render(renderer, &camera, PlanePriority::PlaneAHigh);
 
 	//Draw sprites
+	DBG_LOG_LV2("World::Render() - Render sprites (high)");
 	for (int i = 0; i < sprites.size(); i++)
 	{
 		if (sprites[i]->m_planePriority == PlanePriority::SpriteHigh)
@@ -558,11 +573,13 @@ void World::PreStreamMap()
 
 		if (m_planeFg)
 		{
+			DBG_LOG_LV2("World::PreStreamMap() - m_planeFg->PreStream");
 			m_planeFg->PreStream(Globals::Game::camera->GetRenderCamera());
 		}
 
 		if (m_planeBg)
 		{
+			DBG_LOG_LV2("World::PreStreamMap() - m_planeBg->PreStream");
 			m_planeBg->PreStream(Globals::Game::camera->GetRenderCamera());
 		}
 	}
