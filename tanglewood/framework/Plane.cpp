@@ -242,7 +242,7 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 #if USE_PALETTES
 	u32 bytesPerPixel = 1;
 #else
-	u32 bytesPerPixel = 3;
+	u32 bytesPerPixel = 4;
 #endif
 
 	u32 textureBytes = m_textureSizeSq * m_textureSizeSq * bytesPerPixel;
@@ -289,6 +289,7 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 					data[dataOffset] = colour.GetRed();
 					data[dataOffset + 1] = colour.GetGreen();
 					data[dataOffset + 2] = colour.GetBlue();
+					data[dataOffset + 3] = (colourIdx > 0) ? 255 : 0;	//Colour 0 is transparent
 #endif
 				}
 			}
@@ -306,7 +307,7 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 	ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP8;
 #endif
 #else
-	ion::render::Texture::Format format = ion::render::Texture::Format::RGB;
+	ion::render::Texture::Format format = ion::render::Texture::Format::RGBA;
 	ion::render::Texture::BitsPerPixel bpp = ion::render::Texture::BitsPerPixel::BPP24;
 #endif
 
