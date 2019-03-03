@@ -194,7 +194,6 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 		ion::debug::log << "Failed to load " << level.tilesetName << ion::debug::end;
 	}
 
-	#if USE_PALETTES
 	//Load palettes
 	ion::debug::log << "Loading " << level.palettesName << ion::debug::end;
 	ion::io::File palettesFile(level.palettesName, ion::io::File::eOpenRead);
@@ -209,7 +208,6 @@ bool World::LoadChapterData(const LevelDescriptor& level)
 	{
 		ion::debug::log << "Failed to load " << level.palettesName << ion::debug::end;
 	}
-	#endif
 
 	//Load collision tileset
 	ion::debug::log << "Loading " << level.collisionTilesName << ion::debug::end;
