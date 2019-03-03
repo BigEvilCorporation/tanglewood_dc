@@ -265,7 +265,7 @@ bool World::LoadActData(const LevelDescriptor& level)
 		archive.Serialise(m_tileMapBg, "tileMap");
 		mapFileBg.Close();
 
-		//Create fg plane from map
+		//Create bg plane from map
 		m_planeBg = new Plane(m_tileset, m_tileMapBg, m_mapSizeTilesBg, ion::Vector2i(Constants::MegaDrive::planeWidthTiles, Constants::MegaDrive::planeHeightTiles), m_palettes[0]);
 	}
 	else
@@ -484,6 +484,8 @@ void World::Update(float deltaTime, const ion::input::Keyboard& keyboard, const 
 
 void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& camera, const ion::render::Viewport& viewport)
 {
+	renderer.SetDepthTest(ion::render::Renderer::DepthTest::eDisabled);
+
 	//Apply all palettes
 	std::vector<ion::Colour> palette;
 	palette.resize(Palette::coloursPerPalette);
@@ -514,7 +516,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 
 	//Draw planes (low prio)
 	DBG_LOG_LV2("World::Render() - m_planeBg->Render");
-	//m_planeBg->Render(renderer, nullptr, PlanePriority::PlaneBLow);
+	m_planeBg->Render(renderer, nullptr, PlanePriority::PlaneBLow);
 	DBG_LOG_LV2("World::Render() - m_planeFg->Render");
 	m_planeFg->Render(renderer, &camera, PlanePriority::PlaneALow);
 
