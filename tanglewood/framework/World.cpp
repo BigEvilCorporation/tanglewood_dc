@@ -494,7 +494,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 	for (int i = 0; i < Constants::MegaDrive::maxPalettes; i++)
 	{
 		//Colour 0 is transparency
-		palette[0] = ion::Colour((u8)0, 0, 0, 255);
+		palette[0] = ion::Colour((u8)0, 0, 0, 0);
 
 		for (int j = 1; j < Palette::coloursPerPalette; j++)
 		{

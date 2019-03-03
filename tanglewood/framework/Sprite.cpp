@@ -9,8 +9,8 @@
 ///////////////////////////////////////////////////////////////
 
 #include "Sprite.h"
-
 #include "Shaders.h"
+#include "Log.h"
 
 const std::vector<ion::render::VertexBuffer::Element> Sprite::s_vertexLayout =
 {
@@ -45,9 +45,8 @@ Sprite::~Sprite()
 void Sprite::LoadActor(const Actor& actor)
 {
 	u32 texMemBefore = ion::render::Texture::GetTextureMemoryUsed();
-	ion::debug::log << "Loading actor " << actor.GetName()
-		<< " : texture memory used: " << texMemBefore
-		<< " (" << (float)texMemBefore / 1024.0f << "kb)" << ion::debug::end;
+
+	DBG_LOG_LV1("Loading actor " << actor.GetName() << " (" << actor.GetSpriteSheetCount() << " sprite sheets)");
 
 	for (TSpriteSheetMap::const_iterator it = actor.SpriteSheetsBegin(), end = actor.SpriteSheetsEnd(); it != end; ++it)
 	{
@@ -55,9 +54,7 @@ void Sprite::LoadActor(const Actor& actor)
 	}
 
 	u32 texMemAfter = ion::render::Texture::GetTextureMemoryUsed();
-	ion::debug::log << "Loaded actor " << actor.GetName() << " : texture memory used: " << texMemAfter
-		<< " (" << (float)texMemAfter / 1024.0f << "kb)"
-		<< " cost " << (texMemAfter-texMemBefore) << " (" << (float)(texMemAfter - texMemBefore)/1024.0f << "kb)" << ion::debug::end;
+	DBG_LOG_LV2("Loaded actor " << actor.GetName() << " - texture mem cost: " << (texMemAfter - texMemBefore) << " bytes (" << (float)(texMemAfter - texMemBefore) / 1024.0f << "kb) - total used: " << texMemAfter << " bytes");
 }
 
 void Sprite::LoadSheet(const SpriteSheet& spriteSheet)

@@ -19,7 +19,7 @@
 #define USE_PALETTES 1
 #define USE_PALETTE_TEXTURES 1
 #else
-#define USE_PALETTES 0
+#define USE_PALETTES 1
 #define USE_PALETTE_TEXTURES 0
 #endif
 
