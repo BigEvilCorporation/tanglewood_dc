@@ -486,6 +486,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 {
 	renderer.SetDepthTest(ion::render::Renderer::DepthTest::eDisabled);
 
+#if USE_PALETTES
 	//Apply all palettes
 	std::vector<ion::Colour> palette;
 	palette.resize(Palette::coloursPerPalette);
@@ -507,6 +508,7 @@ void World::Render(ion::render::Renderer& renderer, const ion::render::Camera& c
 		DBG_LOG_LV2("World::Render() - renderer.LoadColourPalette");
 		renderer.LoadColourPalette(i, palette);
 	}
+#endif
 
 	//Get camera matrix
 	ion::Matrix4 cameraInv = camera.GetTransform().GetInverse();
