@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Attach Redream (Debug)",
+            "name": "(gdb) Attach Dreamcast (Debug)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/tanglewood/_Build/dreamcast/_intermediates_/dreamcast-debug/bigevilcorp/tanglewood/tanglewood/tanglewood.elf",
@@ -31,7 +31,7 @@
             }
         },
         {
-            "name": "(gdb) Attach Redream (Release)",
+            "name": "(gdb) Attach Dreamcast (Release)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/tanglewood/_Build/dreamcast/_intermediates_/dreamcast-release/bigevilcorp/tanglewood/tanglewood/tanglewood.elf",
