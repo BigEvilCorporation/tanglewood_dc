@@ -71,7 +71,6 @@ void StateLoading::OnEnterState()
 #endif
 
 	//Load loading screen assets
-	//TODO: Use a secondary world
 	ion::io::File file("assets/loading.bee_sprites", ion::io::File::eOpenRead);
 	if (file.IsOpen())
 	{
@@ -87,6 +86,7 @@ void StateLoading::OnEnterState()
 			m_loadingWorld = new World();
 			m_loadingGameObjType = new GameObjectType(0);
 			m_loadingGameObj = new GameObject(0, 0, ion::Vector2i(0, 0), ion::Vector2i(sheet.GetWidthTiles() * Constants::MegaDrive::tileWidth, sheet.GetHeightTiles() * Constants::MegaDrive::tileHeight));
+			m_loadingWorld->LoadSprite("nymn");
 			m_loadingSprite = new SpriteObj(*m_loadingWorld, *m_loadingGameObj, *m_loadingGameObjType, &actor);
 
 			//Setup rendering
