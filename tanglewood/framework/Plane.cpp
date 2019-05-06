@@ -345,8 +345,8 @@ void Plane::CreateTilesetTexture(const Tileset& tileset, const Palette& palette)
 
 void Plane::PaintTile(TileId tileId, int x, int y, u32 tileFlags)
 {
-	//Get tile index
-	int index = (y * m_canvasSizeTiles.x) + x;
+	//Get tile index (column major)
+	int index = (x * m_canvasSizeTiles.y) + y;
 
 	//Set texture coords for cell
 	ion::render::TexCoord coords[4];
@@ -428,29 +428,10 @@ void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], 
 
 void Plane::ShiftMapX(int direction)
 {
-	//Shift one row at a time
-	u32 copySize = ((m_canvasSizeTiles.x - 1) * m_vertexStrideTex * 4);
-
-	for (int y = 0; y < m_canvasSizeTiles.y; y++)
-	{
-		u8* srcPtr = m_vertexBufferPtrTex + (m_canvasSizeTiles.x * y * m_vertexStrideTex * 4);
-		u8* dstPtr = srcPtr + (m_vertexStrideTex * 4);
-
-		if (direction < 0)
-		{
-			std::swap(srcPtr, dstPtr);
-		}
-
-		ion::memory::MemCopy(dstPtr, srcPtr, copySize);
-	}
-}
-
-void Plane::ShiftMapY(int direction)
-{
 	//4 verts per cell
-	u32 copySize = m_canvasSizeTiles.x * (m_canvasSizeTiles.y - 1) * m_vertexStrideTex * 4;
+	u32 copySize = m_canvasSizeTiles.y * (m_canvasSizeTiles.x - 1) * m_vertexStrideTex * 4;
 	u8* srcPtr = m_vertexBufferPtrTex;
-	u8* dstPtr = m_vertexBufferPtrTex + (m_canvasSizeTiles.x * m_vertexStrideTex * 4);
+	u8* dstPtr = m_vertexBufferPtrTex + (m_canvasSizeTiles.y * m_vertexStrideTex * 4);
 
 	if (direction < 0)
 	{
@@ -459,6 +440,26 @@ void Plane::ShiftMapY(int direction)
 
 	ion::memory::MemCopy(m_copyBuffer, srcPtr, copySize);
 	ion::memory::MemCopy(dstPtr, m_copyBuffer, copySize);
+}
+
+void Plane::ShiftMapY(int direction)
+{
+	//Shift one col at a time
+	u32 copySize = ((m_canvasSizeTiles.y - 1) * m_vertexStrideTex * 4);
+
+	for (int y = 0; y < m_canvasSizeTiles.y; y++)
+	{
+		u8* srcPtr = m_vertexBufferPtrTex + (m_canvasSizeTiles.y * y * m_vertexStrideTex * 4);
+		u8* dstPtr = srcPtr + (m_vertexStrideTex * 4);
+
+		if (direction < 0)
+		{
+			std::swap(srcPtr, dstPtr);
+		}
+
+		ion::memory::MemCopy(m_copyBuffer, srcPtr, copySize);
+		ion::memory::MemCopy(dstPtr, m_copyBuffer, copySize);
+	}
 }
 
 void Plane::StreamColumn(int x, int y, int direction)
@@ -555,9 +556,10 @@ PlanePrimitive::PlanePrimitive(const ion::Vector2& halfExtents, int widthCells, 
 	ion::Vector2 cellSize((halfExtents.x * 2.0f) / (float)widthCells, (halfExtents.y * 2.0f) / (float)heightCells);
 
 	int vertexCount = 0;
-	for (int y = 0; y < heightCells; y++)
+	
+	for (int x = 0; x < widthCells; x++)
 	{
-		for (int x = 0; x < widthCells; x++)
+		for (int y = 0; y < heightCells; y++)
 		{
 				//Create quad per cell
 				ion::Vector2 cellPos((cellSize.x * x) - halfExtents.x, (cellSize.y * y) - halfExtents.y);
