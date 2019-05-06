@@ -66,9 +66,6 @@ void StateLoading::OnEnterState()
 
 #if THREADED_LOADING
 	m_loadingThread->Run();
-#else
-	m_loadingThread->Entry();
-#endif
 
 	//Load loading screen assets
 	ion::io::File file("assets/loading.bee_sprites", ion::io::File::eOpenRead);
@@ -105,6 +102,9 @@ void StateLoading::OnEnterState()
 			m_fader.BeginFade(Constants::Flow::defaultFadeSpeed);
 		}
 	}
+#else
+	m_loadingThread->Entry();
+#endif
 }
 
 void StateLoading::OnLeaveState()
