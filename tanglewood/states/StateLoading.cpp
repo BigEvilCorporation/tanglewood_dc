@@ -251,6 +251,10 @@ void StateLoading::LoadingThread::Entry()
 	ion::debug::Log("Creating game objects");
 	Globals::Game::world->CreateGameObjects();
 
+	//Configure camera
+	ion::debug::Log("Init camera");
+	Globals::Game::world->InitCamera();
+
 	//Pre-stream map
 	ion::debug::Log("Pre-streaming map");
 	Globals::Game::world->PreStreamMap();

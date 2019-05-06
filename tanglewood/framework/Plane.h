@@ -73,8 +73,8 @@ private:
 
 	void ShiftMapX(int direction);
 	void ShiftMapY(int direction);
-	void StreamColumn(int x, int y, int direction);
-	void StreamRow(int x, int y, int direction);
+	void StreamNextColumn(int x, int y, int direction);
+	void StreamNextRow(int x, int y, int direction);
 
 	EdgeBehaviour m_edgeBehaviourX;
 	EdgeBehaviour m_edgeBehaviourY;
@@ -103,6 +103,8 @@ private:
 	float m_pixelSizeTexSpace;
 	float m_cellSizeTexSpaceSq;
 
-	int m_lastStreamedX;
-	int m_lastStreamedY;
+	ion::Vector2i m_lastStreamedSrc;
+	ion::Vector2i m_lastStreamedDst;
+
+	ion::Matrix4 m_planeTransform;
 };
