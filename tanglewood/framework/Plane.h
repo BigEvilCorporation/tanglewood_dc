@@ -80,7 +80,6 @@ private:
 	EdgeBehaviour m_edgeBehaviourY;
 
 	const std::vector<Map::TileDesc>& m_tileMap;
-	std::vector<CachedTile> m_tileCache;
 
 	ion::render::Texture* m_tilesetTexture;
 	PlanePrimitive* m_canvasPrimitive;
@@ -94,6 +93,8 @@ private:
 	u8* m_vertexBufferPtrTex;
 	u32 m_vertexStridePos;
 	u32 m_vertexStrideTex;
+
+	u8* m_copyBuffer;
 
 	ion::Vector2i m_mapSizeTiles;
 	ion::Vector2i m_canvasSizeTiles;

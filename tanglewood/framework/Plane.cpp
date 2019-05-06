@@ -37,9 +37,6 @@ Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, 
 	m_canvasSizeTiles = canvasSizeTiles + ion::Vector2i(4, 4);
 	m_mapSizeTiles = mapSizeTiles;
 
-	//Alloc cache
-	m_tileCache.resize(m_canvasSizeTiles.x * m_canvasSizeTiles.y);
-
 	//Create render canvases
 	const int tileWidth = Constants::MegaDrive::tileWidth;
 	const int tileHeight = Constants::MegaDrive::tileHeight;
@@ -50,6 +47,9 @@ Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, 
 	m_vertexBufferPtrTex = m_canvasPrimitive->GetVertexBuffer().GetStartAddress(ion::render::VertexBuffer::eTexCoord);
 	m_vertexStridePos = m_canvasPrimitive->GetVertexBuffer().GetElementSize(ion::render::VertexBuffer::ePosition);
 	m_vertexStrideTex = m_canvasPrimitive->GetVertexBuffer().GetElementSize(ion::render::VertexBuffer::eTexCoord);
+
+	u32 copyBufferSize = m_canvasSizeTiles.x * (m_canvasSizeTiles.y - 1) * m_vertexStrideTex * 4;
+	m_copyBuffer = new u8[copyBufferSize];
 
 	//Create and draw tileset
 	u32 texMemBefore = ion::render::Texture::GetTextureMemoryUsed();
@@ -70,6 +70,7 @@ Plane::~Plane()
 	delete m_tilesetTexture;
 	delete m_material;
 	delete m_canvasPrimitive;
+	delete m_copyBuffer;
 }
 
 void Plane::PreStream(const ion::render::Camera& camera)
@@ -368,10 +369,6 @@ void Plane::PaintTile(TileId tileId, int x, int y, u32 tileFlags)
 		ptrPos += m_vertexStridePos;
 		ptrTex += m_vertexStrideTex;
 	}
-
-	//Cache
-	m_tileCache[index].id = tileId;
-	m_tileCache[index].flags = tileFlags;
 }
 
 void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], u32 flipFlags) const
@@ -431,54 +428,37 @@ void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], 
 
 void Plane::ShiftMapX(int direction)
 {
-	//Shifting from left to right
-	int startX = m_canvasSizeTiles.x - 1;
-	int endX = 0;
-	int incrementX = -1;
+	//Shift one row at a time
+	u32 copySize = ((m_canvasSizeTiles.x - 1) * m_vertexStrideTex * 4);
 
-	if (direction < 0)
+	for (int y = 0; y < m_canvasSizeTiles.y; y++)
 	{
-		//Shifting from right to left
-		startX = 0;
-		endX = m_canvasSizeTiles.x - 1;
-		incrementX = 1;
-	}
+		u8* srcPtr = m_vertexBufferPtrTex + (m_canvasSizeTiles.x * y * m_vertexStrideTex * 4);
+		u8* dstPtr = srcPtr + (m_vertexStrideTex * 4);
 
-	//Shift one column at a time
-	for (int x = startX; x != endX; x += incrementX)
-	{
-		for (int y = 0; y < m_canvasSizeTiles.y; y++)
+		if (direction < 0)
 		{
-			int index = (y * m_canvasSizeTiles.x) + x + incrementX;
-			PaintTile(m_tileCache[index].id, x, y, m_tileCache[index].flags);
+			std::swap(srcPtr, dstPtr);
 		}
+
+		ion::memory::MemCopy(dstPtr, srcPtr, copySize);
 	}
 }
 
 void Plane::ShiftMapY(int direction)
 {
-	//Shifting from top to bottom
-	int startY = m_canvasSizeTiles.y - 1;
-	int endY = 0;
-	int incrementY = -1;
+	//4 verts per cell
+	u32 copySize = m_canvasSizeTiles.x * (m_canvasSizeTiles.y - 1) * m_vertexStrideTex * 4;
+	u8* srcPtr = m_vertexBufferPtrTex;
+	u8* dstPtr = m_vertexBufferPtrTex + (m_canvasSizeTiles.x * m_vertexStrideTex * 4);
 
 	if (direction < 0)
 	{
-		//Shifting from bottom to top
-		startY = 0;
-		endY = m_canvasSizeTiles.y - 1;
-		incrementY = 1;
+		std::swap(srcPtr, dstPtr);
 	}
 
-	//Shift one column at a time
-	for (int y = startY; y != endY; y += incrementY)
-	{
-		for (int x = 0; x < m_canvasSizeTiles.x; x++)
-		{
-			int index = ((y + incrementY) * m_canvasSizeTiles.x) + x;
-			PaintTile(m_tileCache[index].id, x, y, m_tileCache[index].flags);
-		}
-	}
+	ion::memory::MemCopy(m_copyBuffer, srcPtr, copySize);
+	ion::memory::MemCopy(dstPtr, m_copyBuffer, copySize);
 }
 
 void Plane::StreamColumn(int x, int y, int direction)
