@@ -11,6 +11,7 @@
 #include "Plane.h"
 #include "Shaders.h"
 #include "Globals.h"
+#include "Log.h"
 
 #include <ion/maths/Geometry.h>
 
@@ -45,10 +46,10 @@ Plane::Plane(const Tileset& tileset, const std::vector<Map::TileDesc>& tileMap, 
 	m_canvasPrimitive = new PlanePrimitive(ion::Vector2((float)m_canvasSizeTiles.x * (tileWidth / 2.0f), (float)m_canvasSizeTiles.y * (tileHeight / 2.0f)), m_canvasSizeTiles.x, m_canvasSizeTiles.y);
 
 	//Get vertex buffer
-	m_vertexBufferPtr = m_canvasPrimitive->GetVertexBuffer().GetData().data();
-	m_vertexStride = m_canvasPrimitive->GetVertexBuffer().GetStrideBytes();
-	m_vertexOffsetPosition = m_canvasPrimitive->GetVertexBuffer().GetElementByteOffset(ion::render::VertexBuffer::ePosition);
-	m_vertexOffsetTexCoord = m_canvasPrimitive->GetVertexBuffer().GetElementByteOffset(ion::render::VertexBuffer::eTexCoord);
+	m_vertexBufferPtrPos = m_canvasPrimitive->GetVertexBuffer().GetStartAddress(ion::render::VertexBuffer::ePosition);
+	m_vertexBufferPtrTex = m_canvasPrimitive->GetVertexBuffer().GetStartAddress(ion::render::VertexBuffer::eTexCoord);
+	m_vertexStridePos = m_canvasPrimitive->GetVertexBuffer().GetElementSize(ion::render::VertexBuffer::ePosition);
+	m_vertexStrideTex = m_canvasPrimitive->GetVertexBuffer().GetElementSize(ion::render::VertexBuffer::eTexCoord);
 
 	//Create and draw tileset
 	u32 texMemBefore = ion::render::Texture::GetTextureMemoryUsed();
@@ -215,12 +216,15 @@ void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera* c
 #endif
 
 	//Bind material
+	DBG_LOG_LV3("Bind material");
 	m_material->Bind(transform, planeCamera.GetInverse(), renderer.GetProjectionMatrix());
 
 	//Draw vertex buffer
+	DBG_LOG_LV3("Draw vertex buffer (" << m_canvasPrimitive->GetVertexBuffer().GetData().size() << " bytes), index buffer ( " << m_canvasPrimitive->GetIndexBuffer().GetSize() << " shorts");
 	renderer.DrawVertexBuffer(m_canvasPrimitive->GetVertexBuffer(), m_canvasPrimitive->GetIndexBuffer());
 
 	//Unbind material
+	DBG_LOG_LV3("Unbind material");
 	m_material->Unbind();
 }
 
@@ -350,17 +354,19 @@ void Plane::PaintTile(TileId tileId, int x, int y, u32 tileFlags)
 	const float z = (tileFlags & Map::eHighPlane) ? Constants::Rendering::planePriorities[(int)PlanePriority::PlaneAHigh] : Constants::Rendering::planePriorities[(int)PlanePriority::PlaneALow];
 
 	//4 verts per tile
-	u8* ptr = m_vertexBufferPtr + (m_vertexStride * index * 4);
+	u8* ptrPos = m_vertexBufferPtrPos + (m_vertexStridePos * index * 4);
+	u8* ptrTex = m_vertexBufferPtrTex + (m_vertexStrideTex * index * 4);
 
 	for (int i = 0; i < 4; i++)
 	{
-		ion::Vector3* position = (ion::Vector3*)(ptr + m_vertexOffsetPosition);
-		ion::render::TexCoord* texcoord = (ion::render::TexCoord*)(ptr + m_vertexOffsetTexCoord);
+		ion::Vector3* position = (ion::Vector3*)ptrPos;
+		ion::render::TexCoord* texcoord = (ion::render::TexCoord*)ptrTex;
 
 		*texcoord = coords[i];
 		position->z = z;
 
-		ptr += m_vertexStride;
+		ptrPos += m_vertexStridePos;
+		ptrTex += m_vertexStrideTex;
 	}
 
 	//Cache
@@ -564,7 +570,7 @@ void Plane::StreamRow(int x, int y, int direction)
 }
 
 PlanePrimitive::PlanePrimitive(const ion::Vector2& halfExtents, int widthCells, int heightCells)
-	: ion::render::Primitive(ion::render::VertexBuffer::eTriangles, s_vertexLayout)
+	: ion::render::Primitive(ion::render::VertexBuffer::eTriangles, s_vertexLayout, ion::render::VertexBuffer::eContiguous)
 {
 	ion::Vector2 cellSize((halfExtents.x * 2.0f) / (float)widthCells, (halfExtents.y * 2.0f) / (float)heightCells);
 

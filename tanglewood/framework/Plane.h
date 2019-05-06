@@ -90,10 +90,10 @@ private:
 	ion::render::Texture* m_paletteTexture;
 #endif
 
-	u8* m_vertexBufferPtr;
-	u32 m_vertexStride;
-	u32 m_vertexOffsetPosition;
-	u32 m_vertexOffsetTexCoord;
+	u8* m_vertexBufferPtrPos;
+	u8* m_vertexBufferPtrTex;
+	u32 m_vertexStridePos;
+	u32 m_vertexStrideTex;
 
 	ion::Vector2i m_mapSizeTiles;
 	ion::Vector2i m_canvasSizeTiles;
