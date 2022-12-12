@@ -75,7 +75,7 @@ void Sprite::LoadSheet(const SpriteSheet& spriteSheet)
 	u32 textureSize = textureWidth * textureHeight * bytesPerPixel;
 
 	//Create primitive
-	sheet.m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2((float)spriteSheet.GetWidthTiles() * (tileWidth / 2.0f), (float)spriteSheet.GetHeightTiles() * (tileHeight / 2.0f)), s_vertexLayout);
+	sheet.m_primitive = new ion::render::Quad(ion::render::Quad::xy, ion::Vector2((float)spriteSheet.GetWidthTiles() * (tileWidth / 2.0f), (float)spriteSheet.GetHeightTiles() * (tileHeight / 2.0f)), ion::Vector3(), s_vertexLayout);
 
 	//Set UV coords
 	ion::render::TexCoord coords[4];
