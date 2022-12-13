@@ -78,13 +78,10 @@ bool Tanglewood::Initialise()
 	m_stateManager = new ion::gamekit::StateManager();
 
 	//Create GUI
-#if !defined ION_PLATFORM_DREAMCAST
-	//TODO: KGL not happy about some of the OpenGL calls in here
 	ion::debug::Log("Init GUI");
 	m_gui = new ion::gui::GUI(ion::Vector2i(s_defaultWindowWidth, s_defaultWindowHeight));
-	m_debugUI = new DebugUI(*m_gui, ion::Vector2i(), ion::Vector2i());
-	//m_gui->AddWindow(*m_debugUI);
-#endif
+	m_debugUI = new DebugUI(*m_gui, ion::Vector2i(-s_defaultWindowWidth/4, -s_defaultWindowHeight/4), ion::Vector2i(s_defaultWindowWidth/4, s_defaultWindowHeight/4));
+	m_gui->AddWindow(*m_debugUI);
 
 	//Wait for resource loading
 #if !defined ION_PLATFORM_DREAMCAST
@@ -162,10 +159,7 @@ bool Tanglewood::Update(float deltaTime)
 	m_stateManager->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
 
 	//Update UI
-#if !defined ION_PLATFORM_DREAMCAST
-	//TODO: KGL not happy about some of the OpenGL calls in here
 	m_gui->Update(deltaTime, m_keyboard, nullptr, m_gamepad);
-#endif
 
 	//Update FPS counter
 	m_fpsCounter.Update();
@@ -191,10 +185,7 @@ void Tanglewood::Render()
 	m_stateManager->Render(*m_renderer, m_camera->GetRenderCamera(), *m_viewport);
 
 	//Render UI
-#if !defined ION_PLATFORM_DREAMCAST
-	//TODO: KGL not happy about some of the OpenGL calls in here
 	m_gui->Render(*m_renderer, *m_viewport);
-#endif
 
 	m_renderer->SwapBuffers();
 	m_renderer->EndFrame();
