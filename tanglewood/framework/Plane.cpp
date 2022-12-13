@@ -116,20 +116,8 @@ void Plane::PreStream(const ion::render::Camera& camera)
 		}
 	}
 
-	m_lastStreamedSrc.x = streamColumnX;
-	m_lastStreamedSrc.y = streamColumnY;
-	m_lastStreamedDst.x = 0;
-	m_lastStreamedDst.y = 0;
-
-	//Wrap camera around scroll buffer size (use stream column/row to match float precision)
-	int cameraColumn = ion::maths::Floor(cameraPos.x / Constants::MegaDrive::tileWidth);
-	int cameraRow = ion::maths::Floor(cameraPos.y / Constants::MegaDrive::tileHeight);
-	ion::Vector3 fraction(cameraPos.x - (cameraColumn * Constants::MegaDrive::tileWidth), cameraPos.y - (cameraRow * Constants::MegaDrive::tileHeight), cameraPos.z);
-
-	//Centre on camera
-	//TODO: plane priority
-	ion::Vector3 planeCentre(ion::Vector3((m_canvasSizeTiles.x * Constants::MegaDrive::tileWidth) / 2.0f, (m_canvasSizeTiles.y * Constants::MegaDrive::tileHeight) / 2.0f, Constants::Rendering::planePriorities[(int)PlanePriority::PlaneAHigh]));
-	m_planeTransform.SetTranslation(cameraPos + planeCentre + fraction);
+	m_lastStreamedX = streamColumnX;
+	m_lastStreamedY = streamColumnY;
 }
 
 void Plane::SetEdgeBehaviour(EdgeBehaviour x, EdgeBehaviour y)
@@ -146,14 +134,23 @@ void Plane::SetColourPalette(int paletteIdx)
 void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera* camera, PlanePriority priority)
 {
 	//Get camera pos
+	ion::Matrix4 planeCamera;
 	ion::Vector3 cameraPos;
 	
 	if (camera)
 	{
+		planeCamera = camera->GetTransform();
 		cameraPos = camera->GetTransform().GetTranslation();
 	}
 	else
 	{
+		ion::Vector3 cameraZoom;
+		cameraZoom.x = (float)Globals::Rendering::windowWidth / (float)Globals::Rendering::gameCanvasWidth;
+		cameraZoom.y = (float)Globals::Rendering::windowHeight / (float)Globals::Rendering::gameCanvasHeight;
+		cameraZoom.z = 1.0f;
+
+		planeCamera.SetScale(ion::Vector3(1.0f, 1.0f, 1.0f) / cameraZoom);
+
 		cameraPos = ion::Vector3(m_scroll.x, m_scroll.y, -0.1f);
 	}
 
@@ -162,48 +159,57 @@ void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera* c
 	int streamRow = ion::maths::Floor(cameraPos.y / Constants::MegaDrive::tileHeight);
 	int streamRowInv = m_mapSizeTiles.y - streamRow - m_canvasSizeTiles.y;
 
-	while (streamColumn != m_lastStreamedSrc.x || streamRowInv != m_lastStreamedSrc.y)
+	while (streamColumn != m_lastStreamedX || streamRowInv != m_lastStreamedY)
 	{
 		int streamDirectionX = 0;
 		int streamDirectionY = 0;
 
 		//Shift map first
-		if (streamRowInv > m_lastStreamedSrc.y)
+		if (streamRowInv > m_lastStreamedY)
 		{
-			//ShiftMapY(1);
+			ShiftMapY(1);
 			streamDirectionY = 1;
 		}
-		else if (streamRowInv < m_lastStreamedSrc.y)
+		else if (streamRowInv < m_lastStreamedY)
 		{
-			//ShiftMapY(-1);
+			ShiftMapY(-1);
 			streamDirectionY = -1;
 		}
 
-		if (streamColumn > m_lastStreamedSrc.x)
+		if (streamColumn > m_lastStreamedX)
 		{
-			//ShiftMapX(-1);
+			ShiftMapX(-1);
 			streamDirectionX = 1;
 		}
-		else if (streamColumn < m_lastStreamedSrc.x)
+		else if (streamColumn < m_lastStreamedX)
 		{
-			//ShiftMapX(1);
+			ShiftMapX(1);
 			streamDirectionX = -1;
 		}
 
-		int nextColumn = m_lastStreamedSrc.x + streamDirectionX;
-		int nextRow = m_lastStreamedSrc.y + streamDirectionY;
+		int nextColumn = m_lastStreamedX + streamDirectionX;
+		int nextRow = m_lastStreamedY + streamDirectionY;
 
 		//Stream new columns/rows
 		if (streamDirectionY)
 		{
-			StreamNextRow(nextColumn, nextRow, streamDirectionY);
+			StreamRow(nextColumn, nextRow, streamDirectionY);
+			m_lastStreamedY += streamDirectionY;
 		}
 
 		if (streamDirectionX)
 		{
-			StreamNextColumn(nextColumn, nextRow, streamDirectionX);
+			StreamColumn(nextColumn, nextRow, streamDirectionX);
+			m_lastStreamedX += streamDirectionX;
 		}
 	}
+
+	//Wrap camera around scroll buffer size (use stream column/row to match float precision)
+	planeCamera.SetTranslation(ion::Vector3(cameraPos.x - (streamColumn * Constants::MegaDrive::tileWidth), cameraPos.y - (streamRow * Constants::MegaDrive::tileHeight), cameraPos.z));
+
+	//Plane draw offset
+	ion::Matrix4 transform;
+	transform.SetTranslation(ion::Vector3((m_canvasSizeTiles.x * Constants::MegaDrive::tileWidth) / 2.0f, (m_canvasSizeTiles.y * Constants::MegaDrive::tileHeight) / 2.0f, Constants::Rendering::planePriorities[(int)priority]));
 
 #if USE_PALETTE_TEXTURES && defined ION_RENDERER_SHADER
 	Assets::Shaders::IndexTexture::Params::indexedTexture.SetValue(*m_tilesetTexture);
@@ -212,7 +218,7 @@ void Plane::Render(ion::render::Renderer& renderer, const ion::render::Camera* c
 
 	//Bind material
 	DBG_LOG_LV3("Bind material");
-	m_material->Bind(m_planeTransform, camera->GetTransform().GetInverse(), renderer.GetProjectionMatrix());
+	m_material->Bind(transform, planeCamera.GetInverse(), renderer.GetProjectionMatrix());
 
 	//Draw vertex buffer
 	DBG_LOG_LV3("Draw vertex buffer (" << m_canvasPrimitive->GetVertexBuffer().GetData().size() << " bytes), index buffer ( " << m_canvasPrimitive->GetIndexBuffer().GetSize() << " shorts");
@@ -422,8 +428,6 @@ void Plane::GetTileTexCoords(TileId tileId, ion::render::TexCoord texCoords[4], 
 
 void Plane::ShiftMapX(int direction)
 {
-	return;
-
 	//4 verts per cell
 	u32 copySize = m_canvasSizeTiles.y * (m_canvasSizeTiles.x - 1) * m_vertexStrideTex * 4;
 	u8* srcPtr = m_vertexBufferPtrTex;
@@ -440,8 +444,6 @@ void Plane::ShiftMapX(int direction)
 
 void Plane::ShiftMapY(int direction)
 {
-	return;
-
 	//Shift one col at a time
 	u32 copySize = ((m_canvasSizeTiles.y - 1) * m_vertexStrideTex * 4);
 
@@ -460,18 +462,12 @@ void Plane::ShiftMapY(int direction)
 	}
 }
 
-void Plane::StreamNextColumn(int x, int y, int direction)
-{
-	const int tileWidth = Constants::MegaDrive::tileWidth;
+void Plane::StreamColumn(int x, int y, int direction)
+{	
+	int srcX = x + (direction > 0 ? (m_canvasSizeTiles.x - 1) : 0);
+	int srcY = y;
 
-	int srcX = x + ((direction > 0) ? (m_canvasSizeTiles.x - 1) : 0);
-	int srcY = y + m_canvasSizeTiles.y;		//Invert Y for OpenGL
-
-	int dstX = ion::maths::Wrap(direction < 0 ? (m_lastStreamedDst.x + m_canvasSizeTiles.x - 1) : m_lastStreamedDst.x, m_canvasSizeTiles.x);
-	float posDeltaX = (direction > 0) ? (m_canvasSizeTiles .x * tileWidth) : (-m_canvasSizeTiles.x * tileWidth);
-
-	u8* dstPtrPos = m_vertexBufferPtrPos + (dstX * m_canvasSizeTiles.y * m_vertexStridePos * 4);
-	u8* dstPtrTex = m_vertexBufferPtrTex + (dstX * m_canvasSizeTiles.y * m_vertexStrideTex * 4);
+	int dstX = direction > 0 ? (m_canvasSizeTiles.x - 1) : 0;
 
 	//Stream in next column
 	for (int dstY = 0; dstY < m_canvasSizeTiles.y; dstY++)
@@ -496,49 +492,26 @@ void Plane::StreamNextColumn(int x, int y, int direction)
 		//Get id
 		const TileId& tileId = tileDesc.m_id;
 
-		//Set texture coords for cell
-		ion::render::TexCoord coords[4];
-		GetTileTexCoords(tileId, coords, tileDesc.m_flags);
-
-		const float z = (tileDesc.m_flags & Map::eHighPlane) ? Constants::Rendering::planePriorities[(int)PlanePriority::PlaneAHigh] : Constants::Rendering::planePriorities[(int)PlanePriority::PlaneALow];
-
-		for (int i = 0; i < 4; i++)
-		{
-			((ion::Vector3*)dstPtrPos)->x += posDeltaX;
-			*(ion::Vector2*)dstPtrTex = coords[i];
-			dstPtrPos += m_vertexStridePos;
-			dstPtrTex += m_vertexStrideTex;
-		}
+		//Get V/H flip
+		u32 tileFlags = tileDesc.m_flags;
 
 		//Invert dest Y for OpenGL
-		//int dstYinv = m_canvasSizeTiles.y - 1 - dstY;
+		int dstYinv = m_canvasSizeTiles.y - 1 - dstY;
 
 		//Paint tile
-		//PaintTile(tileId, dstX, dstYinv, tileFlags);
+		PaintTile(tileId, dstX, dstYinv, tileFlags);
 
 		//Next source Y
-		srcY--;
+		srcY++;
 	}
-
-	m_lastStreamedSrc.x += direction;
-	m_lastStreamedDst.x += direction;
 }
 
-void Plane::StreamNextRow(int x, int y, int direction)
+void Plane::StreamRow(int x, int y, int direction)
 {
-	const int tileHeight = Constants::MegaDrive::tileHeight;
-
 	int srcX = x;
 	int srcY = y + (direction > 0 ? (m_canvasSizeTiles.y - 1) : 0);
 
-	int dstY = ion::maths::Wrap(direction > 0 ? (m_lastStreamedDst.y + m_canvasSizeTiles.y - 1) : m_lastStreamedDst.y, m_canvasSizeTiles.y);
-	float posDeltaY = (direction < 0) ? (m_canvasSizeTiles.y * tileHeight) : (-m_canvasSizeTiles.y * tileHeight);
-
-	u8* dstPtrPos = m_vertexBufferPtrPos + (dstY * m_vertexStridePos * 4);
-	u8* dstPtrTex = m_vertexBufferPtrTex + (dstY * m_vertexStrideTex * 4);
-
-	u64 columnStridePos = m_canvasSizeTiles.y * m_vertexStridePos * 4;
-	u64 columnStrideTex = m_canvasSizeTiles.y * m_vertexStrideTex * 4;
+	int dstY = direction > 0 ? (m_canvasSizeTiles.y - 1) : 0;
 
 	//Stream in next row
 	for (int dstX = 0; dstX < m_canvasSizeTiles.x; dstX++)
@@ -563,39 +536,18 @@ void Plane::StreamNextRow(int x, int y, int direction)
 		//Get id
 		const TileId& tileId = tileDesc.m_id;
 
-		//Set texture coords for cell
-		ion::render::TexCoord coords[4];
-		GetTileTexCoords(tileId, coords, tileDesc.m_flags);
-
-		const float z = (tileDesc.m_flags & Map::eHighPlane) ? Constants::Rendering::planePriorities[(int)PlanePriority::PlaneAHigh] : Constants::Rendering::planePriorities[(int)PlanePriority::PlaneALow];
-
-
-		for (int i = 0; i < 4; i++)
-		{
-			((ion::Vector3*)dstPtrPos)->y += posDeltaY;
-			*(ion::Vector2*)dstPtrTex = coords[i];
-			dstPtrPos += m_vertexStridePos;
-			dstPtrTex += m_vertexStrideTex;
-		}
-
-		dstPtrPos += columnStridePos - (m_vertexStridePos * 4);
-		dstPtrTex += columnStrideTex - (m_vertexStrideTex * 4);
-
 		//Get V/H flip
-		//u32 tileFlags = tileDesc.m_flags;
+		u32 tileFlags = tileDesc.m_flags;
 
 		//Invert dest Y for OpenGL
-		//int dstYinv = m_canvasSizeTiles.y - 1 - dstY;
+		int dstYinv = m_canvasSizeTiles.y - 1 - dstY;
 
 		//Paint tile
-		//PaintTile(tileId, dstX, dstYinv, tileFlags);
+		PaintTile(tileId, dstX, dstYinv, tileFlags);
 
 		//Next source X
 		srcX++;
 	}
-
-	m_lastStreamedSrc.y += direction;
-	m_lastStreamedDst.y -= direction;
 }
 
 PlanePrimitive::PlanePrimitive(const ion::Vector2& halfExtents, int widthCells, int heightCells)
